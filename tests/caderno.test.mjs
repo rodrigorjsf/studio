@@ -256,6 +256,14 @@ test('every persona prompt names both Caderno paths and the report field for pro
   }
 });
 
+test('every persona carries the same "## The Caderno" section, so a wording change reaches them all', () => {
+  // Agent files have no include mechanism: the section is copied, and this keeps the copies equal.
+  const sectionOf = (text) => /^## The Caderno\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(text)?.[1];
+  const sections = agents.map((file) => [file, sectionOf(shipped('plugin', 'estudio', 'agents', file))]);
+  for (const [file, section] of sections) assert.ok(section, `${file} has no "## The Caderno" section`);
+  for (const [file, section] of sections) assert.equal(section, sections[0][1], `${file}'s Caderno section differs from ${sections[0][0]}'s`);
+});
+
 test('the Diretor\'s skills point to the Caderno reference, which exists and names the command', () => {
   const reference = shipped('plugin', 'estudio', 'skills', 'estudio', 'references', 'caderno.md');
   assert.ok(reference.includes('estudio.mjs" caderno'), 'the Caderno reference never shows the command');
