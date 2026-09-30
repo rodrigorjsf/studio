@@ -30,6 +30,12 @@ The Kit de marca is the Projeto's machine-readable identity: `projetos/<projeto>
 
 An **asset** is a path from the Projeto folder into its `kit/` folder, with `/` separators. Examples: `"kit/logo.png"`, `"kit/referencias/estilo.jpg"`. The file must exist; `estado` reports a missing one as `file not found`.
 
+## Changing an approved Kit, and each Vídeo's own Kit
+
+Once approved, the Kit changes only through `editar-kit` (the `editar-projeto` skill). The command re-validates the changed Kit, refuses a change that would break it, and stamps the new Kit approved. Before the Projeto's `kit.json` changes, every existing Vídeo without a Kit of its own gets a copy of the current one at `videos/<vídeo>/kit.json` (its Kit snapshot).
+
+**A Vídeo reads its own `kit.json` when it has one, and the Projeto's `kit.json` otherwise.** A Vídeo moves to the Projeto's current Kit only when the Criadora opts in (`atualizar-kit-video`); a delivered or archived Vídeo never does. Asset paths in a Vídeo's Kit still point into the Projeto's `kit/` folder, so a file there is never overwritten or deleted.
+
 ## What stays in the briefing, not the Kit
 
 Business, audience and tone of voice are prose. They live in the pt-BR briefing `projeto.md` under their sections. The Kit holds only what a composition or a Crítico can apply mechanically.

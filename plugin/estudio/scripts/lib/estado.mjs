@@ -28,13 +28,16 @@ const STATUSES = new Map([
   ['Arquivado', { waitsForCriadora: false, finished: true }],
 ]);
 const NIVEIS = new Set([1, 2]);
+// Delivered or archived: the Vídeo's work is done.
+export const isFinished = (status) => STATUSES.get(status)?.finished === true;
 
 // Mac file systems hand back decomposed accents (NFD); report every name composed (NFC)
 // so "Lançamento" is the same string on Mac, Windows and Linux.
 const nfc = (name) => name.normalize('NFC');
 const byName = (a, b) => a.localeCompare(b, 'pt-BR');
 
-function subfolders(dir) {
+// A folder's subfolders (Projetos, Vídeos), hidden and system ones left out, in pt-BR order.
+export function subfolders(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !isIgnorable(entry.name))

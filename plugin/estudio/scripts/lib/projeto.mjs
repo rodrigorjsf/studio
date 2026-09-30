@@ -20,7 +20,8 @@ function nameProblem(nome) {
 
 const nfc = (name) => name.normalize('NFC');
 
-function findProjeto(folder, nome) {
+// The Projeto's folder name as stored on disk (a Mac may store it decomposed), or null.
+export function findProjeto(folder, nome) {
   const dir = path.join(folder, PROJETOS);
   if (!fs.existsSync(dir)) return null;
   return fs.readdirSync(dir, { withFileTypes: true })

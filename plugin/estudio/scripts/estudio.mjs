@@ -5,17 +5,21 @@
 //       without running a model.
 // WHEN  Skills run it at every session start (`estado`), when the Criadora accepts turning
 //       a folder into an Estúdio (`criar`), and in the Projeto Grilling (`novo-projeto`,
-//       then `aprovar-kit` once she approves the Kit de marca).
+//       then `aprovar-kit` once she approves the Kit de marca), and when she changes an
+//       approved Kit (`editar-kit`) or opts an existing Vídeo into it (`atualizar-kit-video`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-kit  "<folder>" "<projeto>"
+//       node "<plugin root>/scripts/estudio.mjs" editar-kit   "<folder>" "<projeto>" '<json>'
+//       node "<plugin root>/scripts/estudio.mjs" atualizar-kit-video "<folder>" "<projeto>" "<vídeo>"
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
 import path from 'node:path';
 import { criar } from './lib/criar.mjs';
 import { estado } from './lib/estado.mjs';
+import { atualizarKitVideo, editarKit } from './lib/editar.mjs';
 import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 
 // Each subcommand with the arguments it takes after the Estúdio folder.
@@ -24,6 +28,8 @@ const COMMANDS = {
   criar: { run: criar, args: [] },
   'novo-projeto': { run: novoProjeto, args: ['"<projeto>"'] },
   'aprovar-kit': { run: aprovarKit, args: ['"<projeto>"'] },
+  'editar-kit': { run: editarKit, args: ['"<projeto>"', "'<json>'"] },
+  'atualizar-kit-video': { run: atualizarKitVideo, args: ['"<projeto>"', '"<vídeo>"'] },
 };
 
 function usageError(error) {
