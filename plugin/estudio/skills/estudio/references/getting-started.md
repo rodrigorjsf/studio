@@ -1,6 +1,8 @@
 # Getting started
 
 > Translated from the upstream studio guide `1-primeiros-passos.md`. Talk to the Criadora in pt-BR; this reference is for you.
+>
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder and its Remotion template (ticket #3) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 This tutorial takes you from zero to the first edit. It takes about 20 minutes, most of it waiting on installs.
 

@@ -73,6 +73,7 @@ const MAX_BYTES = 200 * 1024 * 1024;
 function checkPackageContents(dir, pluginName, errors) {
   let files = 0;
   let bytes = 0;
+  const markdown = [];
   const walk = (current, rel) => {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const relPath = rel ? `${rel}/${entry.name}` : entry.name;
@@ -92,7 +93,6 @@ function checkPackageContents(dir, pluginName, errors) {
       }
     }
   };
-  const markdown = [];
   walk(dir, '');
   for (const file of markdown) checkLinks(dir, file, pluginName, errors);
   if (files > MAX_FILES) errors.push(`${pluginName}: package has ${files} files (limit ${MAX_FILES})`);

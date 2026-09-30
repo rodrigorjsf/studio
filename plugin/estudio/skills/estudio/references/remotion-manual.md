@@ -1,6 +1,8 @@
 # Remotion manual for people who have never edited video
 
 > Translated from the upstream studio guide `3-manual-remotion.md`. Talk to the Criadora in pt-BR; this reference is for you.
+>
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder and its Remotion template (ticket #3) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 This manual explains Remotion without requiring you to know how to program. The idea is for you to understand **what can be requested** and **what Claude is doing** when it edits your video in Nível 1.
 

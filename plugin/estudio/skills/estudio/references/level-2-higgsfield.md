@@ -1,6 +1,8 @@
 # Nível 2: advanced editing with Higgsfield
 
 > Translated from the upstream studio guide `4-nivel-2-higgsfield.md`. Talk to the Criadora in pt-BR; this reference is for you.
+>
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder and its Remotion template (ticket #3) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 In Nível 2, besides assembling the edit, Claude **generates images and videos with AI** on [Higgsfield](https://higgsfield.ai): cinematic B-rolls, animated illustrations, visual metaphors, scene transformations. The final assembly runs on **Higgsedit**, Higgsfield's own editor, inside a cloud environment.
 
@@ -11,9 +13,9 @@ In Nível 2, besides assembling the edit, Claude **generates images and videos w
 
 ## 1. Connect Higgsfield to Claude
 
-There are two paths. **Choose A if possible**: it gives access to all the Nível 2 tools.
+Nível 2 uses Higgsfield only through its official connector, with her own Higgsfield login. (The upstream API-key path and its script are not part of this plugin; see the spec decision on Níveis.)
 
-### Path A: sign in with her Higgsfield account (recommended)
+### Sign in with her Higgsfield account
 
 This is the official connector (MCP), at `https://mcp.higgsfield.ai/mcp`. Authentication is done by logging into her account; there is no key to copy.
 
@@ -39,44 +41,6 @@ Then, inside Claude Code, type `/mcp`, select `higgsfield` and authenticate in t
 
 **How to tell it worked:** ask Claude "check my balance on Higgsfield" (in pt-BR: "consulta meu saldo na Higgsfield"). It should answer with her credits.
 
-### Path B: Higgsfield Cloud API key
-
-*Pending: the spec drops the API-key path from the plugin (ADR 0002); kept here for reference only.*
-
-> **Important:** the official connector (Path A) **does not accept an API key**. Higgsfield itself states that the API key belongs to another product, the **Higgsfield Cloud API**. So on this path Claude does not use the connector: it calls the API with the official Python SDK, through the script `tools/hf_api.py`.
-
-What changes:
-
-- it is possible to **generate images and videos** normally, with the models available in the Cloud API;
-- there is **no** sandbox and no Higgsedit. The **final assembly is done in Remotion**, as in Nível 1, using the generated assets. In practice, it is a "turbocharged Nível 1".
-
-Step by step:
-
-1. Create the key at [cloud.higgsfield.ai](https://cloud.higgsfield.ai). She receives an **API key** and an **API secret**.
-2. Install the official SDK:
-   ```bash
-   pip install higgsfield-client
-   ```
-3. Store the key in an **environment variable** of her user (never in a repository file):
-   - **Windows (PowerShell):**
-     ```powershell
-     [Environment]::SetEnvironmentVariable("HF_KEY", "YOUR-API-KEY:YOUR-API-SECRET", "User")
-     ```
-   - **macOS / Linux:** add to `~/.zshrc` or `~/.bashrc`:
-     ```bash
-     export HF_KEY="YOUR-API-KEY:YOUR-API-SECRET"
-     ```
-4. Close and reopen Claude (Desktop or terminal) so it sees the variable.
-5. Test by asking: "generate a test image on Higgsfield through path B".
-
-Claude uses:
-
-```bash
-python tools/hf_api.py <model> '<arguments as JSON>' "projetos/<NNN. nome>/hf"
-```
-
-The list of Cloud API models and arguments is in the documentation at [cloud.higgsfield.ai](https://cloud.higgsfield.ai).
-
 ---
 
 ## 2. What she hands over and what she gets
@@ -87,7 +51,7 @@ She receives the final MP4 at `edicoes/<NNN. nome>/<nome>_final.mp4`.
 
 ---
 
-## 3. The process (Path A)
+## 3. The process
 
 ### 1. Organize
 Same organization as Nível 1: folder `projetos/<NNN. nome>/`, `ffprobe` on the video and `edicoes/<NNN. nome>/`.
@@ -134,15 +98,7 @@ If Higgsedit cannot handle something, Claude says so and proposes an alternative
 - `ffmpeg -af volumedetect` on the final and on the original: equal volumes.
 - File path, duration, resolution, codecs and **credits spent**.
 
-## 4. The process (Path B)
-
-*Pending: the spec drops the API-key path from the plugin (ADR 0002); kept here for reference only.*
-
-Phases 1 to 3 are the same. In phase 4, the assets are generated with `tools/hf_api.py` and saved in `hf/`. Phases 5 and 6 follow [Nível 1](level-1-remotion.md#4-program-the-scenes): Claude programs the assembly in Remotion using the files in `hf/` as B-roll and illustrations.
-
----
-
-## 5. Reference models and costs (Path A)
+## 4. Reference models and costs
 
 | Use | Model | Approx. cost | Note |
 |---|---|---|---|
@@ -158,7 +114,7 @@ Phases 1 to 3 are the same. In phase 4, the assets are generated with `tools/hf_
 - If a batch comes back with `submission_failed` suggesting a preset, resubmit with `declined_preset_id` equal to the suggested id.
 - Diagrams, flows, chips and texts are built at assembly (0 credits). Higgsfield generates illustrations, objects and B-rolls.
 
-## 6. Styles and base prompts
+## 5. Styles and base prompts
 
 The gallery in [style-gallery.md](style-gallery.md) shows three styles made in Nível 2: **paper cut-out** (B-roll), **cream paper in a lesson** and **dark cinematic**. They are templates, not an obligation: she can describe the style she wants or bring reference images in `prints/`.
 
@@ -207,7 +163,7 @@ Adjust the light and the setting to match **her** studio: the B-roll should look
 ### Vertical format
 Generate the images directly in 9:16 (do not crop from 16:9). Keep the main subject in the central third, away from the top and the bottom, where the apps' interface sits.
 
-## 7. Checklist
+## 6. Checklist
 
 - [ ] frames read, face and background mapped
 - [ ] `palavras.json` generated and checked

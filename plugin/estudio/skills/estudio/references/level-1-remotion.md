@@ -1,6 +1,8 @@
 # Nível 1: editing with Remotion (free)
 
 > Translated from the upstream studio guide `2-nivel-1-remotion.md`. Talk to the Criadora in pt-BR; this reference is for you.
+>
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder and its Remotion template (ticket #3) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 In Nível 1, Claude watches your video, understands what you say and **programs** the animations with [Remotion](https://www.remotion.dev), a tool that turns code into video. You do not need to know how to code: you talk, approve the plan and check the result.
 
