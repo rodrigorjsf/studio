@@ -133,3 +133,6 @@ Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md
 
 ## [2026-09-30] update | Review round 1 of spec #39: persona Caderno proposals written on arrival with a one-line notice; structure check requires the Social media and the platform reference
 Pages: concepts/caderno.md. Evidence: `plugin/estudio/skills/estudio/references/caderno.md`, `scripts/check-plugin.mjs`.
+
+## [2026-09-30] update | Review round 1 of spec #39: the Texto do post loop is recorded by `revisar-texto` (turns on disk, cap and repeated code counted)
+Pages: concepts/post-copy.md. Evidence: `plugin/estudio/scripts/lib/revisar-texto.mjs`, `plugin/estudio/skills/edicao/SKILL.md`.

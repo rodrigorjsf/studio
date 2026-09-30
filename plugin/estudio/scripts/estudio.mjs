@@ -29,6 +29,7 @@ import { aprovarPlano, plano } from './lib/plano.mjs';
 import { pausas, precorte } from './lib/precorte.mjs';
 import { qc } from './lib/qc.mjs';
 import { qcInterno } from './lib/qc-interno.mjs';
+import { revisarTexto } from './lib/revisar-texto.mjs';
 import { rascunhoIssue } from './lib/rascunho-issue.mjs';
 import { abrirRevisao, decidirRevisao, novaVersao } from './lib/revisao.mjs';
 import { textoDoPost } from './lib/texto-do-post.mjs';
@@ -60,6 +61,7 @@ const COMMANDS = {
   caderno: { run: caderno, args: ["'<json>'"] },
   'rascunho-issue': { run: rascunhoIssue, args: ["'<json>'"] },
   'texto-do-post': { run: textoDoPost, args: ['"<projeto>"', '"<vídeo>"'] },
+  'revisar-texto': { run: revisarTexto, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   arquivar: { run: arquivar, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },

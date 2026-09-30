@@ -110,6 +110,71 @@ for (const status of ['Entregue', 'Arquivado']) {
   });
 }
 
+// The loop that judges the text is recorded like `qc-interno` records a version's: each turn with its
+// verdict, reasons and cost, kept on disk (`texto-do-post-revisao.json` in the Vídeo folder), the
+// cap counted by the command, and the rejection code repeated across a capped cycle named, so the
+// self-evolution trigger has a record to count from. It never moves the Status or opens a Gate.
+const turnoTexto = (veredito, motivos = []) => JSON.stringify({ veredito, motivos, custo: { tokens: 12000, segundos: 30 } });
+const comTexto = (status) => {
+  const dir = estudio(status);
+  fs.mkdirSync(path.dirname(textoFile(dir)), { recursive: true });
+  fs.writeFileSync(textoFile(dir), TEXTO);
+  return dir;
+};
+const revisaoFile = (dir) => path.join(videoDir(dir), 'texto-do-post-revisao.json');
+
+test('an approved turn of the Revisor on the Texto do post is kept on disk and says to show it', () => {
+  const dir = comTexto('Aprovado');
+  const { code, out } = run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('aprovado'));
+  assert.equal(code, 0);
+  assert.equal(out.recorded, true);
+  assert.deepEqual([out.ciclo, out.turno, out.aprovado, out.proximo], [1, 1, true, 'mostrar']);
+  assert.deepEqual([out.turnosInternos, out.tokensInternos, out.segundosInternos], [1, 12000, 30]);
+  assert.equal(out.status, 'Aprovado');
+  assert.equal(out.gate, null);
+  const saved = JSON.parse(fs.readFileSync(revisaoFile(dir), 'utf8'));
+  assert.equal(saved.turnos.length, 1);
+  assert.equal(saved.turnos[0].veredito, 'aprovado');
+  assert.equal(fs.readFileSync(textoFile(dir), 'utf8'), TEXTO);
+});
+
+test('three rejected turns in a row escalate and name the rejection code they share; the next turn starts a new cycle', () => {
+  const dir = comTexto('Entregue');
+  const motivos = ['isca-de-engajamento: pede para comentar'];
+  const first = run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', motivos)).out;
+  assert.deepEqual([first.turno, first.proximo, first.codigoRepetido], [1, 'corrigir', null]);
+  assert.equal(run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', ['isca-de-engajamento: pede para marcar', 'hashtag-generica: #fyp'])).out.proximo, 'corrigir');
+  const third = run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', motivos)).out;
+  assert.deepEqual([third.turno, third.proximo, third.codigoRepetido], [3, 'escalar', 'isca-de-engajamento']);
+  assert.equal(third.status, 'Entregue');
+  assert.equal(third.gate, null);
+  const again = run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', ['primeira-linha-sem-palavra-chave: falta'])).out;
+  assert.deepEqual([again.ciclo, again.turno, again.proximo], [2, 1, 'corrigir']);
+  assert.equal(JSON.parse(fs.readFileSync(revisaoFile(dir), 'utf8')).turnos.length, 4);
+  assert.equal(statusDe(dir), 'Entregue');
+});
+
+test('three rejections on different codes escalate without a repeated code', () => {
+  const dir = comTexto('Arquivado');
+  for (const code of ['a', 'b']) run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', [`${code}: x`]));
+  const third = run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('reprovado', ['c: x'])).out;
+  assert.deepEqual([third.proximo, third.codigoRepetido], ['escalar', null]);
+});
+
+test('a turn is refused, changing nothing, without a Texto do post, with a bad turn or an unknown Vídeo', () => {
+  const dir = estudio('Aprovado');
+  const antes = videoDoc(dir);
+  assert.equal(run('revisar-texto', dir, PROJETO, VIDEO, turnoTexto('aprovado')).out.reason, 'no-texto');
+  fs.mkdirSync(path.dirname(textoFile(dir)), { recursive: true });
+  fs.writeFileSync(textoFile(dir), TEXTO);
+  for (const bad of ['não é json', turnoTexto('talvez'), turnoTexto('reprovado', []), JSON.stringify({ veredito: 'aprovado' })]) {
+    assert.equal(run('revisar-texto', dir, PROJETO, VIDEO, bad).out.reason, 'invalid-turn', bad);
+  }
+  assert.equal(run('revisar-texto', dir, PROJETO, 'Outro', turnoTexto('aprovado')).out.reason, 'unknown-video');
+  assert.equal(videoDoc(dir), antes);
+  assert.equal(fs.existsSync(revisaoFile(dir)), false);
+});
+
 test('a text with a broken rule on an Entregue Vídeo is reported, changing nothing', () => {
   const dir = estudio('Entregue');
   fs.mkdirSync(path.dirname(textoFile(dir)), { recursive: true });
@@ -172,7 +237,7 @@ const pedido = edicao.slice(edicao.indexOf('## 7. '), edicao.indexOf('## Rules')
 test('the edicao skill runs the Texto do post through the Revisor in a loop capped at three turns, recording each one', () => {
   assert.ok(entrega.includes('revisor-de-plataforma'), 'the Entrega step never hands the text to the Revisor');
   assert.match(entrega, /Texto do post[^]*three turns|three turns[^]*Texto do post/i);
-  assert.ok(/registrar-video[^\n]*turnosInternos/.test(entrega.slice(entrega.indexOf('Revisor de plataforma'))), 'each turn is not recorded with the internal-loop counters');
+  assert.ok(entrega.slice(entrega.indexOf('Revisor de plataforma')).includes('revisar-texto'), 'each turn is not recorded with revisar-texto');
   assert.match(entrega, /one question with two options/i);
   assert.match(entrega, /evolucao-proposta/);
 });

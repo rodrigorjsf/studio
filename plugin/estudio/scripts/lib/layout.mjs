@@ -43,6 +43,8 @@
 //                                    beside the renders (pt-BR, one `## ` section per platform of the Kit);
 //                                    `entregar` counts only MP4 and MOV, so it never blocks the Entrega
 //                                    (`texto-do-post` checks it: texto-do-post.mjs)
+//   projetos/<projeto>/videos/<vídeo>/texto-do-post-revisao.json  the Revisor de plataforma's turns on
+//                                    the Texto do post (`revisar-texto`), kept out of `entrega`
 //   projetos/<projeto>/videos/<vídeo>/gerados/             Nível 2: the images and clips generated on
 //                                    Higgsfield (no text in them), and gerados.json, every generation
 //                                    `gastar-creditos` authorized: file, model, quoted credits, prompt
@@ -96,6 +98,7 @@ export const NOTAS_MD = 'notas.md';
 export const QC_INTERNO = 'qc-interno.json';
 export const ENTREGA = 'entrega';
 export const TEXTO_DO_POST = 'texto-do-post.md';
+export const TEXTO_DO_POST_REVISAO = 'texto-do-post-revisao.json';
 export const NOTION_PAGINAS = 'notion/paginas.json';
 export const NOTION_RESUMO = 'notion/resumo.md';
 export const GERADOS = 'gerados';
