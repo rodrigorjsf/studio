@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseFrontmatter } from './frontmatter.mjs';
+import { readPerfil } from './perfil.mjs';
 import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEOS } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
@@ -72,8 +73,13 @@ export function estado(folder) {
   }
 
   const perfilFile = path.join(folder, PERFIL);
-  const perfil = { present: fs.existsSync(perfilFile) };
-  if (perfil.present) readDoc(perfilFile);
+  let perfil = { present: fs.existsSync(perfilFile) };
+  const perfilData = perfil.present ? readDoc(perfilFile) : null;
+  if (perfilData) {
+    const { messages, fields } = readPerfil(perfilData);
+    messages.forEach((message) => fail(perfilFile, message));
+    perfil = { ...perfil, ...fields };
+  }
 
   const projetos = subfolders(path.join(folder, PROJETOS)).map((name) => {
     const dir = path.join(folder, PROJETOS, name);

@@ -2,7 +2,7 @@
 // this folder, never inside the plugin, whose root is replaced on every update.
 //
 //   estudio.json                     marker: {"schemaVersion": 1, "createdAt": ISO}
-//   perfil.md                        the Perfil (pt-BR, YAML-style frontmatter)
+//   perfil.md                        the Perfil (pt-BR, frontmatter schema in perfil.mjs)
 //   projetos/<projeto>/projeto.md    the Projeto briefing (pt-BR, frontmatter)
 //   projetos/<projeto>/kit.json      the machine-readable Kit de marca
 //   projetos/<projeto>/videos/<vídeo>/video.md   the Vídeo document (frontmatter: status, rodada, nivel…)

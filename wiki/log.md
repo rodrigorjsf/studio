@@ -28,3 +28,6 @@ Pages: concepts/plugin-architecture.md, overview.md.
 
 ## [2026-09-29] update | Session-start check and no-admin installer built (ticket #4)
 Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | Perfil interview, `/estudio:perfil` and Autonomia built (ticket #5)
+Pages: concepts/plugin-architecture.md, overview.md.
