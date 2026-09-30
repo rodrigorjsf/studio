@@ -103,8 +103,9 @@ files, exit codes), never on prompt wording.
 
 Conversation with the Criadora and every file she reads are pt-BR; skill bodies, agent prompts,
 code, tests, ADRs and the wiki are English; command names are pt-BR (`/estudio:novo-video`).
-The template's `_shared/` API and the installer scripts still carry Portuguese identifiers from
-the upstream project; see #26.
+The template's `_shared/` API still carries Portuguese identifiers from the upstream project; see
+#26. The Preparação and computer-check scripts already use English identifiers, keeping only
+glossary terms.
 
 ## Project knowledge and tracking
 

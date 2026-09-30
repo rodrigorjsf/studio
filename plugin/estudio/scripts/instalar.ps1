@@ -74,12 +74,12 @@ function Unzip([string]$Zip, [string]$Destination) {
 }
 
 # Moves a finished folder into runtime\, replacing a broken earlier attempt.
-function Store([string]$Ready, [string]$Name) {
+function Store([string]$Finished, [string]$Name) {
   $final = Join-Path $Runtime $Name
   try {
     New-Item -ItemType Directory -Path $Runtime -Force | Out-Null
     Remove-Item -LiteralPath $final -Recurse -Force -ErrorAction SilentlyContinue
-    Move-Item -LiteralPath $Ready -Destination $final
+    Move-Item -LiteralPath $Finished -Destination $final
     $true
   } catch { $false }
 }
