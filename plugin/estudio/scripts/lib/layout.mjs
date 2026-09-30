@@ -54,6 +54,9 @@
 //   caderno.md                       the Estúdio's Caderno: what the studio learned about her and her
 //                                    computer, in Elogios, Queixas and Soluções (pt-BR, schema: caderno.mjs)
 //   projetos/<projeto>/caderno.md    the Projeto's Caderno, the same three sections about that domain
+//   issues/NNN-<slug>.md             the Rascunhos de issue: one draft each (frontmatter: id, tipo, titulo, criadoEm,
+//                                    and, once she decides, decisao, decididoEm, url; body: what the maintainer reads);
+//                                    the ones she declines stay here (schema and checks: rascunho-issue.mjs)
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder is left to later stages and never rejected here.
@@ -63,6 +66,7 @@ export const PERFIL = 'perfil.md';
 export const PROJETOS = 'projetos';
 export const PROJETO_DOC = 'projeto.md';
 export const CADERNO = 'caderno.md';
+export const ISSUES = 'issues';
 export const KIT = 'kit.json';
 export const KIT_ASSETS = 'kit';
 export const VIDEOS = 'videos';
