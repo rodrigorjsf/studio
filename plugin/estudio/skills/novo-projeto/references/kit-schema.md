@@ -40,7 +40,7 @@ Once approved, the Kit changes only through `editar-kit` (the `editar-projeto` s
 
 ## When the Kit defines the style
 
-A Kit **defines the style** when none of its text fields is empty (`""`): the fields she left as "sem preferência" in the Projeto interview, such as `camera.comportamento`, `camera.enquadramento` or `imagens.interacao`. The `plano` command lists them as `lacunasDoKit`. With none, one Gate approves a Vídeo's Plano and its Quadros de estilo together; with any, the look is still open and the Quadros get a Gate of their own after the Plano's. Filling those fields (`editar-kit`) makes the next Vídeos take one Gate.
+A Kit **defines the style** when none of its look text fields is empty (`""`; sound, `som.*`, does not count): the fields she left as "sem preferência" in the Projeto interview, such as `camera.comportamento`, `camera.enquadramento` or `imagens.interacao`. The `plano` command lists them as `lacunasDoKit`. With none, one Gate approves a Vídeo's Plano and its Quadros de estilo together; with any, the look is still open and the Quadros get a Gate of their own after the Plano's. Filling those fields (`editar-kit`) makes the next Vídeos take one Gate.
 
 ## What stays in the briefing, not the Kit
 

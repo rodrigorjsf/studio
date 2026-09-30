@@ -27,7 +27,7 @@
 //   }
 import fs from 'node:fs';
 import path from 'node:path';
-import { estado, nfc } from './estado.mjs';
+import { nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { boxProblem } from './ingest.mjs';
 import { KIT, PALAVRAS, PLANO, PRINTS, VIDEO_DOC, VIDEO_KIT, ZONA_DO_ROSTO } from './layout.mjs';
@@ -114,6 +114,7 @@ function sceneProblems(cena, n, { palavras, duracao, zona, formato, prints }) {
 // The problems of the Plano as a whole: what she is told before approving it.
 function planoProblems(data, nivel) {
   const problems = [];
+  if (data.schemaVersion !== 1) problems.push('schemaVersion must be 1');
   if (!(isNumber(data.tempoEstimadoMin) && data.tempoEstimadoMin > 0)) {
     problems.push('tempoEstimadoMin must be the expected minutes until the Entrega (a number above 0)');
   }
@@ -161,7 +162,10 @@ export function plano(folder, projetoNome, videoNome) {
   if (!Array.isArray(palavras) || !isNumber(zona?.duracao)) return { checked: false, reason: 'ingest-incomplete', projeto, video };
 
   // The Vídeo follows its own Kit (its Kit snapshot) when it has one, else the Projeto's.
-  const kit = readJson(path.join(dir, VIDEO_KIT)) ?? readJson(path.join(dir, '..', '..', KIT));
+  const ownKit = path.join(dir, VIDEO_KIT);
+  const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
+  // Without its Kit, the Formato (Área livre) and the Gate shape are unknown: fail closed.
+  if (kit === null || typeof kit !== 'object' || Array.isArray(kit)) return { checked: false, reason: 'invalid-kit', projeto, video };
   const printsDir = path.join(dir, PRINTS);
   const context = {
     palavras,
@@ -170,20 +174,22 @@ export function plano(folder, projetoNome, videoNome) {
     formato: kit?.formato,
     prints: fs.existsSync(printsDir) ? fs.readdirSync(printsDir).map(nfc) : [],
   };
-  let nivel = null;
+  let record = {};
   try {
-    nivel = parseFrontmatter(fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8')).nivel ?? null;
+    record = parseFrontmatter(fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8'));
   } catch {
-    // A malformed Vídeo document is `estado`'s to report; the Nível is then unknown.
+    // A malformed Vídeo document is `estado`'s to report; its Nível and Status are then unknown.
   }
+  const nivel = record.nivel ?? null;
   const cenas = Array.isArray(data.cenas) ? data.cenas : [];
   const whole = planoProblems(data, nivel);
   const planoProblemList = [...whole.problems, ...cenas.flatMap((cena, i) => sceneProblems(cena, i + 1, context))];
   const quadrosProblemList = quadrosProblems(data.quadros, dir, zona.duracao, whole.labelled);
   // One Gate approves the Plano and the Quadros together when the Kit already defines the whole
-  // style (no text field of it left empty); otherwise the look is still open, and the Quadros
+  // style (no look text field of it left empty); otherwise the look is still open, and the Quadros
   // get a Gate of their own after the Plano's.
-  const lacunasDoKit = kit ? kitGaps(kit) : [];
+  // Only the look counts: an empty sound preference (`som.*`) leaves nothing to see on a Quadro.
+  const lacunasDoKit = kitGaps(kit).filter((field) => !field.startsWith('som.'));
   // Scenes that draw over a moved camera: the Zona do rosto could not be checked on them.
   const rostoNaoVerificado = cenas
     .map((cena, i) => (MOVING_CAMERA.has(cena?.tipo) && cena.elementos?.length > 0 ? i + 1 : null))
@@ -192,6 +198,7 @@ export function plano(folder, projetoNome, videoNome) {
     checked: true,
     projeto,
     video,
+    status: typeof record.status === 'string' ? nfc(record.status) : null,
     gate: lacunasDoKit.length === 0 ? 'unico' : 'separado',
     lacunasDoKit,
     pronto: { plano: planoProblemList.length === 0, quadros: quadrosProblemList.length === 0 },
@@ -212,11 +219,9 @@ export function aprovarPlano(folder, projetoNome, videoNome, etapa) {
   if (found.refusal) return { approved: false, ...found.refusal };
   const { projeto, video, dir } = found;
   const refuse = (reason, extra = {}) => ({ approved: false, reason, projeto, video, ...extra });
-  const status = estado(folder).projetos.find((p) => p.id === projeto).videos.find((v) => v.id === video).status;
-  if (status !== 'Planejamento') return refuse('not-planejamento', { status });
-
   const check = plano(folder, projetoNome, videoNome);
   if (!check.checked) return refuse(check.reason);
+  if (check.status !== 'Planejamento') return refuse('not-planejamento', { status: check.status });
   if ((check.gate === 'unico') !== (etapa === 'plano-e-quadros')) return refuse('wrong-gate', { gate: check.gate });
   const planoFile = path.join(dir, PLANO);
   const data = readJson(planoFile);

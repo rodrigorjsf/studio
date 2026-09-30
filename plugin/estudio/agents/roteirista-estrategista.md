@@ -64,6 +64,7 @@ Write `<vídeo>/plano.json` (keys in pt-BR; every text she reads in pt-BR):
 
 - **Directions.** Propose two or three different directions for this Vídeo (`rotulo` A, B, C; `resumo` one pt-BR sentence), and mark the one you recommend with `"recomendada": true`. The `cenas` follow the recommended one.
 - **Scenes.** `tipo` is a scene of the repertoire: `camera`, `camera-enfase`, `camera-motion`, `camera-espaco`, `aula`, `demo`, `cena`, `broll`, `transformacao`. `inicio` and `fim` are seconds on the Master's clock; the last scene ends at `duracao` at most. `visual` says in pt-BR what she sees.
+- **The hook.** The first seconds must hold the viewer: open on the strongest line of the video, with a visual that lands on it (a `camera-enfase`, a big number, the Print that proves the promise), unless her Kit or her requests say otherwise.
 - **Palavra-gatilho.** Every scene but a clean `camera` has a `gatilho`: the `indice` of the word in `palavras.json` and that word as written there. The scene starts **at or after** that word's `s`. Nothing appears before she says it.
 - **Zona do rosto.** Anything drawn over the camera goes in `elementos`, each with `tipo` (`texto` or `objeto`) and `area` (fractions of the frame from its top-left corner). On a full camera (`camera`, `camera-motion`) no `area` may touch the `zona`.
 - **Área livre.** In a vertical 9:16 Vídeo, every `texto` sits between 0.1302 and 0.7813 of the frame's height: the apps cover the top ~250 px and the bottom ~420 px.

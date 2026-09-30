@@ -392,3 +392,29 @@ test('a Plano is checked only once there is one and the ingest is done', () => {
   assert.equal(state.errors.length, 1);
   assert.match(state.errors[0].file, /plano\.json$/);
 });
+
+test('only the look decides the Gates: an empty sound preference still takes one Gate', () => {
+  const { dir, video } = videoPronto({ kitSemLacunas: true });
+  // The Vídeo's own Kit, with no preference for sound effects.
+  const kit = JSON.parse(fs.readFileSync(path.join(dir, 'projetos', PROJETO, 'kit.json'), 'utf8'));
+  fs.writeFileSync(path.join(video, 'kit.json'), JSON.stringify({ ...kit, som: { efeitos: '' } }));
+  assert.deepEqual(run('estado', dir).out.errors, []);
+  escreverPlano(video, planoValido());
+  const { out } = run('plano', dir, PROJETO, VIDEO);
+  assert.equal(out.gate, 'unico');
+  assert.deepEqual(out.lacunasDoKit, []);
+});
+
+test('without a readable Kit the Plano is not checked, so no rule is skipped', () => {
+  const { dir, video } = videoPronto({ kitSemLacunas: true });
+  escreverPlano(video, planoValido());
+  fs.writeFileSync(path.join(video, 'kit.json'), '{"formato": ');
+  assert.equal(run('plano', dir, PROJETO, VIDEO).out.reason, 'invalid-kit');
+  assert.equal(run('aprovar-plano', dir, PROJETO, VIDEO, 'plano-e-quadros').out.reason, 'invalid-kit');
+});
+
+test('the Plano declares the schema it follows', () => {
+  const { dir, video } = videoPronto();
+  escreverPlano(video, { ...planoValido(), schemaVersion: 2 });
+  assert.deepEqual(run('plano', dir, PROJETO, VIDEO).out.problemas.plano, ['schemaVersion must be 1']);
+});
