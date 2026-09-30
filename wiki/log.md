@@ -115,3 +115,6 @@ Pages: concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.
 
 ## [2026-09-30] ingest | Post copy and hashtags research; Caderno and Social media grilling
 Pages: sources/post-copy-and-hashtags-2026.md, sources/grilling-caderno-and-social-media-2026-09-30.md, concepts/caderno.md, concepts/post-copy.md, concepts/short-form-9x16.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Caderno built: `caderno` command, `estado` paths, Diretor skills and persona prompts (ticket #40)
+Pages: concepts/caderno.md, concepts/plugin-architecture.md, overview.md, index.md.

@@ -60,7 +60,11 @@ test('novo-projeto creates the briefing, a Kit with the defaults and the assets 
   const state = run('estado', dir).out;
   assert.deepEqual(state.errors, []);
   assert.deepEqual(state.projetos, [{
-    id: 'Minha Empresa', briefing: 'incompleto', kit: 'aguardando-aprovacao', notion: { paginas: 0, resumo: 'sem-paginas' }, videos: [], metricas: { videos: 0, medias: null, porVideo: [] },
+    id: 'Minha Empresa',
+    briefing: 'incompleto',
+    kit: 'aguardando-aprovacao',
+    caderno: { caminho: path.join(projetoDir(dir, 'Minha Empresa'), 'caderno.md'), existe: false },
+    notion: { paginas: 0, resumo: 'sem-paginas' }, videos: [], metricas: { videos: 0, medias: null, porVideo: [] },
   }]);
   assert.deepEqual(state.nextStep, { action: 'concluir-projeto', projeto: 'Minha Empresa' });
 });

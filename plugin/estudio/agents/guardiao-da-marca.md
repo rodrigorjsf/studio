@@ -53,6 +53,12 @@ Judge only against the Kit and what she changed for this Vídeo, never your own 
 
 With `<plano>` there is nothing to look at yet: read `<kit>`, the section "O que muda do Kit" of `<vídeo>/video.md` and `<plano>`, and judge what the Plano commits the edit to. Reject with `fazer-evitar` when a scene or a direction breaks an item of the Kit's `evitar` list or leaves out one of `fazer`; with `cor`, `tipografia`, `logo`, `legenda` or `movimento` when a scene's `visual` names a value the Kit does not give (another color, font, logo, caption style or motion). Her requests in `pedidosDela` win over the Kit: never reject what she asked for. A scene that names no brand value is not a rejection.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
 ## Your verdict
 
 Return one short verdict in English to the Diretor (under 200 words):

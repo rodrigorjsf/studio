@@ -50,6 +50,12 @@ On Quadros de estilo (stills, no motion) skip `gancho` unless a Quadro shows the
 
 With `<plano>` there is nothing to look at yet: read `<kit>`, `<plano>` and `<vídeo>/transcricao/palavras.json`, and judge what the Plano promises. Reject with `gancho` when no scene starts within the first 3 seconds with a visual that gives the viewer a reason to stay (a scene of plain camera does not count), or when the strongest line of the video is left without a visual; with `area-livre` when a scene's `elementos` place text in the top 13% or bottom 22% of a 9:16 frame (the outer 5% in 16:9 or 1:1); with `legenda-legivel` when a scene's `visual` asks for text on screen shorter than about 0.3 s per word it shows. Her requests in `pedidosDela` win: never reject what she asked for.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
 ## Your verdict
 
 Return one short verdict in English to the Diretor (under 200 words):

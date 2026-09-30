@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { arquivar } from './lib/arquivar.mjs';
 import { aprovarAutomatico } from './lib/autonomia.mjs';
+import { caderno } from './lib/caderno.mjs';
 import { criar } from './lib/criar.mjs';
 import {
   aprovarCreditos, aprovarHiggsedit, gastarCreditos, gastarHiggsedit,
@@ -54,6 +55,7 @@ const COMMANDS = {
   'abrir-revisao': { run: abrirRevisao, args: ['"<projeto>"', '"<vídeo>"'] },
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
+  caderno: { run: caderno, args: ["'<json>'"] },
   arquivar: { run: arquivar, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
