@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {getSynchronizedSplitState, SynchronizedCameraFrame, SynchronizedSplitPanel} from '../_shared/synchronized-split';
-import {CameraFalsa, useEntrada} from './_comum';
+import {FakeCamera, useEntrance} from './_comum';
 
 // Estilo "minimal suíço" (16:9): fundo branco, tipografia pesada, grid e um único acento vermelho.
 // Layout: tela dividida — conteúdo à esquerda, câmera à direita, entrando junto na mesma curva.
@@ -16,7 +16,7 @@ const passos = [
 ];
 
 const Passo: React.FC<(typeof passos)[number]> = ({n, titulo, texto, em}) => {
-  const p = useEntrada(em);
+  const p = useEntrance(em);
   return (
     <div style={{display: 'flex', gap: 36, alignItems: 'baseline', opacity: p, transform: `translateY(${(1 - p) * 30}px)`}}>
       <div style={{fontSize: 40, fontWeight: 700, color: COR.acento, width: 70}}>{n}</div>
@@ -29,10 +29,10 @@ const Passo: React.FC<(typeof passos)[number]> = ({n, titulo, texto, em}) => {
 };
 
 export const MinimalSuico: React.FC = () => {
-  const split = useEntrada(0.3, 1.1);
+  const split = useEntrance(0.3, 1.1);
   const state = getSynchronizedSplitState(split, {splitCameraLeft: 1250, splitCameraWidth: 620, splitVideoX: -650});
-  const titulo = useEntrada(0.9);
-  const barra = useEntrada(3.8, 0.8);
+  const titulo = useEntrance(0.9);
+  const barra = useEntrance(3.8, 0.8);
 
   return (
     <AbsoluteFill style={{background: COR.papel, color: COR.tinta, fontFamily: FONTE}}>
@@ -51,7 +51,7 @@ export const MinimalSuico: React.FC = () => {
       </SynchronizedSplitPanel>
       <SynchronizedCameraFrame state={state} boxShadow="0 20px 60px rgba(0,0,0,.18)">
         <div style={{position: 'absolute', left: state.video.x, top: state.video.y, width: 1920, height: 1080}}>
-          <CameraFalsa fundo="#46505a" cor="#6c7782" />
+          <FakeCamera fundo="#46505a" cor="#6c7782" />
         </div>
       </SynchronizedCameraFrame>
     </AbsoluteFill>

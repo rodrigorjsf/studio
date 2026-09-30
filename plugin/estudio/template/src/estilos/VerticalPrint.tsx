@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {CameraFalsa, clamp, suave, useEntrada} from './_comum';
+import {FakeCamera, clamp, smooth, useEntrance} from './_comum';
 
 // Estilo "print com marca-texto" (9:16): o print ocupa a parte de cima, dá zoom no trecho citado
 // e o marca-texto passa exatamente sobre a frase. A câmera fica embaixo.
@@ -36,10 +36,10 @@ const PrintFalso: React.FC<{marca: number}> = ({marca}) => (
 export const VerticalPrint: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const entrada = useEntrada(0.2, 0.8);
-  const zoom = interpolate(frame, [1.4 * fps, 2.6 * fps], [1, 1.1], {...clamp, easing: suave});
-  const marca = useEntrada(2.8, 0.9);
-  const camera = useEntrada(0, 0.8);
+  const entrada = useEntrance(0.2, 0.8);
+  const zoom = interpolate(frame, [1.4 * fps, 2.6 * fps], [1, 1.1], {...clamp, easing: smooth});
+  const marca = useEntrance(2.8, 0.9);
+  const camera = useEntrance(0, 0.8);
 
   return (
     <AbsoluteFill style={{background: COR.fundo}}>
@@ -62,7 +62,7 @@ export const VerticalPrint: React.FC = () => {
           boxShadow: '0 30px 80px rgba(0,0,0,.25)', transform: `translateY(${(1 - camera) * 200}px)`,
         }}
       >
-        <CameraFalsa fundo="#56483d" cor="#7a6757" />
+        <FakeCamera fundo="#56483d" cor="#7a6757" />
       </div>
     </AbsoluteFill>
   );

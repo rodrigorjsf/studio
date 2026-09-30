@@ -10,9 +10,14 @@ import {calculateKitMetadata, DEFAULT_KIT, KitProps, scaleToFrame} from '../_sha
 import {fontStyle, KitCaptions, Word, useKitFonts} from '../_shared/marca';
 
 // A box as fractions of the frame from its top-left corner, like the Plano's `area`.
+// `largura`/`altura` stay Portuguese on purpose: they are a data contract, not a helper name. The
+// Diretor de arte passes the Plano element's `area` straight through as this prop, and the same
+// {x, y, largura, altura} box is what the plugin's `plano` check validates, what the Zona do rosto
+// and the Kit store, and what the Planos already on her disk hold. Renaming the fields is a data
+// migration across all of those, not a deprecated alias, so it is deferred.
 export type Area = {x: number; y: number; largura: number; altura: number};
 
-export type PropsDoQuadro = KitProps & {
+export type QuadroDeEstiloProps = KitProps & {
   video: string;
   // The Master, relative to the Vídeo folder: `original/<her file>` until a Pré-corte.
   master: string;
@@ -26,18 +31,18 @@ export type PropsDoQuadro = KitProps & {
   legenda?: Word[];
 };
 
-export const FPS_DO_QUADRO = 30;
-const AREA_PADRAO: Area = {x: 0.08, y: 0.6, largura: 0.84, altura: 0.14};
+export const QUADRO_DE_ESTILO_FPS = 30;
+const DEFAULT_AREA: Area = {x: 0.08, y: 0.6, largura: 0.84, altura: 0.14};
 
-export const calcularMetadadosDoQuadro = async (
-  parametros: Parameters<typeof calculateKitMetadata<PropsDoQuadro>>[0],
+export const calculateQuadroDeEstiloMetadata = async (
+  parametros: Parameters<typeof calculateKitMetadata<QuadroDeEstiloProps>>[0],
 ) => ({
-  ...(await calculateKitMetadata<PropsDoQuadro>(parametros)),
-  durationInFrames: Math.max(1, Math.round(parametros.props.duracao * FPS_DO_QUADRO)),
+  ...(await calculateKitMetadata<QuadroDeEstiloProps>(parametros)),
+  durationInFrames: Math.max(1, Math.round(parametros.props.duracao * QUADRO_DE_ESTILO_FPS)),
 });
 
-export const QuadroDeEstilo: React.FC<PropsDoQuadro> = ({
-  projeto, video, master, titulo, area = AREA_PADRAO, legenda = [], kit = DEFAULT_KIT,
+export const QuadroDeEstilo: React.FC<QuadroDeEstiloProps> = ({
+  projeto, video, master, titulo, area = DEFAULT_AREA, legenda = [], kit = DEFAULT_KIT,
 }) => {
   const {width, height} = useVideoConfig();
   useKitFonts(kit, projeto);
@@ -65,3 +70,13 @@ export const QuadroDeEstilo: React.FC<PropsDoQuadro> = ({
     </AbsoluteFill>
   );
 };
+
+// Deprecated aliases: the helpers were Portuguese before they were renamed to English. They keep
+// a Vídeo composition written against the old names compiling; new code uses the names above.
+// Removed in a later breaking release, once every Estúdio has refreshed its shared code.
+/** @deprecated Use `QuadroDeEstiloProps`. */
+export type PropsDoQuadro = QuadroDeEstiloProps;
+/** @deprecated Use `QUADRO_DE_ESTILO_FPS`. */
+export const FPS_DO_QUADRO = QUADRO_DE_ESTILO_FPS;
+/** @deprecated Use `calculateQuadroDeEstiloMetadata`. */
+export const calcularMetadadosDoQuadro = calculateQuadroDeEstiloMetadata;

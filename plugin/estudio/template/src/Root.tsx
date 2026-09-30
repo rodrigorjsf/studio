@@ -8,7 +8,7 @@ import {VerticalPrint} from './estilos/VerticalPrint';
 import {calculateKitMetadata, DIMENSIONS, KitProps} from './_shared/kit';
 import {calculateEdicaoMetadata, EdicaoWithCaptions, EDICAO_FPS, EdicaoWithCaptionsProps} from './_shared/edicao';
 import {PreviaDoKit} from './kit/PreviaDoKit';
-import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro, QuadroDeEstilo} from './quadro/QuadroDeEstilo';
+import {calculateQuadroDeEstiloMetadata, QUADRO_DE_ESTILO_FPS, QuadroDeEstilo, QuadroDeEstiloProps} from './quadro/QuadroDeEstilo';
 
 const FPS = 30;
 const SEIS_SEGUNDOS = 6 * FPS;
@@ -37,10 +37,10 @@ export const RemotionRoot: React.FC = () => (
         id="QuadroDeEstilo"
         component={QuadroDeEstilo}
         {...DIMENSIONS['9:16']}
-        fps={FPS_DO_QUADRO}
-        durationInFrames={FPS_DO_QUADRO}
-        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, titulo: ''} satisfies PropsDoQuadro}
-        calculateMetadata={calcularMetadadosDoQuadro}
+        fps={QUADRO_DE_ESTILO_FPS}
+        durationInFrames={QUADRO_DE_ESTILO_FPS}
+        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, titulo: ''} satisfies QuadroDeEstiloProps}
+        calculateMetadata={calculateQuadroDeEstiloMetadata}
       />
     </Folder>
 

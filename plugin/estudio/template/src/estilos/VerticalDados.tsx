@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {CameraFalsa, clamp, suave, useEntrada} from './_comum';
+import {FakeCamera, clamp, smooth, useEntrance} from './_comum';
 
 // Estilo "dados leves" (9:16): fundo claro com gradiente suave, número que conta até o valor falado
 // e barras que crescem uma por vez. A câmera vira um círculo no topo para manter presença humana.
@@ -15,7 +15,7 @@ const barras = [
 ];
 
 const Barra: React.FC<(typeof barras)[number]> = ({rotulo, valor, cor, em}) => {
-  const p = useEntrada(em, 0.8);
+  const p = useEntrance(em, 0.8);
   return (
     <div style={{opacity: Math.min(1, p * 3)}}>
       <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 38, color: COR.tinta}}>
@@ -32,9 +32,9 @@ const Barra: React.FC<(typeof barras)[number]> = ({rotulo, valor, cor, em}) => {
 export const VerticalDados: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const circulo = useEntrada(0.1, 0.8);
-  const numero = Math.round(interpolate(frame, [0.8 * fps, 2.4 * fps], [0, 87], {...clamp, easing: suave}));
-  const texto = useEntrada(1.0, 0.6);
+  const circulo = useEntrance(0.1, 0.8);
+  const numero = Math.round(interpolate(frame, [0.8 * fps, 2.4 * fps], [0, 87], {...clamp, easing: smooth}));
+  const texto = useEntrance(1.0, 0.6);
 
   return (
     <AbsoluteFill style={{fontFamily: FONTE, background: 'linear-gradient(160deg, #F4F1FF 0%, #E8F7FB 55%, #FFEFF6 100%)'}}>
@@ -44,7 +44,7 @@ export const VerticalDados: React.FC = () => {
           border: `8px solid white`, boxShadow: '0 30px 70px rgba(108,92,231,.3)', transform: `scale(${circulo})`,
         }}
       >
-        <CameraFalsa fundo="#5d587a" cor="#8a84ad" preencher />
+        <FakeCamera fundo="#5d587a" cor="#8a84ad" preencher />
       </div>
       <div style={{position: 'absolute', top: 640, left: 0, right: 0, textAlign: 'center'}}>
         <div style={{fontSize: 300, fontWeight: 800, letterSpacing: -12, lineHeight: 1, background: `linear-gradient(90deg, ${COR.a}, ${COR.c})`, WebkitBackgroundClip: 'text', color: 'transparent'}}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {CameraFalsa, useEntrada} from './_comum';
+import {FakeCamera, useEntrance} from './_comum';
 
 // Estilo "legenda dinâmica" (9:16, Reels/TikTok/Shorts): câmera cheia, legenda grande palavra por palavra
 // com a palavra falada em destaque. Num projeto real, os tempos vêm do palavras.json da transcrição.
@@ -21,13 +21,13 @@ export const VerticalLegendas: React.FC = () => {
   const t = frame / fps;
   const bloco = t < 3.0 ? blocos[0] : blocos[1];
   const ativa = [...palavras].reverse().find((p) => t >= p.s);
-  const chip = useEntrada(0.2, 0.5);
+  const chip = useEntrance(0.2, 0.5);
   const zoom = 1 + 0.06 * (t / 6);
 
   return (
     <AbsoluteFill style={{background: '#000', fontFamily: FONTE}}>
       <AbsoluteFill style={{transform: `scale(${zoom})`}}>
-        <CameraFalsa fundo="#4a3b30" cor="#6d5a4a" preencher />
+        <FakeCamera fundo="#4a3b30" cor="#6d5a4a" preencher />
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(transparent 55%, rgba(0,0,0,.55))'}} />
       <div
