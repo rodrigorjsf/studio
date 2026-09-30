@@ -25,34 +25,9 @@
 //       Higgsfield generation is paid (`gastar-creditos`), and, only on her explicit request, when
 //       she approves a Higgsedit montage's cost (`aprovar-higgsedit`) and before each paid Higgsedit
 //       run (`gastar-higgsedit`).
-// HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
-//       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
-//       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
-//       node "<plugin root>/scripts/estudio.mjs" aprovar-kit  "<folder>" "<projeto>"
-//       node "<plugin root>/scripts/estudio.mjs" editar-kit   "<folder>" "<projeto>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" atualizar-kit-video "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" novo-video "<folder>" "<projeto>" "<vídeo>" "<gravação>"
-//       node "<plugin root>/scripts/estudio.mjs" registrar-video "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" plano "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" aprovar-plano "<folder>" "<projeto>" "<vídeo>" "<plano|quadros|plano-e-quadros>"
-//       node "<plugin root>/scripts/estudio.mjs" aprovar-automatico "<folder>" "<projeto>" "<vídeo>" "<gate>"
-//       node "<plugin root>/scripts/estudio.mjs" vincular-notion "<folder>" "<projeto>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" resumo-notion "<folder>" "<projeto>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" conferir-notion "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" pausas "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
-//       node "<plugin root>/scripts/estudio.mjs" precorte "<folder>" "<projeto>" "<vídeo>" '<json>' "<ffmpeg>" "<ffprobe>"
-//       node "<plugin root>/scripts/estudio.mjs" nova-versao "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" abrir-revisao "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" decidir-revisao "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffmpeg>" "<ffprobe>"
-//       node "<plugin root>/scripts/estudio.mjs" arquivar "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" qc "<folder>" "<projeto>" "<vídeo>" "<render>" "<ffmpeg>" "<ffprobe>"
-//       node "<plugin root>/scripts/estudio.mjs" qc-interno "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" aprovar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" gastar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" aprovar-higgsedit "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" gastar-higgsedit "<folder>" "<projeto>" "<vídeo>" '<json>'
+// HOW   node "<plugin root>/scripts/estudio.mjs" <command> "<folder>" [arguments…]
+//       The arguments each command takes are listed once, in COMMANDS below; run it with no
+//       arguments to print them all.
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
