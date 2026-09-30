@@ -58,6 +58,16 @@ With `gate: "unico"`, first have the Quadros rendered and reviewed (step 5, up t
 
 ## 4. The Gate
 
+**Her Autonomia first.** When her Perfil's `autonomia` (in `estado`) is `alta`, the Diretor approves the Plano's and the Quadros' Gates for her, and never silently. Before opening the Gate, try it, with the Gate due (`plano-e-quadros` at the single Gate, `plano` then `quadros` at two Gates):
+
+```bash
+"<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" aprovar-automatico "." "<projeto>" "<nome do vídeo>" "<plano-e-quadros | plano | quadros>"
+```
+
+- `"approved": true` (`"automatica": true`): it approved the Gate as `aprovar-plano` does, counted it, added one to `aprovacoesAutomaticas` and listed it with her Autonomia and the time in the Vídeo's `aprovacoes-automaticas.json`. **Tell her in one line** what you approved on her behalf and why ("aprovei o plano sozinho, como você pediu com a autonomia alta; a direção recomendada foi …"), that she can still ask for changes, and go on (step 5 or 6). At a second Gate, the Quadro you chose is the recommended one: write it into **O que muda do Kit** as below.
+- `not-eligible` (her Autonomia is `baixa` or `média`), `no-autonomia` (no valid Perfil): hold the Gate with her, below. Any other refusal is the same as `aprovar-plano`'s (listed after this step).
+- In Nível 2 the credit Gate is still hers: ask it on its own, showing the Plano in short, as item 4 below says. **Autonomia never approves credits, Higgsedit, the Pré-corte, the Kit de marca, her review of the edit or the Kit learnings** (`never-automatic`).
+
 1. **Open it**, so `estado` shows the Vídeo waiting for her even if she leaves:
 
    ```bash
@@ -91,8 +101,6 @@ With `gate: "unico"`, first have the Quadros rendered and reviewed (step 5, up t
    - Record what she asked for in her own words: the Roteirista adds it to `pedidosDela`. Her request wins over the editorial repertoire, always.
 
 `aprovar-plano` refuses, changing nothing: `not-ready` (with `problemas`: fix them first), `wrong-gate` (the other Gate shape is due: see `gate`), `plano-not-approved` (the Quadros' Gate comes after the Plano's), `already-approved`, `not-planejamento`.
-
-*Pending: automatic approvals by Autonomia arrive in ticket #17.*
 
 ## 5. The Quadros de estilo
 

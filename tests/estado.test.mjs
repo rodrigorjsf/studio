@@ -111,8 +111,10 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
   // Vídeos from before the ingest existed: nothing ingested, no briefing section left open, no Plano.
   // No Página Notion linked anywhere: zero links is a valid choice.
   const semNotion = { paginas: 0, resumo: 'sem-paginas' };
+  // Nothing delivered with its dates recorded: no metrics yet.
+  const semMetricas = { videos: 0, medias: null, porVideo: [] };
   const pre = {
-    briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', versao: null, notion: semNotion,
+    briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', versao: null, aprovacoesAutomaticas: [], notion: semNotion,
   };
   assert.deepEqual(out.projetos, [
     {
@@ -121,10 +123,12 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
         { id: 'Dica rápida', status: 'Construção', rodada: null, nivel: 1, ...pre, waitingForCriadora: false },
         { id: 'Lançamento', status: 'Revisão', rodada: 2, nivel: 1, ...pre, waitingForCriadora: true },
       ],
+      metricas: semMetricas,
     },
     {
       id: 'Pessoal', briefing: 'completo', kit: 'ok', notion: semNotion,
       videos: [{ id: 'Receita antiga', status: 'Arquivado', rodada: 1, nivel: 2, ...pre, waitingForCriadora: false }],
+      metricas: semMetricas,
     },
   ]);
   assert.deepEqual(out.waiting, [{ projeto: 'Minha Empresa', video: 'Lançamento', status: 'Revisão' }]);

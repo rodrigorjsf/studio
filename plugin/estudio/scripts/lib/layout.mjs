@@ -46,6 +46,11 @@
 //                                    Higgsedit montaged (a part of the Vídeo or all of it), pedidos.json
 //                                    (each request `aprovar-higgsedit` approved: her words, the part, the
 //                                    estimate) and higgsedit.json (each paid run `gastar-higgsedit` authorized)
+//   projetos/<projeto>/videos/<vídeo>/aprovacoes-automaticas.json  every Gate the Diretor approved on her
+//                                    behalf because her Autonomia allowed it (`aprovar-automatico`): the
+//                                    Gate, her Autonomia then and when; she is always told
+//   projetos/<projeto>/videos/<vídeo>/aprendizados.json    after the Entrega: the Kit learnings the Diretor
+//                                    proposed, which she approved, and when they reached the Kit (`arquivar`)
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder is left to later stages and never rejected here.
@@ -85,3 +90,5 @@ export const GERADOS_REGISTRO = 'gerados/gerados.json';
 export const HIGGSEDIT = 'higgsedit';
 export const HIGGSEDIT_PEDIDOS = 'higgsedit/pedidos.json';
 export const HIGGSEDIT_REGISTRO = 'higgsedit/higgsedit.json';
+export const APROVACOES_AUTOMATICAS = 'aprovacoes-automaticas.json';
+export const APRENDIZADOS = 'aprendizados.json';

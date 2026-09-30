@@ -13,7 +13,7 @@ const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 
 // The edit is a JSON object holding only the fields that change. Objects merge field by
 // field; any other value (text, number, list, null) replaces the old one whole.
-function merge(base, edit) {
+export function merge(base, edit) {
   const result = { ...base };
   for (const [key, value] of Object.entries(edit)) {
     result[key] = isObject(value) && isObject(base[key]) ? merge(base[key], value) : value;
@@ -23,7 +23,7 @@ function merge(base, edit) {
 
 // Fields the edit may not set: the approval stamp belongs to this command, and the schema
 // version to the studio.
-const LOCKED = ['schemaVersion', 'aprovadoEm'];
+export const LOCKED = ['schemaVersion', 'aprovadoEm'];
 
 function parseEdit(editText) {
   let edit;

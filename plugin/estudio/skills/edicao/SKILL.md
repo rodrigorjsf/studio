@@ -1,6 +1,6 @@
 ---
 name: edicao
-description: Builds, reviews and delivers one Vídeo of the Criadora's Estúdio after its Plano is approved. The Motion designer builds the edit on her Master and renders key stills and a full render per version (v01, v02…); three Críticos (QC técnico, Guardião da marca, Revisor de plataforma) judge each version before she sees its stills, in an internal loop of at most three turns (`qc-interno`) that escalates to her in one question, and the QC técnico checks the Entrega renders (`qc`); the Diretor holds her review in counted Rodadas (aprovar / aprovar com pequenos ajustes / pedir mudanças, notes consolidated into one list, scope changes named); the Finalizador renders the vertical MP4 (16:9 or overlays on request) into the Vídeo's delivery folder, which the Diretor opens for her. Talks in Brazilian Portuguese. Use when a Vídeo is in Construção, QC interno, Revisão, Ajustes or Aprovado (`estado` says `continuar-video` with that Status), when she types /estudio:edicao, or asks to see, review or receive her edit ("quero ver a edição", "pode entregar").
+description: Builds, reviews and delivers one Vídeo of the Criadora's Estúdio after its Plano is approved. The Motion designer builds the edit on her Master and renders key stills and a full render per version (v01, v02…); three Críticos (QC técnico, Guardião da marca, Revisor de plataforma) judge each version before she sees its stills, in an internal loop of at most three turns (`qc-interno`) that escalates to her in one question, and the QC técnico checks the Entrega renders (`qc`); the Diretor holds her review in counted Rodadas (aprovar / aprovar com pequenos ajustes / pedir mudanças, notes consolidated into one list, scope changes named); the Finalizador renders the vertical MP4 (16:9 or overlays on request) into the Vídeo's delivery folder, which the Diretor opens for her; then the Diretor proposes Kit learnings, applies only the ones she approves, and archives the Vídeo (Arquivado). Talks in Brazilian Portuguese. Use when a Vídeo is in Construção, QC interno, Revisão, Ajustes, Aprovado or Entregue (`estado` says `continuar-video` with that Status), when she types /estudio:edicao, or asks to see, review or receive her edit ("quero ver a edição", "pode entregar").
 ---
 
 # Diretor — the edit, her review and the Entrega
@@ -26,7 +26,8 @@ Run `estado` and find the Vídeo: its `status`, `rodada` and `versao` (`{nome, d
 | `Ajustes` | Step 2, with her notes of the version she reviewed. |
 | `Revisão` | Step 4: her review is open. |
 | `Aprovado` | Step 5: the Entrega. |
-| `Entregue` | Tell her where the files are (`entrega` folder of the Vídeo). |
+| `Entregue` | Tell her where the files are (`entrega` folder of the Vídeo), then step 6: the Kit learnings and the archive. |
+| `Arquivado` | Done. Tell her where the files are; the learnings she approved are already in her Kit. |
 
 ## 2. A version is built
 
@@ -107,7 +108,7 @@ It moves the Vídeo to **Revisão**, sets `rodada` to the version's number and o
 
    Refusals change nothing: `no-notes` (changes need her notes), `notes-on-plain-approval` (approving with notes is `aprovar-com-ajustes`), `scope-change` (a new idea under an approval with small fixes: ask her whether it becomes "pedir mudanças" or waits for another Vídeo), `not-in-review`, `invalid-decision`.
 
-*Pending: automatic approvals by Autonomia arrive in ticket #17.*
+**Her review is always hers.** Whatever her Autonomia, the Diretor never approves a version of the edit for her: `alta` stops only here, to let her see the video before the final. "Decide você" is her answer, not an automatic approval.
 
 ## 5. The Entrega
 
@@ -122,14 +123,27 @@ It moves the Vídeo to **Revisão**, sets `rodada` to the version's number and o
 
    `entregar` holds every file in `entrega` against the Master — every MP4 through the same technical QC as `qc`, so a failed QC always blocks the Entrega; an overlay: the same duration (±1 frame) and no audio — and marks the Vídeo **Entregue**; its `verificacaoManual` names the photosensitivity check to pass on to her at the close. On `not-ready`, its `problemas` go back as in item 3; never tell her it is delivered before `"delivered": true`.
 5. **Open the folder for her.** Run `abrir` from the answer: `"<abrir.programa>" "<abrir.argumentos[0]>"`. Explorer (Windows, WSL) exits with code 1 even when it opened the folder: do not report that as a failure. If no window can open (a computer without a desktop), give her the `pasta` path instead.
-6. **Close.** In pt-BR: the video is ready, where it is (the Vídeo's `entrega` folder), each file and what it is for (the vertical one for Reels, TikTok and Shorts), and that the music is added in the app when her Kit's music policy says so. Say what she can ask now: a 16:9 version, the overlays, another Vídeo.
+6. **Close.** In pt-BR: the video is ready, where it is (the Vídeo's `entrega` folder), each file and what it is for (the vertical one for Reels, TikTok and Shorts), and that the music is added in the app when her Kit's music policy says so. Then step 6.
 
-*Pending: after the Entrega, the Kit learnings and archiving (Arquivado) arrive in ticket #17.*
+## 6. Kit learnings and the archive
+
+The studio gets better at her style one Vídeo at a time: what this Vídeo taught becomes part of the Kit de marca, **only when she approves it**.
+
+1. **Propose.** From this Vídeo's record — her notes in each `revisao/vNN/notas.md`, her requests in the Plano (`pedidosDela`), what she changed from the Kit (**O que muda do Kit** in `video.md`), the Críticos' rejections in `qc-interno.json` — pick at most **three** learnings that would hold for her next Vídeos of this Projeto, not one-off choices. Each is one pt-BR sentence for her and the Kit fields it changes, as `editar-kit` takes them: objects merge field by field; a list (`fazer`, `evitar`, `glossario`, …) is replaced whole, so give the full new list. Nothing worth keeping → no proposal.
+2. **Ask her once** (`AskUserQuestion` with `multiSelect` when available): which of them go into the Kit, each with "antes → depois" in plain words, plus "nenhum". Tell her it applies to her **next** Vídeos; the ones in progress keep their Kit unless she asks (`/estudio:editar-projeto`). "Decide você" approves none: a learning reaches her Kit only on her yes, whatever her Autonomia. This question comes after the Entrega, so it is not counted in the Vídeo's metrics.
+3. **Record and archive**, with every proposal and her answer (no proposal: `{"aprendizados": []}`):
+
+   ```bash
+   "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" arquivar "." "<projeto>" "<nome do vídeo>" '{"aprendizados": [{"descricao": "<pt-BR sentence>", "kit": {<Kit fields that change>}, "aprovado": true | false}]}'
+   ```
+
+   It applies only the approved ones to the Projeto's Kit (re-validated and re-approved, as `editar-kit` does; existing Vídeos keep their Kit), keeps every proposal in the Vídeo's `aprendizados.json` and moves the Vídeo to **Arquivado**. It refuses, changing nothing: `invalid-learning` (with `errors`: the change would break the Kit; fix it and ask again only if the meaning changed), `invalid-input`, `not-delivered` (the Vídeo is not `Entregue`), `kit-not-approved`.
+4. Tell her in one line what went into the Kit (`aplicados`), and what she can ask now: a 16:9 version, the overlays, another Vídeo (`/estudio:novo-video`).
 
 ## Rules
 
 - **The Master is untouchable** (`locked-final-cut`): the edit is composition on top; her original audio plays exactly once; the final duration equals the Master's (±1 frame).
 - **Content never appears before it is said**; **her face stays free**; **Prints stay whole**, the highlighter exactly on the quoted phrase; **text stays inside the Área livre**.
 - **Every version is kept** (v01, v02…): never delete or overwrite a version folder or a file of hers.
-- **Nothing is rendered for the Entrega before she approves** a version (or Autonomia records it, ticket #17).
+- **Nothing is rendered for the Entrega before she approves** a version: her review is never approved automatically.
 - Paths and names always go in quotes.

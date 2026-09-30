@@ -1,7 +1,7 @@
 ---
 title: Brand kit per front
 type: concept
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [../sources/estudio-profissional-de-video-report.md, ../sources/grilling-estudio-plugin-2026-09-29.md]
 ---
 
@@ -38,3 +38,7 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 - The default Kit has one source, `plugin/estudio/template/src/_shared/kit-padrao.json`, read by both `novo-projeto` (`lib/kit.mjs`) and the template (Prévia without a Projeto).
 - The gallery examples in `src/estilos/` keep their own palettes: they show a style, not a Projeto's brand.
 - Proof (Seam 2): `tests/template.test.mjs` scaffolds an Estúdio, renders stills from two fixture Kits and checks frame size and background color.
+
+## Built: Kit learnings after each Vídeo (ticket #17)
+
+After the Entrega the Diretor proposes at most three learnings from the Vídeo (her notes, requests, what she changed from the Kit, the Críticos' rejections) as Kit changes, and she approves each one. `arquivar` applies only the approved ones through `editar-kit`, so the Kit is re-validated and existing Vídeos keep their Kit, records every proposal in the Vídeo's `aprendizados.json`, and archives the Vídeo (`plugin/estudio/scripts/lib/arquivar.mjs`, `plugin/estudio/skills/edicao/SKILL.md` step 6).

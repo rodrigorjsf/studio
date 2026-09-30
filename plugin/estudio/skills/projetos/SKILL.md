@@ -1,6 +1,6 @@
 ---
 name: projetos
-description: Lists the Criadora's Projetos and every Vídeo in each, with its Status and what waits for her decision, in Brazilian Portuguese. Use when she types /estudio:projetos or asks what she has in progress ("meus projetos", "o que está parado", "o que falta eu aprovar", "quais vídeos já entreguei").
+description: Lists the Criadora's Projetos and every Vídeo in each, with its Status and what waits for her decision, and each Projeto's averages of questions, Gates, Rodadas and minutes to delivery, in Brazilian Portuguese. Use when she types /estudio:projetos or asks what she has in progress ("meus projetos", "o que está parado", "o que falta eu aprovar", "quais vídeos já entreguei").
 ---
 
 # Diretor — the Projetos list
@@ -32,10 +32,10 @@ One block per Projeto, in the order `estado` gives. Plain text, no JSON and no f
 
 Then, in one short section, **what waits for her** (`waiting`): one line each, saying what she has to decide. `Briefing` → answer the Vídeo's briefing; `Revisão` → review the stills of that Rodada; any other Status → approve the open Gate (the Plano, the Quadros de estilo or the credits). If `waiting` is empty, say that nothing waits for her.
 
+**How much each Projeto asked of her.** Each Projeto's `metricas` holds its delivered Vídeos' numbers, computed by `estado` (never count them yourself): `videos` (how many were measured), `medias` (`null` before the first delivery) and `porVideo` (each delivered Vídeo, in the order it was started). Each has `perguntas` (questions asked), `gates` (approvals, hers and automatic), `aprovacoesAutomaticas` (the Gates her Autonomia let you approve), `rodadas` (review rounds), `minutosAteEntrega` (minutes from the new Vídeo to the Entrega), and the internal review's `turnosInternos`, `tokensInternos` and `segundosInternos`. Under each Projeto with `videos` above 0, add one plain line with the averages, e.g. "em média: 3 perguntas, 2 aprovações (1 automática), 1,5 rodada, 42 minutos até a entrega"; numbers in pt-BR (comma for decimals), the internal-review numbers only when she or the maintainer asks. When she asks to compare Vídeos ("o segundo foi mais rápido?"), use `porVideo`.
+
 If `errors` is not empty, add one line naming each affected Projeto or Vídeo, and say you can fix it (`/estudio:estudio` does it).
 
 ## 3. Close
 
 End with the next step from `nextStep` in one sentence (for example "quer continuar a revisão do Lançamento?"), and what she can ask now: continue a Vídeo, start a new one, change a Projeto (`/estudio:editar-projeto`) or create another Projeto (`/estudio:novo-projeto`).
-
-*Pending: the per-Projeto averages of questions, Gates, Rodadas and minutes to delivery arrive in ticket #17.*

@@ -41,7 +41,7 @@ Explain the Autonomia options to her in plain words:
 - **média** (recomendada) — o que o Kit de marca do projeto já responde, eu decido e deixo registrado; o resto (plano, custo, revisão antes do vídeo final) eu te pergunto.
 - **alta** — eu decido quase tudo e deixo registrado; paro só para você ver o vídeo antes do final.
 
-Whatever the Autonomia, **spending Higgsfield credits always waits for her approval** — say so if she picks alta.
+Whatever the Autonomia, **spending Higgsfield credits always waits for her approval**, and so do the Pré-corte, the Kit de marca and what it learns after each Vídeo — say so if she picks alta. When the studio approves something on her behalf, it always tells her and keeps a record.
 
 ### "Decide você" on every question
 

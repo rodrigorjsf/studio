@@ -12,13 +12,15 @@
 //       face on every frame (`zona-do-rosto`), when the Diretor checks whether a recording looks
 //       untrimmed (`pausas`), when the Criadora approved the cuts of a Pré-corte (`precorte`), when
 //       the Plano and its Quadros de estilo are checked (`plano`) and when she approves them at
-//       their Gate (`aprovar-plano`); when she links Páginas Notion to a Projeto or Vídeo
+//       their Gate (`aprovar-plano`), or the Diretor approves a Gate her Autonomia leaves to him
+//       (`aprovar-automatico`); when she links Páginas Notion to a Projeto or Vídeo
 //       (`vincular-notion`), the Diretor records the Resumo Notion it read from them
 //       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
 //       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
 //       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); when the QC técnico holds
 //       a render against the Master (`qc`); when the Diretor records a turn of the three Críticos on a
 //       version, with its cost (`qc-interno`); when the Entrega is rendered and judged (`entregar`);
+//       after it, when she answered the Kit learnings and the Vídeo is archived (`arquivar`);
 //       and in Nível 2, when she approves the credit cost (`aprovar-creditos`) and before each
 //       Higgsfield generation is paid (`gastar-creditos`), and, only on her explicit request, when
 //       she approves a Higgsedit montage's cost (`aprovar-higgsedit`) and before each paid Higgsedit
@@ -34,6 +36,7 @@
 //       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" plano "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-plano "<folder>" "<projeto>" "<vídeo>" "<plano|quadros|plano-e-quadros>"
+//       node "<plugin root>/scripts/estudio.mjs" aprovar-automatico "<folder>" "<projeto>" "<vídeo>" "<gate>"
 //       node "<plugin root>/scripts/estudio.mjs" vincular-notion "<folder>" "<projeto>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" resumo-notion "<folder>" "<projeto>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" conferir-notion "<folder>" "<projeto>" "<vídeo>" '<json>'
@@ -43,6 +46,7 @@
 //       node "<plugin root>/scripts/estudio.mjs" abrir-revisao "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" decidir-revisao "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffmpeg>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" arquivar "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" qc "<folder>" "<projeto>" "<vídeo>" "<render>" "<ffmpeg>" "<ffprobe>"
 //       node "<plugin root>/scripts/estudio.mjs" qc-interno "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
@@ -53,6 +57,8 @@
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
 import path from 'node:path';
+import { arquivar } from './lib/arquivar.mjs';
+import { aprovarAutomatico } from './lib/autonomia.mjs';
 import { criar } from './lib/criar.mjs';
 import {
   aprovarCreditos, aprovarHiggsedit, gastarCreditos, gastarHiggsedit,
@@ -82,6 +88,7 @@ const COMMANDS = {
   'zona-do-rosto': { run: zonaDoRosto, args: ['"<projeto>"', '"<vídeo>"'] },
   plano: { run: plano, args: ['"<projeto>"', '"<vídeo>"'] },
   'aprovar-plano': { run: aprovarPlano, args: ['"<projeto>"', '"<vídeo>"', '"<etapa>"'] },
+  'aprovar-automatico': { run: aprovarAutomatico, args: ['"<projeto>"', '"<vídeo>"', '"<gate>"'] },
   'vincular-notion': { run: vincularNotion, args: ['"<projeto>"', "'<json>'"] },
   'resumo-notion': { run: resumoNotion, args: ['"<projeto>"', "'<json>'"] },
   'conferir-notion': { run: conferirNotion, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
@@ -91,6 +98,7 @@ const COMMANDS = {
   'abrir-revisao': { run: abrirRevisao, args: ['"<projeto>"', '"<vídeo>"'] },
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
+  arquivar: { run: arquivar, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   'aprovar-creditos': { run: aprovarCreditos, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },

@@ -9,7 +9,7 @@ import { validateKit } from './kit.mjs';
 import { readNotion } from './notion.mjs';
 import { readPerfil } from './perfil.mjs';
 import {
-  DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
+  APROVACOES_AUTOMATICAS, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
@@ -56,7 +56,33 @@ const VIDEO_RECORD = [
   ['higgseditParadoEm', isoDate, 'must be a date (ISO)'],
   ['iniciadoEm', isoDate, 'must be a date (ISO)'],
   ['entregueEm', isoDate, 'must be a date (ISO)'],
+  ['arquivadoEm', isoDate, 'must be a date (ISO)'],
 ];
+// The numbers of one delivered Vídeo, for the Projeto's metrics: its counters, its Rodadas and
+// the minutes from `novo-video` to the Entrega. Null when it cannot be measured: not delivered
+// yet (its numbers are not final), or without valid dates (delivered before the studio kept them).
+const round1 = (n) => Math.round(n * 10) / 10;
+function measurement(video, data) {
+  if (!isFinished(video.status) || !isoDate(data.iniciadoEm) || !isoDate(data.entregueEm)) return null;
+  const minutos = (Date.parse(data.entregueEm) - Date.parse(data.iniciadoEm)) / 60000;
+  if (minutos < 0 || COUNTERS.some((key) => data[key] != null && !wholeCount(data[key]))) return null;
+  const counters = Object.fromEntries(COUNTERS.map((key) => [key, data[key] ?? 0]));
+  return { video: video.id, ...counters, rodadas: video.rodada ?? 0, minutosAteEntrega: round1(minutos), iniciadoEm: data.iniciadoEm };
+}
+
+// A Projeto's metrics: how many delivered Vídeos were measured, the average of each number over
+// them (null before the first), and each Vídeo's own numbers in the order it was started, so her
+// first and second Vídeos can be compared.
+function metrics(measured) {
+  const porVideo = [...measured]
+    .sort((a, b) => Date.parse(a.iniciadoEm) - Date.parse(b.iniciadoEm))
+    .map(({ iniciadoEm, ...numbers }) => numbers);
+  if (porVideo.length === 0) return { videos: 0, medias: null, porVideo };
+  const keys = Object.keys(porVideo[0]).filter((key) => key !== 'video');
+  const average = (key) => round1(porVideo.reduce((sum, v) => sum + v[key], 0) / porVideo.length);
+  return { videos: porVideo.length, medias: Object.fromEntries(keys.map((key) => [key, average(key)])), porVideo };
+}
+
 // Delivered or archived: the Vídeo's work is done.
 export const isFinished = (status) => STATUSES.get(status)?.finished === true;
 
@@ -154,12 +180,13 @@ export function estado(folder) {
       else kit = data.aprovadoEm ? 'ok' : 'aguardando-aprovacao';
     }
 
+    const measured = [];
     const videos = subfolders(path.join(dir, VIDEOS)).map((videoName) => {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
       const video = {
         id: nfc(videoName), status: null, rodada: null, nivel: null, briefing: 'completo',
         ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', versao: null,
-        notion: notion(path.join(dir, VIDEOS, videoName)), waitingForCriadora: false,
+        aprovacoesAutomaticas: [], notion: notion(path.join(dir, VIDEOS, videoName)), waitingForCriadora: false,
       };
       // The ingest, as far as it went: a Vídeo interrupted midway resumes from what is missing.
       const videoFile = (rel) => path.join(dir, VIDEOS, videoName, ...rel.split('/'));
@@ -189,6 +216,11 @@ export function estado(folder) {
         if (decided !== null && !DECISIONS.includes(decided?.decisao)) fail(file, `decisao must be one of: ${DECISIONS.join(', ')}`);
         video.versao = { nome: latest, decisao: DECISIONS.includes(decided?.decisao) ? decided.decisao : null };
       }
+      // The Gates the Diretor approved on her behalf (`aprovar-automatico`), so he can always tell her.
+      const automaticFile = videoFile(APROVACOES_AUTOMATICAS);
+      const automatic = fs.existsSync(automaticFile) ? readJson(automaticFile) : null;
+      if (automatic !== null && !Array.isArray(automatic?.aprovacoes)) fail(automaticFile, 'aprovacoes must be a list of automatic approvals');
+      else if (automatic !== null) video.aprovacoesAutomaticas = automatic.aprovacoes;
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
       const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;
@@ -218,9 +250,11 @@ export function estado(folder) {
       for (const [key, check, problem] of VIDEO_RECORD) {
         if (data[key] != null && !check(data[key])) fail(doc, `${key} ${JSON.stringify(data[key])} ${problem}`);
       }
+      const numbers = measurement(video, data);
+      if (numbers) measured.push(numbers);
       return video;
     });
-    return { id: nfc(name), briefing: briefingState, kit, notion: notion(dir), videos };
+    return { id: nfc(name), briefing: briefingState, kit, notion: notion(dir), videos, metricas: metrics(measured) };
   });
 
   const waiting = projetos.flatMap((projeto) => projeto.videos
