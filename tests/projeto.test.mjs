@@ -30,7 +30,8 @@ function estudio() {
   fs.mkdirSync(dir);
   fs.writeFileSync(path.join(dir, 'estudio.json'), '{"schemaVersion": 1}\n');
   fs.mkdirSync(path.join(dir, 'projetos'));
-  fs.writeFileSync(path.join(dir, 'perfil.md'), '---\nautonomia: media\n---\n# Perfil\n');
+  // A complete Perfil, as the Entrevistador writes it: `estado` validates every answer.
+  fs.copyFileSync(path.join(repoRoot, 'tests', 'fixtures', 'estudios', 'valido', 'perfil.md'), path.join(dir, 'perfil.md'));
   return dir;
 }
 

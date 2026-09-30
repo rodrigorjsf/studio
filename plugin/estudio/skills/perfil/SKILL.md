@@ -1,6 +1,6 @@
 ---
 name: perfil
-description: The Entrevistador's Perfil Grilling. Asks the Criadora, once, who she is, her work, routine, time to approve, technical level, conversation tone and Autonomia, and writes her Perfil; reopens it to change answers. Use when she types /estudio:perfil, asks to change her Perfil or how much the studio decides for her ("mudar meu perfil", "quero que você decida mais", "mudei de rotina"), or when the Diretor finds no Perfil yet (`estado` says `nextStep.action: "perfil"`).
+description: The Entrevistador's Perfil Grilling. Asks the Criadora, once, who she is, her work, routine, time to approve, technical level, conversation tone and Autonomia, and writes her Perfil; reopens it to change answers. Use when she types /estudio:perfil, asks to change her Perfil or how much the studio decides for her ("mudar meu perfil", "quero que você decida mais", "mudei de rotina"), or when the Diretor finds no Perfil yet (`estado` returns the `nextStep.action` "perfil").
 ---
 
 # Entrevistador — the Perfil
