@@ -74,13 +74,16 @@ function checkPlugin(dir, expectedName, errors) {
 }
 
 // The bundled platform reference of the Texto do post (spec #39, ADR 0008): every rule keeps its
-// provenance, so the quarterly refresh can tell what is official from what is marketing. When the
-// file exists, each rule must carry a source label, a `sourced:` date and a URL; its links are
+// provenance, so the quarterly refresh can tell what is official from what is marketing. The file
+// is required, and each rule must carry a source label, a `sourced:` date and a URL; its links are
 // held to the self-contained rule by checkLinks like any other package markdown.
 function checkPlatformReference(dir, pluginName, errors) {
   const file = platformReferenceFile(dir);
-  if (!fs.existsSync(file)) return;
   const where = `${pluginName}: ${PLATFORM_REFERENCE}`;
+  if (!fs.existsSync(file)) {
+    errors.push(`${where} is missing (the Social media writes the Texto do post from it)`);
+    return;
+  }
   const rules = platformRules(fs.readFileSync(file, 'utf8'));
   if (rules.length === 0) errors.push(`${where}: has no rule (every rule is a top-level bullet)`);
   for (const rule of rules) {
@@ -312,8 +315,14 @@ function checkSkills(dir, pluginName, errors) {
   }
 }
 
+// Personas the package must ship: the Social media writes every Texto do post (spec #39).
+const REQUIRED_PERSONAS = ['social-media.md'];
+
 function checkPersonas(dir, pluginName, errors) {
   const agentsDir = path.join(dir, 'agents');
+  for (const file of REQUIRED_PERSONAS.filter((f) => !fs.existsSync(path.join(agentsDir, f)))) {
+    errors.push(`${pluginName}: agents/${file} is missing (a required persona)`);
+  }
   if (!fs.existsSync(agentsDir)) return;
   for (const file of fs.readdirSync(agentsDir).filter((f) => f.endsWith('.md'))) {
     const fields = frontmatter(fs.readFileSync(path.join(agentsDir, file), 'utf8'));

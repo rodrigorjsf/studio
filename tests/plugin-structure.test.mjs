@@ -39,6 +39,11 @@ function fixture(files = {}) {
     }),
     'plugin/estudio/.claude-plugin/plugin.json': JSON.stringify({ name: 'estudio', version: '0.1.0' }),
     'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: claude-opus-5-5\neffort: medium\n---\nBody\n',
+    // Required by the check: the Social media persona and the bundled platform reference.
+    'plugin/estudio/agents/social-media.md':
+      '---\nname: social-media\nmodel: claude-sonnet-5-5\neffort: medium\ntools: Bash, Read, Write\ncolor: cyan\ndescription: A persona.\n---\nBody\n',
+    'plugin/estudio/skills/estudio/references/platform-rules.md':
+      '# Platform rules\n\n## YouTube\n\n- [official] YouTube ignores every hashtag past 60. sourced: 2026-09-30 <https://support.google.com/youtube/answer/6390658>\n',
   };
   for (const [rel, content] of Object.entries({ ...base, ...files })) {
     if (content === null) continue;
@@ -113,6 +118,17 @@ test('the Social media persona, pinned to Sonnet 5.5 at medium effort with a col
   }));
   assert.deepEqual(verdict.errors, []);
   assert.equal(code, 0);
+});
+
+test('a package without the Social media persona is rejected', () => {
+  assertRejected(fixture({ 'plugin/estudio/agents/social-media.md': null }), 'agents/social-media.md is missing');
+});
+
+test('a package without the bundled platform reference is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/skills/estudio/references/platform-rules.md': null }),
+    'skills/estudio/references/platform-rules.md is missing',
+  );
 });
 
 test('the Social media persona without a pinned model, effort or color is rejected', () => {

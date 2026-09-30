@@ -79,7 +79,7 @@ files, exit codes), never on prompt wording.
   ingest and Pré-corte, purple Plano and Quadros de estilo, blue the Remotion build, orange the two
   personas that spend Higgsfield credits, green render and Entrega, and one warm color per Crítico
   (red QC técnico, yellow Guardião da marca, pink Revisor de plataforma), because the three run side
-  by side.
+  by side. The package must ship the Social media (`agents/social-media.md`).
 - **Skills** (`plugin/estudio/skills/*/SKILL.md`) pin the same way: `model: claude-opus-5-5` and
   `effort: medium`, the spec's setting for the Diretor and the Entrevistador on the main thread.
 - **Críticos** (`qc-tecnico`, `guardiao-da-marca`, `revisor-de-plataforma`) hold no editing tool.
@@ -93,7 +93,7 @@ files, exit codes), never on prompt wording.
 - **Preparação host list**: every literal https host in `scripts/instalar.sh`, `scripts/instalar.ps1`
   and the `vendor.json` file URLs is in `plugin/estudio/hosts.json`, and no Hugging Face host is.
   The Diretor hands that list to the Criadora when a download is blocked by her cloud workspace.
-- **Platform reference provenance**: every rule of `skills/estudio/references/platform-rules.md`
+- **Platform reference provenance**: the file must exist, and every rule of `skills/estudio/references/platform-rules.md`
   (a top-level bullet) carries a source label (`[official]`, `[study]` or `[marketing]`), a
   `sourced: YYYY-MM-DD` date and an https URL, and the file links nothing outside the package.
 - Size cap: 5,000 files and 200 MB.
