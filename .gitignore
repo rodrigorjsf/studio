@@ -10,6 +10,7 @@ projetos/*
 !projetos/000. exemplo/
 projetos/000. exemplo/**/*.mp4
 projetos/000. exemplo/**/*.mov
-.claude/skills/
+.claude/skills/*
+!.claude/skills/llm-wiki/
 .claude/settings.local.json
 skills-lock.json

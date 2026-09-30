@@ -95,3 +95,7 @@ Default five-label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, 
 ### Domain docs
 
 Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+## LLM wiki
+
+Project knowledge lives in `wiki/` (schema: `wiki/SCHEMA.md`), maintained with the `llm-wiki` skill; immutable sources live in `raw/`.
