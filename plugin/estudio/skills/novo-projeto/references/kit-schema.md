@@ -38,6 +38,10 @@ Once approved, the Kit changes only through `editar-kit` (the `editar-projeto` s
 
 **A Vídeo reads its own `kit.json` when it has one, and the Projeto's `kit.json` otherwise.** A Vídeo moves to the Projeto's current Kit only when the Criadora opts in (`atualizar-kit-video`); a delivered or archived Vídeo never does. Asset paths in a Vídeo's Kit still point into the Projeto's `kit/` folder, so a file there is never overwritten or deleted.
 
+## When the Kit defines the style
+
+A Kit **defines the style** when none of its look text fields is empty (`""`; sound, `som.*`, does not count): the fields she left as "sem preferência" in the Projeto interview, such as `camera.comportamento`, `camera.enquadramento` or `imagens.interacao`. The `plano` command lists them as `lacunasDoKit`. With none, one Gate approves a Vídeo's Plano and its Quadros de estilo together; with any, the look is still open and the Quadros get a Gate of their own after the Plano's. Filling those fields (`editar-kit`) makes the next Vídeos take one Gate.
+
 ## What stays in the briefing, not the Kit
 
 Business, audience and tone of voice are prose. They live in the pt-BR briefing `projeto.md` under their sections. The Kit holds only what a composition or a Crítico can apply mechanically.

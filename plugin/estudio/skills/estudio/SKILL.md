@@ -67,7 +67,7 @@ It prints JSON. **This output is your only source for the Estúdio's state**: do
 | `isEmpty` | `true`: nothing of hers is in the folder (hidden and system files do not count). |
 | `errors` | `[{file, message}]`: documents that are missing or malformed, path relative to the Estúdio. |
 | `perfil` | `present`: whether her Perfil exists. When present: `autonomia` (`baixa` / `média` / `alta`), `tom` (`explicar mais` / `decidir mais`), `nivelTecnico` (`iniciante` / `intermediário` / `avançado`) and `decideVoce`, the answers she left to you. |
-| `projetos` | Each Projeto: `id` (folder name), `briefing` (`completo` / `incompleto` = its interview has unanswered sections), `kit` (`ok` = approved / `aguardando-aprovacao` / `pendente` = no Kit yet / `invalido`), `videos` with `id`, `status`, `rodada`, `nivel`, `briefing` (`incompleto` = the Vídeo briefing has unanswered sections), `ingest` (`transcricao`, `zonaDoRosto`: whether the Assistente de edição finished each), `waitingForCriadora`. |
+| `projetos` | Each Projeto: `id` (folder name), `briefing` (`completo` / `incompleto` = its interview has unanswered sections), `kit` (`ok` = approved / `aguardando-aprovacao` / `pendente` = no Kit yet / `invalido`), `videos` with `id`, `status`, `rodada`, `nivel`, `briefing` (`incompleto` = the Vídeo briefing has unanswered sections), `ingest` (`transcricao`, `zonaDoRosto`: whether the Assistente de edição finished each), `plano` (`ausente` / `rascunho` / `aprovado`) and `quadros` (`ausentes` / `rascunho` / `aprovados`): the Plano and its Quadros de estilo, `waitingForCriadora`. |
 | `waiting` | What waits for her now: `{projeto, video, status}`. |
 | `nextStep` | `{action, projeto?, video?, status?}`: the single next step. |
 
@@ -77,7 +77,7 @@ Act on `nextStep.action`:
 - **`corrigir-erros`** — a document is broken. Fix the files you or the studio wrote, using `errors`; never delete a file of hers to make an error go away. If you cannot fix one, tell her in one plain sentence which Projeto or Vídeo is affected. An error in `perfil.md` about a missing or invalid answer means asking her that one question again, as `/estudio:perfil` does.
 - **`perfil`** — she has no Perfil yet: this is her first time. Greet her in one line, then run the **Perfil Grilling** as the Entrevistador: invoke the `estudio:perfil` skill (or read [its instructions](../perfil/SKILL.md) and follow them). When it is written, run `estado` again and continue.
 - **`novo-projeto`**, **`concluir-projeto`**, **`aprovar-kit`** — she has no Projeto yet, a Projeto whose interview was interrupted (`projeto`), or a Projeto whose Kit de marca waits for her approval (`projeto`). Follow the [novo-projeto skill](../novo-projeto/SKILL.md): it runs the Projeto interview, writes the briefing and the Kit, and holds the Kit approval Gate. A Projeto whose `kit` is not `ok` cannot take a Vídeo yet.
-- **`continuar-video`** — tell her in one sentence where that Vídeo stopped (`status`, `rodada`) and, if it is in `waiting`, what she needs to decide. Mention any other item in `waiting` in one line each. A Vídeo in `Briefing` resumes in the [novo-video skill](../novo-video/SKILL.md).
+- **`continuar-video`** — tell her in one sentence where that Vídeo stopped (`status`, `rodada`) and, if it is in `waiting`, what she needs to decide. Mention any other item in `waiting` in one line each. A Vídeo in `Briefing` resumes in the [novo-video skill](../novo-video/SKILL.md); a Vídeo in `Planejamento` in the [plano skill](../plano/SKILL.md).
 - **`novo-video`** — everything is up to date; offer to start a new Vídeo from her recording: follow the [novo-video skill](../novo-video/SKILL.md) (`/estudio:novo-video`).
 
 When she asks what she has in progress, follow the [projetos skill](../projetos/SKILL.md) (`/estudio:projetos`). When she wants to change a Projeto's briefing or Kit de marca, follow the [editar-projeto skill](../editar-projeto/SKILL.md) (`/estudio:editar-projeto`).
@@ -130,7 +130,7 @@ After watching the video, **propose two or three directions yourself** ("este v�
 - **Simple.** No jargon. If you use a technical term, explain it in half a sentence.
 - **One decision at a time.** Do not dump ten questions; ask the essential and assume sensible defaults for the rest, saying which you assumed.
 - **Prints.** If the speech mentions sites, news, tools or data and there is no matching print, say exactly which prints are missing and why.
-- **Mandatory approval points:** the plan before programming or generating anything; the review stills before the final render; in Nível 2, the credit cost before generating.
+- **Mandatory approval points:** the plan before programming or generating anything (the [plano skill](../plano/SKILL.md)); the review stills before the final render; in Nível 2, the credit cost before generating.
 - **Her request rules.** Editorial direction is repertoire, not law; when she asks for something else, follow it and record it in the plan.
 - **Honesty.** If something did not turn out well or is not possible in the tool, say so and propose an alternative.
 

@@ -60,6 +60,8 @@ In the plugin, this step and the next are the [novo-video skill](../../novo-vide
 
 ### 3. Plan (approval point)
 
+In the plugin, this step is the [plano skill](../../plano/SKILL.md): the Roteirista-estrategista writes the Plano as `plano.json` in the Vídeo folder (scenes on word indexes of `palavras.json`), the studio's `plano` command refuses any scene before its word, over the Zona do rosto or with text outside the Área livre, the Diretor de arte renders two or three Quadros de estilo on real frames of her video (`QuadroDeEstilo` in the Estúdio's template), and the Diretor holds one Gate for both when the Kit defines the style, two otherwise. The upstream `plano.md` below describes the same content.
+
 Claude writes `plano.md` using the [editorial direction](editorial-direction.md):
 
 - reading of the video and your guidance;
