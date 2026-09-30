@@ -16,3 +16,6 @@ Pages: sources/grilling-estudio-plugin-2026-09-29.md, analyses/estudio-plugin-de
 
 ## [2026-09-29] ingest | Spec — Estúdio plugin v1
 Pages: sources/spec-estudio-plugin-v1.md, analyses/estudio-plugin-decisions.md, index.md.
+
+## [2026-09-29] update | Spec sliced into tickets #2–#19
+Pages: sources/spec-estudio-plugin-v1.md, index.md.
