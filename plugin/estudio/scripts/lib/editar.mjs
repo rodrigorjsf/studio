@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { estado, isFinished, nfc, subfolders } from './estado.mjs';
-import { validateKit } from './kit.mjs';
+import { plataformasDoKit, validateKit } from './kit.mjs';
 import { KIT, PROJETOS, VIDEO_KIT, VIDEOS } from './layout.mjs';
 import { findProjeto, freezeVideoKits } from './projeto.mjs';
 import { isObject, parseJson } from './valores.mjs';
@@ -62,6 +62,7 @@ export function editarKit(folder, nome, editText) {
     edited: true,
     projeto: projeto.id,
     aprovadoEm: kit.aprovadoEm,
+    plataformas: plataformasDoKit(kit),
     videosKeepingTheirKit,
   };
 }

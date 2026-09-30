@@ -42,3 +42,7 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 ## Built: Kit learnings after each Vídeo (ticket #17)
 
 After the Entrega the Diretor proposes at most three learnings from the Vídeo (her notes, requests, what she changed from the Kit, the Críticos' rejections) as Kit changes, and she approves each one. `arquivar` applies only the approved ones through `editar-kit`, so the Kit is re-validated and existing Vídeos keep their Kit, records every proposal in the Vídeo's `aprendizados.json`, and archives the Vídeo (`plugin/estudio/scripts/lib/arquivar.mjs`, `plugin/estudio/skills/edicao/SKILL.md` step 6).
+
+## Built: the Kit records the Projeto's platforms (ticket #41, spec #39)
+
+The Kit gained an optional `plataformas` field, a non-empty list of `reels`, `tiktok` and `shorts`, validated in `plugin/estudio/scripts/lib/kit.mjs`; a Kit without it reads as all three (`plataformasDoKit`). New Projetos get all three from `kit-padrao.json`. The Projeto Grilling asks it after the topic catalogue (`plugin/estudio/skills/novo-projeto/SKILL.md`) and `editar-kit` changes it, reporting the effective list as `plataformas`. Vídeos in progress keep their Kit as with any edit. Proof: `tests/plataformas.test.mjs`. The Social media persona that reads it is a later ticket of the same spec.

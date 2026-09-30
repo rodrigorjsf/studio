@@ -4,7 +4,7 @@ The Kit de marca is the Projeto's machine-readable identity: `projetos/<projeto>
 
 In the Estúdio's Remotion template, `src/_shared/kit.ts` loads this file for every composition and `src/kit/PreviaDoKit.tsx` draws it on one frame (the "Prévia do Kit"); the defaults below live in `src/_shared/kit-padrao.json`, the one file both `novo-projeto` and the template read.
 
-`novo-projeto` writes a complete, valid Kit with the defaults below. Those defaults are also what "decide você" means when the Criadora has no preference. Change only the fields her answers settle, and keep the rest. Keys are pt-BR, like every document in the Estúdio. Unknown extra keys are allowed but are not read by anything yet, so do not invent new ones.
+`novo-projeto` writes a complete, valid Kit with the defaults below. Those defaults are also what "decide você" means when the Criadora has no preference. Change only the fields her answers settle, and keep the rest. Keys are pt-BR, like every document in the Estúdio. Unknown extra keys are allowed but are not read by anything yet, so do not invent new ones. Every field below is required except `plataformas`.
 
 ## Fields
 
@@ -24,6 +24,7 @@ In the Estúdio's Remotion template, `src/_shared/kit.ts` loads this file for ev
 | `som` | `{efeitos}` (text) | `"sutis"` | Som |
 | `musica.politica` | `"no-app"` (she adds music in Instagram/TikTok), `"arquivo-dela"` (she supplies a file), `"sem-musica"` | `"no-app"` | Música |
 | `entregaveis` | `{formatos: non-empty list of Formato, overlays: bool}` | `["9:16"]`, false | Entregáveis |
+| `plataformas` | non-empty list of `"reels"`, `"tiktok"` and `"shorts"`: the apps the Projeto posts on. The Social media writes the Texto do post only for these. **Optional:** a Kit without the field (made before it existed) reads as all three. | `["reels", "tiktok", "shorts"]` | Plataformas (asked after the catalogue, no briefing section) |
 | `creditos` | `{porVideo, porMes}`: Higgsfield credits (0 or more), or `null` when not set | both `null` | Orçamento de créditos |
 | `fazer`, `evitar` | text[] | `[]` | any topic ("sempre…", "nunca…") |
 | `glossario` | text[]: names, brands and jargon the transcription must spell right | `[]` | Negócio, Público |
