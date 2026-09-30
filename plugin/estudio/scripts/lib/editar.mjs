@@ -39,7 +39,7 @@ function parseEdit(editText) {
 }
 
 // The approved Projeto named `nome`, with its folder on disk, or the refusal to return.
-function approvedProjeto(folder, nome) {
+export function approvedProjeto(folder, nome) {
   const state = estado(folder);
   const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(nome));
   if (!projeto) return { refusal: { reason: 'unknown-projeto' } };

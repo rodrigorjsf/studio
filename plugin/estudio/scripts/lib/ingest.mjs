@@ -4,7 +4,7 @@
 //
 // The Assistente de edição samples the Master in face-zone mode (one frame per second over the
 // whole clip, near-duplicates kept), saves the sampler's JSON as `amostras.json`, looks at every
-// frame and writes one face box per frame to `medicoes.json`:
+// frame and writes one measurement of the face per frame to `medicoes.json`:
 //
 //   [{"t": 0, "rosto": {"x": 0.35, "y": 0.2, "largura": 0.3, "altura": 0.2}}, {"t": 1, "rosto": null}, …]
 //
@@ -16,11 +16,15 @@
 export const MARGIN = 0.05;
 // Timestamps are matched to the sampler's with this tolerance (seconds).
 const SAME_TIME = 0.05;
+// The sampler's face-zone mode takes one frame per second, and past 600 frames spreads 600 over
+// the clip (amostrar.py FACE_ZONE_FPS / FACE_ZONE_CAP): no gap may be wider than that.
+const FACE_ZONE_FPS = 1;
+const FACE_ZONE_CAP = 600;
 
 const round = (v) => Math.round(v * 10000) / 10000;
 const isFraction = (v) => typeof v === 'number' && v >= 0 && v <= 1;
 
-// Null when `box` is a face box inside the frame, otherwise the plain problem.
+// Null when `box` is a measurement of the face inside the frame, otherwise the plain problem.
 export function boxProblem(box) {
   if (box === null || typeof box !== 'object' || !['x', 'y', 'largura', 'altura'].every((k) => isFraction(box[k]))) {
     return 'must be a box {x, y, largura, altura} of fractions from 0 to 1';
@@ -30,15 +34,16 @@ export function boxProblem(box) {
   return null;
 }
 
-// Whether the sampler's run is a face-zone pass over the whole clip: no near-duplicate dropped,
-// no stretch left out at the start, the end or in between.
+// Whether the sampler's run is a face-zone pass over the whole clip, as dense as that mode
+// samples: no near-duplicate dropped, no gap wider than one sampling step at the start, the
+// end or in between.
 function coversWholeClip(samples) {
   const times = (samples?.frames ?? []).map((f) => f.timestamp_seconds);
   const duration = samples?.meta?.duration_seconds;
   if (samples?.modo !== 'zona-do-rosto' || samples.dedup !== false || times.length === 0 || !(duration > 0)) return false;
-  const spacing = duration / times.length;
+  const step = Math.max(1 / FACE_ZONE_FPS, duration / FACE_ZONE_CAP);
   const gaps = [times[0], ...times.slice(1).map((t, i) => t - times[i]), duration - times.at(-1)];
-  return gaps[0] <= spacing + SAME_TIME && gaps.at(-1) <= spacing + SAME_TIME && gaps.every((gap) => gap <= 2 * spacing + SAME_TIME);
+  return gaps.every((gap) => gap <= step * 1.01 + SAME_TIME);
 }
 
 // The Zona do rosto from the sampler's JSON and the per-frame measurements, or the refusal.
@@ -73,6 +78,14 @@ export function measureZone(samples, measurements) {
     duracao: samples.meta.duration_seconds,
     medidoEm: new Date().toISOString(),
   };
+}
+
+// Null when a parsed zona-do-rosto.json holds a zone inside the frame (or `null`: no face on
+// screen), otherwise the plain problem.
+export function zonaProblem(data) {
+  if (data?.zona === null) return null;
+  const problem = boxProblem(data?.zona);
+  return problem ? `zona ${problem}, or null when no face is on screen` : null;
 }
 
 // Null when a parsed palavras.json is a word-timed transcript, otherwise the plain problem.

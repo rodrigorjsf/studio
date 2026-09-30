@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { unansweredSections } from './briefing.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
-import { boxProblem, transcriptProblem } from './ingest.mjs';
+import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readPerfil } from './perfil.mjs';
 import {
@@ -30,11 +30,11 @@ const STATUSES = new Map([
   ['Entregue', { waitsForCriadora: false, finished: true }],
   ['Arquivado', { waitsForCriadora: false, finished: true }],
 ]);
-const NIVEIS = new Set([1, 2]);
+export const NIVEIS = new Set([1, 2]);
 // The Vídeo document's metric counters: questions asked, Gates opened, Gates Autonomia approved.
 export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas'];
 export const STATUS_NAMES = [...STATUSES.keys()];
-const wholeCount = (v) => Number.isInteger(v) && v >= 0;
+export const wholeCount = (v) => Number.isInteger(v) && v >= 0;
 const credits = (v) => typeof v === 'number' && v >= 0;
 const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
@@ -141,8 +141,7 @@ export function estado(folder) {
         return !problem;
       };
       video.ingest.transcricao = ingested(PALAVRAS, transcriptProblem);
-      video.ingest.zonaDoRosto = ingested(ZONA_DO_ROSTO, (data) => (data.zona === null || !boxProblem(data.zona)
-        ? null : `zona ${boxProblem(data.zona)}, or null when no face is on screen`));
+      video.ingest.zonaDoRosto = ingested(ZONA_DO_ROSTO, zonaProblem);
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
       const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;

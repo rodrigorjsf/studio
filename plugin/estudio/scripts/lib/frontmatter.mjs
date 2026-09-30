@@ -56,12 +56,16 @@ function writeScalar(value) {
   return scalar(value) === value ? value : `"${value}"`;
 }
 
-// The document `text` with its frontmatter block replaced by `data`; the body is kept as is.
-export function replaceFrontmatter(text, data) {
-  const lines = text.replace(/^﻿/, '').split(/\r?\n/);
-  const body = lines.slice(lines.indexOf('---', 1) + 1).join('\n');
+// A document with `data` as its frontmatter block (null values written empty) and `body` after it.
+export function writeDocument(data, body) {
   const block = Object.entries(data).map(([key, value]) => (Array.isArray(value)
     ? [`${key}:`, ...value.map((item) => `  - ${writeScalar(item)}`)].join('\n')
     : `${key}:${value === null ? '' : ` ${writeScalar(value)}`}`));
   return `---\n${block.join('\n')}\n---\n${body}`;
+}
+
+// The document `text` with its frontmatter block replaced by `data`; the body is kept as is.
+export function replaceFrontmatter(text, data) {
+  const lines = text.replace(/^﻿/, '').split(/\r?\n/);
+  return writeDocument(data, lines.slice(lines.indexOf('---', 1) + 1).join('\n'));
 }

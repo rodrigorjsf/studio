@@ -309,6 +309,10 @@ test('zona-do-rosto refuses a measurement that does not cover the whole clip, fr
   medir(dir, 'Dica rápida', amostras(10, [5, 6, 7, 8, 9]), [5, 6, 7, 8, 9].map((t) => ({ t, rosto: face })));
   assert.equal(zona().reason, 'not-whole-clip');
 
+  // One frame in the middle of a 60 s clip is not dense enough to follow the face.
+  medir(dir, 'Dica rápida', amostras(60, [30]), [{ t: 30, rosto: face }]);
+  assert.equal(zona().reason, 'not-whole-clip');
+
   // The overview pass (near-duplicates dropped) is not a face-zone measurement.
   medir(dir, 'Dica rápida', amostras(3, [0, 1, 2], { modo: 'visao-geral', dedup: true }), [0, 1, 2].map((t) => ({ t, rosto: face })));
   assert.equal(zona().reason, 'not-whole-clip');

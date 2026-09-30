@@ -17,7 +17,7 @@
 //   projetos/<projeto>/videos/<vídeo>/frames/visao-geral/   the overview frames the studio watches, and
 //                                    the sampler's amostras.json
 //   projetos/<projeto>/videos/<vídeo>/frames/zona-do-rosto/ face-zone frames, the sampler's amostras.json
-//                                    and the per-frame face boxes medicoes.json (see ingest.mjs)
+//                                    and medicoes.json, the face measured on each frame (see ingest.mjs)
 //   projetos/<projeto>/videos/<vídeo>/zona-do-rosto.json    the Zona do rosto `zona-do-rosto` measured
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //

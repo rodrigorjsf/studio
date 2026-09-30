@@ -5,8 +5,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PLACEHOLDER } from './briefing.mjs';
-import { COUNTERS, STATUS_NAMES, estado, nfc, subfolders } from './estado.mjs';
-import { parseFrontmatter, replaceFrontmatter } from './frontmatter.mjs';
+import { approvedProjeto } from './editar.mjs';
+import { COUNTERS, NIVEIS, STATUS_NAMES, estado, nfc, subfolders, wholeCount } from './estado.mjs';
+import { parseFrontmatter, replaceFrontmatter, writeDocument } from './frontmatter.mjs';
 import { findProjeto, nameProblem } from './projeto.mjs';
 import { measureZone } from './ingest.mjs';
 import {
@@ -31,32 +32,30 @@ function kitGaps(value, where = '') {
 
 // The Vídeo document: its frontmatter is the Vídeo's record (Status, Nível, cost and the
 // metric counters), its pt-BR body the short briefing she answers.
+// `rodada` is the current Rodada and so also counts the Rodadas; null until the first review.
 function videoDocument(nome, original, iniciadoEm) {
-  const fields = [
-    ['status', 'Briefing'],
-    ['nivel', ''],
-    ['rodada', ''],
-    ['gate', ''],
-    ['original', original],
-    ['master', original],
-    ['creditosEstimados', ''],
-    ['creditosGastos', 0],
-    ['perguntas', 0],
-    ['gates', 0],
-    ['aprovacoesAutomaticas', 0],
-    ['iniciadoEm', iniciadoEm],
-    ['entregueEm', ''],
-  ];
-  const frontmatter = fields.map(([key, value]) => (value === '' ? `${key}:` : `${key}: ${value}`)).join('\n');
+  const record = {
+    status: 'Briefing',
+    nivel: null,
+    rodada: null,
+    gate: null,
+    original,
+    master: original,
+    creditosEstimados: null,
+    creditosGastos: 0,
+    perguntas: 0,
+    gates: 0,
+    aprovacoesAutomaticas: 0,
+    iniciadoEm,
+    entregueEm: null,
+  };
   const sections = SECTIONS.map((title) => `## ${title}\n\n${PLACEHOLDER}\n`).join('\n');
-  return `---\n${frontmatter}\n---\n# ${nome}\n\n${sections}`;
+  return writeDocument(record, `# ${nome}\n\n${sections}`);
 }
 
 export function novoVideo(folder, projetoNome, videoNome, recording) {
-  const state = estado(folder);
-  const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(projetoNome));
-  if (!projeto) return { created: false, reason: 'unknown-projeto' };
-  if (projeto.kit !== 'ok') return { created: false, reason: 'kit-not-approved', projeto: projeto.id, kit: projeto.kit };
+  const { projeto, dir: projetoDir, refusal } = approvedProjeto(folder, projetoNome);
+  if (refusal) return { created: false, ...refusal };
   const problem = nameProblem(videoNome);
   if (problem) return { created: false, reason: 'invalid-name', message: problem };
   const source = path.resolve(recording);
@@ -65,12 +64,11 @@ export function novoVideo(folder, projetoNome, videoNome, recording) {
   const video = nfc(videoNome);
   // A Vídeo that exists keeps its one Original: a second recording is a second Vídeo.
   if (projeto.videos.some((v) => v.id === video)) return { created: false, reason: 'already-exists', projeto: projeto.id, video };
-  const projetoDir = path.join(folder, PROJETOS, findProjeto(folder, projetoNome));
   const dir = path.join(projetoDir, VIDEOS, video);
   const original = `${ORIGINAL}/${nfc(path.basename(source))}`;
   fs.mkdirSync(path.join(dir, ORIGINAL), { recursive: true });
   // Created up front, so the ingest can save the sampler's JSON next to its frames.
-  for (const folder of [PRINTS, FRAMES_VISAO_GERAL, FRAMES_ROSTO]) fs.mkdirSync(path.join(dir, ...folder.split('/')), { recursive: true });
+  for (const sub of [PRINTS, FRAMES_VISAO_GERAL, FRAMES_ROSTO]) fs.mkdirSync(path.join(dir, ...sub.split('/')), { recursive: true });
   fs.copyFileSync(source, path.join(dir, ...original.split('/')), fs.constants.COPYFILE_EXCL);
   fs.writeFileSync(path.join(dir, VIDEO_DOC), videoDocument(video, original, new Date().toISOString()));
   const kit = JSON.parse(fs.readFileSync(path.join(projetoDir, KIT), 'utf8'));
@@ -93,13 +91,13 @@ function recordProblem(record) {
   if (!isObject(record)) return 'must be a JSON object with nivel, status or somar';
   const other = Object.keys(record).find((key) => !RECORDABLE.includes(key));
   if (other) return `${other} cannot be recorded here (${RECORDABLE.join(', ')})`;
-  if ('nivel' in record && ![1, 2].includes(record.nivel)) return 'nivel must be 1 or 2';
+  if ('nivel' in record && !NIVEIS.has(record.nivel)) return 'nivel must be 1 or 2';
   if ('status' in record && !STATUS_NAMES.includes(record.status)) return `status must be one of: ${STATUS_NAMES.join(', ')}`;
   if ('somar' in record) {
     if (!isObject(record.somar)) return 'somar must be an object of counters';
     for (const [key, value] of Object.entries(record.somar)) {
       if (!COUNTERS.includes(key)) return `somar.${key} is not a counter (${COUNTERS.join(', ')})`;
-      if (!(Number.isInteger(value) && value >= 0)) return `somar.${key} must be a whole number, 0 or more`;
+      if (!wholeCount(value)) return `somar.${key} must be a whole number, 0 or more`;
     }
   }
   return null;
