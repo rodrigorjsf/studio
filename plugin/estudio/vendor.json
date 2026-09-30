@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "note": "Third-party material in this package. Attribution and license texts: THIRD_PARTY.md. Each files[] entry is a verbatim copy; its sha256 is checked by the repo's tests, so a change without updating this manifest fails.",
+  "sources": [
+    {
+      "id": "watch-skill",
+      "host": "github.com",
+      "owner": "bradautomates",
+      "repo": "claude-video",
+      "sha": "03ceb42f7fa2c4439aca01752118044baabffb8f",
+      "version": "watch skill 0.3.2",
+      "license": "MIT",
+      "mode": "vendored-subset",
+      "files": [
+        {
+          "path": "scripts/frames/frames.py",
+          "upstreamPath": "skills/watch/scripts/frames.py",
+          "sha256": "c41071f65baf39e043c8ad8bf6895adf351e4da9ef9ce2a6237fc9e456bb2309"
+        },
+        {
+          "path": "scripts/frames/runtime.py",
+          "upstreamPath": "skills/watch/scripts/runtime.py",
+          "sha256": "70f9741d7b863380840da602f9311eb118572c33e083cfdea99524bd282eadbd"
+        },
+        {
+          "path": "scripts/frames/LICENSE",
+          "upstreamPath": "LICENSE",
+          "sha256": "add78957ea8124a8ae6eccd7a55c948543a9f32ea26917bf562b8cafacb01d3e"
+        }
+      ]
+    },
+    {
+      "id": "remotion-skill",
+      "host": "github.com",
+      "owner": "remotion-dev",
+      "repo": "remotion",
+      "tag": "v4.0.451",
+      "sha": "a06ca6db658a5d14de2a15c491c8cce546c4ed1d",
+      "license": "Remotion License",
+      "mode": "distilled",
+      "upstreamPath": "packages/skills/skills/remotion/rules",
+      "distilledInto": "skills/estudio/references/remotion",
+      "files": []
+    }
+  ]
+}

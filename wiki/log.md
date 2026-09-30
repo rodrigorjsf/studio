@@ -22,3 +22,69 @@ Pages: sources/spec-estudio-plugin-v1.md, index.md.
 
 ## [2026-09-29] ingest | Grilling record — Notion context; spec 1.1
 Pages: sources/grilling-notion-context-2026-09-29.md, sources/spec-estudio-plugin-v1.md, concepts/notion-context.md, analyses/estudio-plugin-decisions.md, index.md. SCHEMA.md: README.md indexes in raw/ may be updated.
+
+## [2026-09-29] update | Estúdio folder scaffold and `estado` CLI built (ticket #3)
+Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | Session-start check and no-admin installer built (ticket #4)
+Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | Perfil interview, `/estudio:perfil` and Autonomia built (ticket #5)
+Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | Projeto Grilling, Kit de marca schema and approval Gate built (ticket #6)
+Pages: concepts/brand-kit-per-front.md, concepts/grilling-catalogue.md, overview.md.
+
+## [2026-09-29] update | Projeto list, Kit edits and per-Vídeo Kit snapshots built (ticket #7)
+Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-29] update | Remotion template compositions read the Kit de marca (ticket #8)
+Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-29] update | Frame sampler and Remotion rules incorporated; external skills removed (ticket #23)
+Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | New Vídeo briefing and ingest built (ticket #9)
+Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-30] update | Plano and Quadros de estilo built (ticket #10)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
+
+## [2026-09-30] update | Pré-corte built: untrimmed warning, Editor de pré-corte, `precorte` (ticket #14)
+Pages: concepts/plugin-architecture.md, concepts/picture-lock.md, overview.md.
+
+## [2026-09-30] update | Build, review Rodadas and Entrega built (ticket #11)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
+
+## [2026-09-30] update | Read-only Notion context built: Página Notion links, Resumo Notion, change check (ticket #20)
+Pages: concepts/notion-context.md, overview.md.
+
+## [2026-09-30] update | Technical QC built: `qc`, QC técnico, `entregar` blocked by a failed QC (ticket #12)
+Pages: concepts/plugin-architecture.md, entities/studio-personas.md, overview.md.
+
+## [2026-09-30] update | Nível 2 Higgsfield assets built: credit Gate, pre-spend check, `<Gerado>`, Artista generativo (ticket #15)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
+
+## [2026-09-30] update | Brand and platform Críticos with the internal loop built: `qc-interno`, cap of three turns, cost counters (ticket #13)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, entities/studio-personas.md, overview.md.
+
+## [2026-09-30] update | Higgsedit on request built: its own cost Gate, `gastar-higgsedit`, Montador Higgsedit (ticket #16)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, entities/studio-personas.md, overview.md.
+
+## [2026-09-30] update | Autonomia, metrics and Kit learnings built: `aprovar-automatico`, `metricas`, `arquivar` (ticket #17)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-30] update | Repo cleanup and install guide: agent colors, upstream-leftover check, README hub, developer guide (ticket #18)
+Pages: concepts/plugin-architecture.md, overview.md, index.md.
+
+## [2026-09-30] update | Index lines re-dated to their pages' frontmatter (review round 1)
+Pages: index.md.
+
+## [2026-09-30] update | plano and edicao skills kept off her menu (user-invocable: false), review round 1
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | The Plano gets its own Crítico review before her Gate, review round 1
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Skills pin the Diretor and Entrevistador to Opus 5.5 medium, review round 2
+Pages: concepts/plugin-architecture.md.

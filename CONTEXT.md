@@ -124,6 +124,10 @@ _Avoid_: storyboard, script, edit decision list
 One still frame showing the look proposed for a Vídeo, shown before building.
 _Avoid_: mockup, style frame (in chat), preview
 
+**Prévia do Kit**:
+One frame drawing a Projeto's Kit de marca (colors, fonts, caption style) with sample copy, not with her footage. It shows the brand, not a Vídeo's look; for that, see Quadro de estilo.
+_Avoid_: brand preview, style frame
+
 **Rodada**:
 One round of the Criadora's consolidated notes followed by a new version.
 _Avoid_: iteration, revision (for the round itself), pass

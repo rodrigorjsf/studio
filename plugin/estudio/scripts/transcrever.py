@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Transcribe the Criadora's video locally, with the exact time of every word.
+
+WHAT  Writes two files into the output folder:
+        palavras.json   [{"w": word, "s": start, "e": end}, ...], seconds on the video's clock
+        transcript.md   one "[MM:SS.mmm] sentence" line per sentence, after a header comment
+      and prints one JSON summary: {"palavras", "frases", "duracao", "modelo", "dispositivo", "saida"}.
+WHY   Every Palavra-gatilho comes from palavras.json: nothing may appear before it is said.
+      faster-whisper runs on her computer, free, with no account or key.
+WHEN  The Assistente de edição runs it once per Vídeo during the ingest, on the Master.
+HOW   "<python>" transcrever.py "<video>" "<output folder>" --modelos "<plugin data>/modelos"
+          [--idioma pt] [--kit "<kit.json>"] [--modelo large-v3-turbo]
+      <python> is `tools.python` from the computer check (the Python holding faster-whisper).
+      --modelos is where the speech model is downloaded on the first run (~1.6 GB for
+      large-v3-turbo) and found afterwards; keep it inside the plugin's data folder, so removing
+      the studio removes it too. --kit reads the Kit de marca's `glossario` (names and brands she
+      says) and hands it to the model as a hint for their spelling. Exits 2 on a usage error.
+"""
+from __future__ import annotations
+
+import sys
+
+sys.dont_write_bytecode = True  # never leave __pycache__ inside the installed plugin
+
+import argparse
+import json
+from pathlib import Path
+
+DEFAULT_MODEL = "large-v3-turbo"
+# The graphics card when there is one, the processor otherwise.
+DEVICES = [("cuda", "float16"), ("cpu", "int8")]
+
+
+def mmss(t: float) -> str:
+    return f"{int(t // 60):02d}:{t % 60:06.3f}"
+
+
+def glossary_prompt(kit: Path | None) -> str | None:
+    """The Kit's glossary as a hint sentence, or None when there is none."""
+    if kit is None:
+        return None
+    words = [w for w in json.loads(kit.read_text(encoding="utf-8")).get("glossario", []) if isinstance(w, str) and w.strip()]
+    return f"Glossário: {', '.join(words)}." if words else None
+
+
+def transcribe(video: Path, language: str, model_name: str, models: Path, prompt: str | None):
+    from faster_whisper import WhisperModel  # imported here: a usage error needs no model
+
+    errors = []
+    for device, compute in DEVICES:
+        try:
+            model = WhisperModel(model_name, device=device, compute_type=compute, download_root=str(models))
+            segments, info = model.transcribe(
+                str(video), language=language, word_timestamps=True, vad_filter=True, initial_prompt=prompt)
+            # The generator decodes only here; CUDA errors surface on this line.
+            return list(segments), info, device
+        except Exception as err:  # noqa: BLE001 — try the next device, report all at the end
+            errors.append(f"{device}: {err}")
+    raise SystemExit("a transcrição falhou:\n" + "\n".join(errors))
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Word-timed local transcription (faster-whisper).")
+    ap.add_argument("video", type=Path)
+    ap.add_argument("saida", type=Path)
+    ap.add_argument("--modelos", type=Path, required=True)
+    ap.add_argument("--idioma", default="pt")
+    ap.add_argument("--kit", type=Path)
+    ap.add_argument("--modelo", default=DEFAULT_MODEL)
+    args = ap.parse_args()
+    if not args.video.is_file():
+        ap.error(f"video not found: {args.video}")
+
+    args.saida.mkdir(parents=True, exist_ok=True)
+    args.modelos.mkdir(parents=True, exist_ok=True)
+    segments, info, device = transcribe(args.video, args.idioma, args.modelo, args.modelos, glossary_prompt(args.kit))
+
+    words = [{"w": w.word.strip(), "s": round(w.start, 3), "e": round(w.end, 3)}
+             for segment in segments for w in (segment.words or [])]
+    (args.saida / "palavras.json").write_text(json.dumps(words, ensure_ascii=False, indent=1), encoding="utf-8")
+    lines = [f"<!-- {args.modelo} | {device} | {info.duration:.3f}s -->"]
+    lines += [f"[{mmss(s.start)}] {s.text.strip()}" for s in segments]
+    (args.saida / "transcript.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(json.dumps({"palavras": len(words), "frases": len(segments), "duracao": round(info.duration, 3),
+                      "modelo": args.modelo, "dispositivo": device, "saida": str(args.saida)}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

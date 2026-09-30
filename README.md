@@ -1,102 +1,134 @@
-# Studio
+# Estúdio
 
-**Edite seus vídeos conversando com o Claude.** Você grava e corta; o Claude assiste, entende o que você fala e monta a edição: textos animados, prints com zoom e marca-texto, tela dividida, gráficos, legendas e, se quiser, B-rolls gerados por IA.
+**Um estúdio de edição de vídeo dentro do Claude.** O `estudio` é um plugin do Claude para quem grava vídeos curtos e edita sozinha, no pouco tempo que sobra: você grava, abre sua pasta no Claude e conversa com o **Diretor**. Ele lembra quem você é e como cada conta sua deve parecer (o **Kit de marca**), pergunta só o que falta, monta a edição por cima da sua gravação e para em cada etapa para você aprovar.
 
 | | | |
 |---|---|---|
-| ![](estilos/imagens/MinimalSuico.jpg) | ![](estilos/imagens/papel-creme-aula.jpg) | ![](estilos/imagens/tecnico-neon.jpg) |
+| ![Estilo vertical com legendas](plugin/estudio/skills/estudio/references/style-gallery/VerticalLegendas.jpg) | ![Estilo vertical com print](plugin/estudio/skills/estudio/references/style-gallery/VerticalPrint.jpg) | ![Estilo vertical com dados](plugin/estudio/skills/estudio/references/style-gallery/VerticalDados.jpg) |
 
-O arquivo [CLAUDE.md](CLAUDE.md) transforma o Claude num **diretor de vídeo**: ao abrir o projeto, ele pergunta em qual nível você quer editar, confere o que falta instalar, sugere estilos e conduz cada etapa, parando para você aprovar.
+**Para quem é:** a **Criadora**, uma criadora de conteúdo sem formação técnica que publica em mais de uma conta (a da empresa, a pessoal) e usa o Claude Desktop no Mac ou no Windows. Ela nunca abre um terminal nem clona um repositório.
+
+## Como um vídeo anda pelo estúdio
+
+Cada vídeo passa pela **Esteira**, sempre na mesma ordem. Nos pontos marcados com ✋ o Diretor para e espera a sua aprovação (ou registra uma aprovação automática, se você deu essa **Autonomia** a ele).
+
+```mermaid
+flowchart LR
+  A["Primeira vez:<br/>Perfil e Projeto,<br/>Kit de marca ✋"] --> B["Briefing<br/>do vídeo"]
+  B --> C["Pré-corte<br/>(opcional) ✋"]
+  C --> D["Plano e<br/>Quadros de estilo ✋"]
+  D --> E["Construção<br/>no Remotion"]
+  E --> F["QC interno<br/>(três Críticos)"]
+  F --> G["Suas Rodadas<br/>de revisão ✋"]
+  G --> H["Render e<br/>QC técnico"]
+  H --> I["Entrega"]
+  G -.->|pedir mudanças| E
+
+  classDef ela fill:#FFE8A3,stroke:#B58A00,color:#111
+  classDef estudio fill:#DCEBFF,stroke:#2A6FDB,color:#111
+  classDef fim fill:#D6F5DD,stroke:#2E8B57,color:#111
+  class A,C,D,G ela
+  class B,E,F,H estudio
+  class I fim
+```
+
+- **Amarelo:** etapas em que você decide. **Azul:** trabalho do estúdio. **Verde:** o vídeo pronto na pasta `entrega/`.
+- A gravação original nunca é alterada: a edição é feita **por cima** dela, com o áudio original do começo ao fim.
+- Formato padrão: **vertical 9:16** (Reels, TikTok, Shorts). Horizontal 16:9 só se você pedir.
 
 ## Dois níveis
 
-| | **Nível 1: gratuito** | **Nível 2: avançado** |
+| | **Nível 1: gratuito** | **Nível 2: com IA** |
 |---|---|---|
-| Motor | [Remotion](https://www.remotion.dev) (vídeo feito com código) | [Higgsfield](https://higgsfield.ai) (IA generativa + editor Higgsedit) |
-| O que faz | textos, prints animados, marca-texto, tela dividida, gráficos, legendas, transições | tudo do Nível 1 + imagens e vídeos gerados por IA: B-roll, metáforas, cenas realistas |
-| Custo | zero, roda no seu computador | créditos da sua conta Higgsfield |
-| Melhor para | tutoriais, aulas, análises, notícias, Reels | vídeos que pedem imagem de cinema e ilustração |
-| Guia | [guias/2-nivel-1-remotion.md](guias/2-nivel-1-remotion.md) | [guias/4-nivel-2-higgsfield.md](guias/4-nivel-2-higgsfield.md) |
+| O que faz | legendas, textos animados, prints com zoom e marca-texto, tela dividida, gráficos, transições | tudo do Nível 1, mais imagens e vídeos gerados por IA: B-roll, ilustrações, metáforas visuais |
+| Motor | [Remotion](https://www.remotion.dev), no seu computador | Remotion para montar; [Higgsfield](https://higgsfield.ai) para gerar imagens e vídeos |
+| Custo | zero | créditos da sua conta Higgsfield. **Nada é gerado sem você aprovar o custo** (o portão de créditos), e o estúdio para se o gasto passar ~20% do estimado |
+| Editor Higgsedit | não se aplica | só quando você pede, com aprovação de custo própria |
+| Melhor para | dicas, tutoriais, bastidores, notícias | vídeos que pedem imagem de cinema ou ilustração |
 
-Nos dois níveis o fluxo é o mesmo:
+## Instalar (passo a passo)
 
-```text
-você grava e corta → salva o vídeo e os prints em projetos/
-   → o Claude assiste e transcreve (com o tempo de cada palavra)
-   → propõe um plano de edição → você aprova
-   → ele produz, mostra quadros de revisão → você aprova
-   → o vídeo final sai em edicoes/
-```
+Você vai instalar o plugin uma vez. Depois disso ele **se atualiza sozinho** quando sai uma versão nova.
 
-## Instalar
+**Antes de começar:** você precisa do **Claude Desktop** (baixe em [claude.ai/download](https://claude.ai/download)) e de uma conta Claude com acesso ao **Claude Code** (plano Pro ou Max). O estúdio roda na aba **Code** do Claude Desktop, numa sessão **local**; ele não funciona no chat comum nem no Cowork.
 
-O jeito mais fácil: abra uma sessão **Code** no Claude e cole:
+### 1. Adicione o marketplace e instale o `estudio`
 
-```text
-Instala o repositório https://github.com/mackswendhell/studio na pasta C:\dev (siga a seção "Instalação" do README).
-```
+1. Abra o Claude Desktop e entre na aba **Code**.
+2. Abra **Personalizar → Plugins** (em algumas versões, **Configurações → Plugins**).
+3. Clique em **Adicionar marketplace** e cole o nome:
 
-O Claude clona o repositório e instala tudo, incluindo as skills gratuitas **remotion-best-practices** e **watch**. No fim, abra uma sessão nova dentro da pasta `studio`.
+   ```text
+   rodrigorjsf/studio
+   ```
 
-Pré-requisitos no computador: Node.js, Python 3.10+ e FFmpeg. Se faltar algum, o passo a passo para Windows e Mac está em **[guias/1-primeiros-passos.md](guias/1-primeiros-passos.md)**.
+4. Na lista do marketplace **studio**, encontre **estudio** e clique em **Instalar**.
 
-### Instalação (instruções para o agente)
+Os nomes dos menus podem mudar um pouco entre versões do Claude Desktop. Se não encontrar, procure a palavra **Plugins** nas configurações.
 
-Se você é um agente de IA instalando este repositório, faça exatamente isto:
+### 2. Crie a pasta do seu Estúdio
 
-1. Clone: `git clone https://github.com/mackswendhell/studio.git` na pasta indicada (padrão: `C:\dev` no Windows, `~/dev` no Mac/Linux; evite pastas do OneDrive/iCloud).
-2. Entre na pasta e rode **`npm run instalar`**. Ele instala, nesta ordem:
-   - dependências do Remotion (`npm install`);
-   - transcrição local (`pip install faster-whisper`);
-   - skill **remotion-best-practices** no projeto (`npx -y skills add remotion-dev/skills -s remotion-best-practices -a claude-code -y`);
-   - skill **watch** (`claude plugin marketplace add bradautomates/claude-video` e `claude plugin install watch@claude-video`).
-3. Se o comando `claude` não existir (usuário só com o Claude Desktop), a watch é oferecida automaticamente ao abrir a pasta, porque está declarada em `.claude/settings.json`. Oriente a pessoa a aceitar, ou a instalar em **Personalizar → Plugins → Adicionar marketplace** com `https://github.com/bradautomates/claude-video`.
-4. Se `node`, `python` ou `ffmpeg` faltarem, instale-os com o gerenciador do sistema (`winget` no Windows, `brew` no Mac; comandos em [guias/1-primeiros-passos.md](guias/1-primeiros-passos.md)) e rode `npm run instalar` de novo.
-5. Termine dizendo à pessoa para **abrir uma sessão nova do Claude dentro da pasta `studio`**. Skills instaladas só aparecem numa sessão nova, e é lá que o diretor de vídeo ([CLAUDE.md](CLAUDE.md)) assume.
+Escolha uma pasta **sua**, onde os vídeos vão morar. Uma pasta vazia é o ideal.
 
-Já clonou manualmente? Basta rodar `npm run instalar` dentro da pasta.
+- **No Mac:** abra o **Finder**, entre em **Documentos**, clique com o botão direito → **Nova pasta** e dê o nome `Estúdio`.
+- **No Windows:** abra o **Explorador de Arquivos**, entre em **Documentos**, clique com o botão direito → **Novo → Pasta** e dê o nome `Estúdio`.
 
-## Começo rápido
+Evite pastas sincronizadas com iCloud, OneDrive ou Google Drive: vídeos grandes sincronizando atrapalham a edição.
 
-Depois de instalar:
+### 3. Abra a pasta e chame o Diretor
 
-1. Coloque seu vídeo em `projetos/001. meu-video/video/` e os prints em `projetos/001. meu-video/prints/`.
-2. Abra a pasta `studio` no Claude (sessão **Code**).
-3. Responda se quer o Nível 1 ou o Nível 2 e diga o que imagina. O diretor cuida do resto.
+1. Na aba **Code**, escolha **abrir pasta** e selecione a pasta `Estúdio` que você criou. Deixe a sessão como **local**.
+   - **No Windows:** use uma sessão local do Windows, não uma sessão dentro do WSL (lá os plugins não aparecem).
+2. Digite:
 
-> **Dica que mais faz diferença:** tire print de tudo o que você cita no vídeo (sites, notícias, telas, gráficos) e salve em `prints/`. Animação feita sobre print real fica muito melhor que recriação.
+   ```text
+   /estudio:estudio
+   ```
 
-## Estrutura
+3. O Diretor cumprimenta você e pergunta se pode **preparar o seu computador** (baixa os programas de edição, cerca de 10 minutos, grátis). Não pede senha nem abre janelas; tudo fica guardado dentro do próprio plugin. Se preferir, responda "agora não" e volte depois.
+4. Em seguida ele prepara a pasta e conduz duas conversas curtas, uma vez só: sobre **você** (Perfil) e sobre **cada conta** em que você publica (Projeto e Kit de marca).
 
-```text
-studio/
-├─ CLAUDE.md      o diretor de vídeo
-├─ guias/         os manuais, do zero ao avançado
-├─ estilos/       galeria de estilos de referência (horizontais e verticais)
-├─ projetos/      ← você coloca o vídeo e os prints aqui
-├─ edicoes/       ← o vídeo pronto sai aqui
-├─ src/           código do Remotion (exemplos de estilo + seus vídeos)
-└─ tools/         transcrição local e gerador da Higgsfield Cloud API
-```
+Pronto: a partir daí, para cada vídeo novo, abra a mesma pasta e digite `/estudio:estudio` (ou `/estudio:novo-video`).
 
-A explicação pasta por pasta está nos [primeiros passos](guias/1-primeiros-passos.md#7-entendendo-as-pastas).
+### 4. (Opcional) Conecte a Higgsfield para o Nível 2
 
-## Guias
+1. No Claude Desktop, abra **Configurações → Conectores** (em algumas versões, **Personalizar → Conectores**).
+2. Clique em **Adicionar conector personalizado**.
+3. Nome: `Higgsfield`. URL: `https://mcp.higgsfield.ai/mcp`.
+4. Clique em **Conectar** e entre na sua conta Higgsfield.
 
-1. [Primeiros passos](guias/1-primeiros-passos.md): instalação, pastas e primeira edição.
-2. [Nível 1: Remotion](guias/2-nivel-1-remotion.md): o processo gratuito, fase por fase.
-3. [Manual do Remotion para leigos](guias/3-manual-remotion.md): o que é, como funciona e tudo o que dá para pedir.
-4. [Nível 2: Higgsfield](guias/4-nivel-2-higgsfield.md): como conectar (conta ou API key), processo, modelos, custos e prompts.
-5. [Direção editorial](guias/5-direcao-editorial.md): o repertório de cenas, transições e cuidados que guia toda edição.
+Não existe chave para copiar: o estúdio usa a sua conta pelo conector e nunca pede nem guarda senhas ou chaves.
 
-E a [galeria de estilos](estilos/README.md) para escolher o visual.
+### 5. (Opcional) Conecte o Notion
 
-## Créditos e licenças
+Se você já planeja no Notion, o Diretor pode **ler** as páginas que você indicar (nunca escreve nada lá). Em **Configurações → Conectores**, encontre **Notion**, clique em **Conectar** e entre com a sua conta.
 
-- Código e guias deste repositório: [MIT](LICENSE).
-- As imagens em `estilos/imagens/` que vêm de vídeos do canal **Macks Wendhell | Inteligência Aplicada** são referência visual; não as reutilize como material próprio.
+### Desinstalar
+
+Em **Personalizar → Plugins**, desinstale o **estudio**. Os programas que ele baixou para o computador saem junto. A pasta do seu Estúdio continua onde está, com seus vídeos e os arquivos do Remotion que ele colocou nela (a pasta `node_modules`, que você pode apagar se quiser liberar espaço).
+
+## Comandos que você pode digitar
+
+| Comando | Para quê |
+|---|---|
+| `/estudio:estudio` | começar ou continuar de onde parou |
+| `/estudio:novo-video` | editar um vídeo novo |
+| `/estudio:projetos` | ver seus Projetos, o que está em andamento e as métricas de cada um |
+| `/estudio:editar-projeto` | mudar o briefing ou o Kit de marca de um Projeto |
+| `/estudio:perfil` | mudar o seu Perfil e a sua Autonomia |
+
+## Créditos
+
+- Este projeto começou como um fork de [mackswendhell/studio](https://github.com/mackswendhell/studio), de Macks Wendhell (MIT), e diverge dele livremente. Os guias, a persona do diretor de vídeo e os exemplos de estilo vêm de lá.
+- As imagens da galeria de estilos que vêm de vídeos do canal **Macks Wendhell | Inteligência Aplicada** são referência visual; não as reutilize como material próprio.
+- O amostrador de quadros (`plugin/estudio/scripts/frames/`) é copiado do projeto [claude-video](https://github.com/bradautomates/claude-video), de Bradley Bonanno (MIT).
+- As regras do Remotion do plugin foram escritas com base nas orientações de boas práticas do próprio [Remotion](https://github.com/remotion-dev/remotion) (`packages/skills`), sem copiar o texto.
 - [Remotion](https://www.remotion.dev): gratuito para pessoas físicas, organizações sem fins lucrativos e empresas com até 3 pessoas; empresas maiores precisam de [licença](https://www.remotion.dev/license).
-- Skill [watch](https://github.com/bradautomates/claude-video), de bradautomates (MIT).
-- Skills do Remotion: [remotion-dev/skills](https://github.com/remotion-dev/skills).
-- Transcrição: [faster-whisper](https://github.com/SYSTRAN/faster-whisper).
-- Higgsfield: serviço de terceiros, sujeito aos termos e preços da [Higgsfield](https://higgsfield.ai).
+- Transcrição local: [faster-whisper](https://github.com/SYSTRAN/faster-whisper).
+- Higgsfield e Notion: serviços de terceiros, sujeitos aos próprios termos e preços.
+
+O detalhe de cada peça de terceiros, com commit e licença, está em [plugin/estudio/THIRD_PARTY.md](plugin/estudio/THIRD_PARTY.md). Licença do repositório: [MIT](LICENSE).
+
+## Para quem mantém o plugin
+
+O guia de desenvolvimento (estrutura do repositório, testes, convenções e como publicar uma versão) está em **[docs/developer-guide.md](docs/developer-guide.md)**.

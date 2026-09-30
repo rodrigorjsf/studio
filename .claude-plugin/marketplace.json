@@ -1,0 +1,16 @@
+{
+  "name": "studio",
+  "owner": {
+    "name": "Rodrigo França"
+  },
+  "metadata": {
+    "description": "Estúdio: a professional video-editing studio for a solo creator, as a Claude plugin."
+  },
+  "plugins": [
+    {
+      "name": "estudio",
+      "source": "./plugin/estudio",
+      "description": "Estúdio de edição de vídeo: o Diretor conduz cada vídeo do briefing à entrega."
+    }
+  ]
+}

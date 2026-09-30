@@ -1,0 +1,67 @@
+// "Quadro de estilo": one still of the look proposed for a Vídeo, drawn on a real frame of her
+// recording (the Master) at the moment the Plano names. The Diretor de arte renders two or three,
+// one per label, with `npx remotion still … QuadroDeEstilo --frame=<tempo × 30>`; she approves
+// the look on them before anything is built. Every brand value comes from the Kit the Vídeo
+// follows (its own Kit snapshot, else the Projeto's), none is written here.
+import React from 'react';
+import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {Video} from '@remotion/media';
+import {calcularMetadadosDoKit, KIT_PADRAO, PropsDoKit, tamanhoNoQuadro} from '../_shared/kit';
+import {estiloDaFonte, LegendaDoKit, Palavra, useFontesDoKit} from '../_shared/marca';
+
+// A box as fractions of the frame from its top-left corner, like the Plano's `area`.
+export type Area = {x: number; y: number; largura: number; altura: number};
+
+export type PropsDoQuadro = PropsDoKit & {
+  video: string;
+  // The Master, relative to the Vídeo folder: `original/<her file>` until a Pré-corte.
+  master: string;
+  // The Master's duration in seconds (zona-do-rosto.json `duracao`): the still is taken on its clock.
+  duracao: number;
+  // The text the direction shows at that moment, and where (the Plano element's `area`); it must
+  // sit inside the Área livre and off the Zona do rosto, as the `plano` check requires.
+  titulo: string;
+  area?: Area;
+  // The words she says around that moment, from palavras.json ({texto: w, inicio: s}), for the caption.
+  legenda?: Palavra[];
+};
+
+export const FPS_DO_QUADRO = 30;
+const AREA_PADRAO: Area = {x: 0.08, y: 0.6, largura: 0.84, altura: 0.14};
+
+export const calcularMetadadosDoQuadro = async (
+  parametros: Parameters<typeof calcularMetadadosDoKit<PropsDoQuadro>>[0],
+) => ({
+  ...(await calcularMetadadosDoKit<PropsDoQuadro>(parametros)),
+  durationInFrames: Math.max(1, Math.round(parametros.props.duracao * FPS_DO_QUADRO)),
+});
+
+export const QuadroDeEstilo: React.FC<PropsDoQuadro> = ({
+  projeto, video, master, titulo, area = AREA_PADRAO, legenda = [], kit = KIT_PADRAO,
+}) => {
+  const {width, height} = useVideoConfig();
+  useFontesDoKit(kit, projeto);
+  const {cores, tipografia} = kit;
+  const px = (tamanho: number) => tamanhoNoQuadro(tamanho, width, height);
+
+  return (
+    <AbsoluteFill style={{background: cores.fundo}}>
+      <Video src={staticFile(`${projeto}/videos/${video}/${master}`)} objectFit="cover" muted style={{width: '100%', height: '100%'}} />
+      {titulo ? (
+        <div
+          style={{
+            position: 'absolute', left: `${area.x * 100}%`, top: `${area.y * 100}%`,
+            width: `${area.largura * 100}%`, height: `${area.altura * 100}%`,
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: px(14),
+          }}
+        >
+          <div style={{...estiloDaFonte(tipografia.titulo), fontSize: px(tipografia.escala.titulo), color: cores.primaria, lineHeight: 1.05}}>
+            {titulo}
+          </div>
+          <div style={{width: px(160), height: px(14), background: cores.destaque}} />
+        </div>
+      ) : null}
+      <LegendaDoKit kit={kit} palavras={legenda} />
+    </AbsoluteFill>
+  );
+};
