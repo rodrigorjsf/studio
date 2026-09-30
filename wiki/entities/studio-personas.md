@@ -1,7 +1,7 @@
 ---
 title: Studio personas
 type: entity
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [../sources/estudio-profissional-de-video-report.md, ../sources/modelos-opus-sonnet-5-5.md, ../sources/grilling-estudio-plugin-2026-09-29.md]
 ---
 
@@ -35,6 +35,6 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 | Editor de pré-corte | subagent | Sonnet 5.5 · high |
 | Artista generativo | subagent | Sonnet 5.5 · high |
 | Finalizador | subagent | Sonnet 5.5 · high |
-| QC técnico (Crítico) | subagent | Sonnet 5.5 · high |
+| QC técnico (Crítico) | subagent (`plugin/estudio/agents/qc-tecnico.md`, built in ticket #12: runs `qc`, tools Bash/Read) | Sonnet 5.5 · high |
 | Revisor de plataforma (Crítico) | subagent | Sonnet 5.5 · high |
 | Guardião da marca (Crítico) | subagent | Sonnet 5.5 · xhigh |

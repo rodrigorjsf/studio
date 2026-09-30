@@ -65,10 +65,18 @@ cd "<estudio>" && "<node>" "node_modules/@remotion/cli/remotion-cli.js" still sr
 
 Look at every still: her face free (eyes, mouth, outline), text inside the Área livre, Prints whole, the Kit's colors and fonts, no black border. Fix and render again what fails.
 
+## Render the version in full
+
+The QC técnico checks every version before she sees its stills, on the whole edit. Render it in full into `<versao>`, in the Kit's Formato (`9x16` unless the Kit says otherwise), with no `--frames` and no speed change:
+
+```bash
+cd "<estudio>" && "<node>" "node_modules/@remotion/cli/remotion-cli.js" render src/index.ts <slug> "<versao>/<nome do vídeo> <formato>.mp4" --codec=h264 --crf=17
+```
+
 ## Ajustes: her notes
 
 When the Diretor gives you her notes, apply every one of them to the composition, and nothing else. A note you cannot apply (it contradicts a standing rule, or the tool cannot do it) is reported, not skipped silently. For small fixes after an approval with changes, apply them, typecheck, and render the stills they change into `<versao>/ajustes/` (the approved version's folder), so the delivered edit is kept as a version too; she is not asked again.
 
 ## Your report
 
-Return one short report in English to the Diretor (under 200 words): the composition id and file; each still with its moment and what it shows; how each of her notes was applied (Ajustes); anything you could not place or had to change to keep her face free or text in the Área livre; and any error, word for word. Stop and report rather than starting reviewers or other agents of your own.
+Return one short report in English to the Diretor (under 200 words): the composition id and file; the full render's path; each still with its moment and what it shows; how each of her notes was applied (Ajustes); anything you could not place or had to change to keep her face free or text in the Área livre; and any error, word for word. Stop and report rather than starting reviewers or other agents of your own.

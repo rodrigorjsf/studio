@@ -87,7 +87,7 @@ before(async () => {
     renderizar(sobreposicao, [`--props=${JSON.stringify({ ...props, sobreposicao: true })}`,
       '--codec=prores', '--prores-profile=4444', '--pixel-format=yuva444p10le', '--image-format=png', '--muted']),
   ]);
-  entregue = run('entregar', estudio, PROJETO, VIDEO, tools.ffprobe);
+  entregue = run('entregar', estudio, PROJETO, VIDEO, tools.ffmpeg, tools.ffprobe);
 });
 
 after(() => {
