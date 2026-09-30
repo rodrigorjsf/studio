@@ -94,6 +94,9 @@ files, exit codes), never on prompt wording.
 - **No upstream leftovers**: the package never names the upstream `edicoes/`, `guias/` or
   `tools/*.py` paths, `npm run instalar`, or a `ticket #N` marker. It describes the plugin, not
   the repo it was forked from.
+- **Preparação host list**: every literal https host in `scripts/instalar.sh`, `scripts/instalar.ps1`
+  and the `vendor.json` file URLs is in `plugin/estudio/hosts.json`, and no Hugging Face host is.
+  The Diretor hands that list to the Criadora when a download is blocked by her cloud workspace.
 - Size cap: 5,000 files and 200 MB.
 
 ## Language

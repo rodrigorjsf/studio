@@ -34,8 +34,8 @@ if ($Passo -notin @('node', 'ffmpeg', 'python', 'modelo', 'remotion', 'tudo') -o
 . (Join-Path $PSScriptRoot 'lib\ferramentas.ps1')
 
 # Every host this script reaches (and the ones uv and npm reach for it) is in ..\hosts.json,
-# the list the Diretor hands the Criadora when her cloud workspace blocks a download; a test
-# fails when a URL here uses a host that list lacks.
+# the list the Diretor hands the Criadora when her cloud workspace blocks a download. Add a
+# host there when a URL here gains one.
 # Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
 # ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
 # latest release), because neither host keeps a fixed per-version download link.

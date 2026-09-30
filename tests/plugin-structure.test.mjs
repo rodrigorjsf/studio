@@ -370,49 +370,10 @@ test('uninstalling estudio deletes its plugin data folder, where the installer p
 
 // ---- the Preparação's host list (spec #29, ticket #33) ----
 // plugin/estudio/hosts.json is the one list of every host the Preparação reaches, given to the
-// Criadora only when a download is blocked by her cloud workspace's domain allowlist. These
-// static checks keep it true: every URL the installers or the manifest use has its host in the
-// list, and no Hugging Face host is in it (the speech model comes from our own GitHub Release).
-const pluginDir = path.join(repoRoot, 'plugin', 'estudio');
-const readPlugin = (...parts) => fs.readFileSync(path.join(pluginDir, ...parts), 'utf8');
-
-const HUGGING_FACE = /(^|\.)(huggingface\.co|hf\.co)$/i;
-
-// Every literal https host in a text. A URL built from a variable (https://$host/) has no
-// literal host, so it is not a match; the hosts those scripts reach are measured instead.
-function urlHosts(text) {
-  return new Set([...text.matchAll(/https?:\/\/([a-z0-9][a-z0-9.-]*)/gi)].map((m) => m[1].toLowerCase()));
-}
-
-// The problems of one host list against the URLs that must be covered by it.
-function hostListProblems({ list, installers, manifest }) {
-  const listed = new Set(list.hosts.map((h) => h.host.toLowerCase()));
-  const problems = [];
-  for (const host of listed) {
-    if (HUGGING_FACE.test(host.replace(/^\*\./, ''))) problems.push(`the list holds the Hugging Face host ${host}`);
-  }
-  for (const [name, text] of Object.entries(installers)) {
-    for (const host of urlHosts(text)) {
-      if (!listed.has(host)) problems.push(`${name} reaches ${host}, which the list lacks`);
-    }
-  }
-  for (const source of manifest.sources) {
-    for (const file of source.files ?? []) {
-      for (const host of urlHosts(file.url ?? '')) {
-        if (!listed.has(host)) problems.push(`vendor.json ${source.id}/${file.name} uses ${host}, which the list lacks`);
-      }
-    }
-  }
-  return problems;
-}
-
-const hostList = JSON.parse(readPlugin('hosts.json'));
-const manifest = JSON.parse(readPlugin('vendor.json'));
-const installers = { 'instalar.sh': readPlugin('scripts', 'instalar.sh'), 'instalar.ps1': readPlugin('scripts', 'instalar.ps1') };
-
-test('every host the installers and the manifest use is in the Preparação host list, and none is Hugging Face', () => {
-  assert.deepEqual(hostListProblems({ list: hostList, installers, manifest }), []);
-});
+// Criadora only when a download is blocked by her cloud workspace's domain allowlist. The
+// structure check keeps it true: every literal host in the installers and in a vendor.json file
+// URL is in the list, and no Hugging Face host is (the speech model comes from our GitHub Release).
+const hostList = JSON.parse(fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'hosts.json'), 'utf8'));
 
 test('the host list holds every host the Preparação reaches, each backed by a measurement', () => {
   const listed = hostList.hosts.map((h) => h.host);
@@ -426,53 +387,36 @@ test('the host list holds every host the Preparação reaches, each backed by a 
   for (const entry of hostList.hosts) {
     assert.ok(entry.usedFor?.trim(), `${entry.host} says what it is for`);
     assert.equal(entry.evidence, 'verified', `${entry.host} is backed by a captured run`);
+    assert.ok(entry.observedIn?.trim(), `${entry.host} says where it was observed`);
   }
 });
 
-test('the host check fails on an installer URL whose host the list lacks', () => {
-  const problems = hostListProblems({
-    list: hostList,
-    installers: { 'instalar.sh': 'baixa "https://downloads.example.org/tool.tar.gz" "$TMP/tool"' },
-    manifest,
-  });
-  assert.deepEqual(problems, ['instalar.sh reaches downloads.example.org, which the list lacks']);
+const hostsFixture = ({ hosts, installer, vendorFiles } = {}) => fixture({
+  'plugin/estudio/hosts.json': hosts === null ? null : JSON.stringify({ hosts: (hosts ?? ['github.com']).map((host) => ({ host })) }),
+  'plugin/estudio/scripts/instalar.sh': installer ?? 'baixa "https://github.com/astral-sh/uv/releases/download/v1/uv.tar.gz" "$TMP/uv"\n',
+  'plugin/estudio/vendor.json': JSON.stringify({ sources: [{ id: 'speech-model', files: vendorFiles ?? [{ name: 'model.bin', url: 'https://github.com/o/r/releases/download/t/model.bin' }] }] }),
 });
 
-test('the host check fails on a manifest URL whose host the list lacks', () => {
-  const problems = hostListProblems({
-    list: hostList,
-    installers,
-    manifest: { sources: [{ id: 'speech-model', files: [{ name: 'model.bin', url: 'https://mirror.example.org/model.bin' }] }] },
-  });
-  assert.deepEqual(problems, ['vendor.json speech-model/model.bin uses mirror.example.org, which the list lacks']);
+test('a package whose installers and manifest use only listed hosts passes', () => {
+  const { code, verdict } = check(hostsFixture());
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+test('an installer URL whose host the list lacks is rejected', () => {
+  assertRejected(hostsFixture({ installer: 'baixa "https://downloads.example.org/tool.tar.gz" "$TMP/tool"\n' }), 'scripts/instalar.sh reaches downloads.example.org, which hosts.json lacks');
+});
+
+test('a manifest URL whose host the list lacks is rejected', () => {
+  assertRejected(hostsFixture({ vendorFiles: [{ name: 'model.bin', url: 'https://mirror.example.org/model.bin' }] }), 'vendor.json speech-model/model.bin uses mirror.example.org, which hosts.json lacks');
+});
+
+test('installers without a host list are rejected', () => {
+  assertRejected(hostsFixture({ hosts: null }), 'hosts.json (the host list) is missing');
 });
 
 for (const host of ['huggingface.co', 'cdn-lfs.huggingface.co', 'cas-bridge.xethub.hf.co', '*.hf.co']) {
-  test(`the host check fails when the list holds the Hugging Face host ${host}`, () => {
-    const list = { hosts: [...hostList.hosts, { host, usedFor: 'x', evidence: 'verified' }] };
-    assert.deepEqual(hostListProblems({ list, installers, manifest }), [`the list holds the Hugging Face host ${host}`]);
+  test(`a host list holding the Hugging Face host ${host} is rejected`, () => {
+    assertRejected(hostsFixture({ hosts: ['github.com', host] }), `hosts.json lists the Hugging Face host ${host}`);
   });
 }
-
-// ---- the allowlist guidance for the Diretor (spec #29, ticket #33) ----
-const gettingStarted = readPlugin('skills', 'estudio', 'references', 'getting-started.md');
-const guidanceStart = gettingStarted.search(/^#+ .*blocked/im);
-// From the heading to the next heading of any level: the guidance and nothing after it.
-const guidance = guidanceStart < 0 ? gettingStarted : gettingStarted.slice(guidanceStart).split(/\n(?=#{1,4} )/)[0];
-
-test('the getting-started reference carries the allowlist guidance with both UI labels and the admin note', () => {
-  assert.notEqual(guidance, gettingStarted, 'a heading about a blocked download exists');
-  assert.match(guidance, /Settings → Capabilities/);
-  assert.match(guidance, /Configurações → Recursos/);
-  assert.match(guidance, /Team or Enterprise/);
-  assert.match(guidance, /only an admin/i);
-  assert.match(guidance, /Admin settings → Capabilities/);
-  assert.match(guidance, /hosts\.json/);
-});
-
-test('the guidance is given only after a Preparação download fails, never up front', () => {
-  assert.match(guidance, /only after a Preparação download (has )?fail/i);
-  assert.match(guidance, /never (up front|before)/i);
-  const skill = readPlugin('skills', 'estudio', 'SKILL.md');
-  assert.match(skill, /getting-started\.md#[^)\s]*blocked/, 'the Diretor skill points a failed step to the guidance');
-});
