@@ -32,7 +32,7 @@ These five ship with code (the code ships with the Estúdio's Remotion template)
 
 ## From the original project: Nível 1 (Remotion)
 
-Real frames from videos edited with this workflow on the channel **Macks Wendhell | Inteligência Aplicada**. They are **one** way of doing it, not the default.
+Real frames from videos edited this way, in the original project, on the channel **Macks Wendhell | Inteligência Aplicada**. They are **one** way of doing it, not the default.
 
 | | |
 |---|---|
