@@ -65,6 +65,7 @@ test('an empty list, an unknown value or a value that is not a list of names is 
     [[], 'plataformas must list at least one'],
     [['instagram'], 'plataformas[0] must be one of: reels, tiktok, shorts'],
     [['reels', 'youtube'], 'plataformas[1] must be one of: reels, tiktok, shorts'],
+    [['reels', 'reels'], 'plataformas must not repeat a value'],
     ['reels', 'plataformas must be a list'],
     [null, 'plataformas must be a list'],
   ]) {

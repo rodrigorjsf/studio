@@ -24,7 +24,7 @@ In the Estúdio's Remotion template, `src/_shared/kit.ts` loads this file for ev
 | `som` | `{efeitos}` (text) | `"sutis"` | Som |
 | `musica.politica` | `"no-app"` (she adds music in Instagram/TikTok), `"arquivo-dela"` (she supplies a file), `"sem-musica"` | `"no-app"` | Música |
 | `entregaveis` | `{formatos: non-empty list of Formato, overlays: bool}` | `["9:16"]`, false | Entregáveis |
-| `plataformas` | non-empty list of `"reels"`, `"tiktok"` and `"shorts"`: the apps the Projeto posts on. The Social media writes the Texto do post only for these. **Optional:** a Kit without the field (made before it existed) reads as all three. | `["reels", "tiktok", "shorts"]` | Plataformas (asked after the catalogue, no briefing section) |
+| `plataformas` | non-empty list, without repeats, of `"reels"`, `"tiktok"` and `"shorts"`: the apps the Projeto posts on. The Social media writes the Texto do post only for these. **Optional:** a Kit without the field (made before it existed) reads as all three. | `["reels", "tiktok", "shorts"]` | Plataformas (asked after the catalogue, no briefing section) |
 | `creditos` | `{porVideo, porMes}`: Higgsfield credits (0 or more), or `null` when not set | both `null` | Orçamento de créditos |
 | `fazer`, `evitar` | text[] | `[]` | any topic ("sempre…", "nunca…") |
 | `glossario` | text[]: names, brands and jargon the transcription must spell right | `[]` | Negócio, Público |
