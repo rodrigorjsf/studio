@@ -65,4 +65,4 @@ Some official pages (TikTok Creator Academy, the Instagram Help Center) render a
 
 ## Check before posting
 
-- [official] Instagram keeps an unpublished list of restricted hashtags that can be unsearchable or have their recent posts hidden, so the Criadora must look up each hashtag in the app before posting. Always add this note to the Texto do post, and tell her to confirm the current limits too. Read through a secondary source (the page did not render). sourced: 2026-09-30 <https://help.instagram.com/485240378261318>
+- [official] Instagram keeps an unpublished list of restricted hashtags that can be unsearchable or have their recent posts hidden, so the Criadora must look up each hashtag in the app before posting. The Diretor gives her this reminder (and, when this reference is stale, the one to confirm the current limits) in the closing message beside the Texto do post; the Social media leaves both out of the text itself. Read through a secondary source (the page did not render). sourced: 2026-09-30 <https://help.instagram.com/485240378261318>

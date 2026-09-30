@@ -42,6 +42,14 @@ test('the Social media never writes the Caderno, the Kit or the renders, and its
   assert.match(persona, /never (write|touch|change)/i);
 });
 
+test('the bundled reference leaves the hashtag reminder to the closing message, as the persona does', () => {
+  // The Social media reads the reference; it must not be told to put the reminder in the text.
+  const reference = shipped('plugin', 'estudio', 'skills', 'estudio', 'references', 'platform-rules.md');
+  assert.doesNotMatch(reference, /add this note to the Texto do post/i);
+  const check = reference.slice(reference.indexOf('## Check before posting'));
+  assert.match(check, /closing message/i, 'the reference never says where the hashtag reminder goes');
+});
+
 test('the edicao skill spawns the Social media beside the Finalizador and shows the text at the close', () => {
   const edicao = shipped('plugin', 'estudio', 'skills', 'edicao', 'SKILL.md');
   assert.ok(edicao.includes('`social-media` agent'), 'the edicao skill never spawns the social-media agent');
