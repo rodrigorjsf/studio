@@ -25,3 +25,6 @@ Pages: sources/grilling-notion-context-2026-09-29.md, sources/spec-estudio-plugi
 
 ## [2026-09-29] update | Estúdio folder scaffold and `estado` CLI built (ticket #3)
 Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | Projeto Grilling, Kit de marca schema and approval Gate built (ticket #6)
+Pages: concepts/brand-kit-per-front.md, concepts/grilling-catalogue.md, overview.md.

@@ -28,3 +28,7 @@ Topics the pre-work interview settles, split by scope. Brand/stable topics are a
 | Rights, budget, deadline, approver | per-video | credit cap per video |
 
 Behavioral constraint: real creators write one paragraph and approve with one word — keep grilling short by default.
+
+## Built: the Projeto Grilling (ticket #6)
+
+The `novo-projeto` skill (`plugin/estudio/skills/novo-projeto/SKILL.md`) asks the 16 brand-scope topics of the spec, in this order: business, audience, tone, references, camera behavior, framing, Prints, image interaction, animations, pacing, captions, color, sound, music policy, deliverables, credit budget. It groups them 3–4 per turn, with "decide você" on each, and harvests one-paragraph answers. Each topic is a pt-BR section of `projeto.md`, created by `novo-projeto` (`BRIEFING_SECTIONS` in `plugin/estudio/scripts/lib/projeto.mjs`). Reference images are copied into `kit/referencias/` and recorded in the Kit's `referencias`.

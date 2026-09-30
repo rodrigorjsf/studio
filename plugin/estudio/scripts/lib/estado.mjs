@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseFrontmatter } from './frontmatter.mjs';
+import { validateKit } from './kit.mjs';
 import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEOS } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
@@ -81,13 +82,16 @@ export function estado(folder) {
     if (fs.existsSync(briefing)) readDoc(briefing);
     else fail(briefing, 'missing: every Projeto needs its briefing document');
 
+    // The Kit's state: `pendente` (no kit.json yet), `invalido`, `aguardando-aprovacao`
+    // (valid, its approval Gate still open) or `ok` (approved: the Projeto is usable).
     const kitFile = path.join(dir, KIT);
     let kit = 'pendente';
     if (fs.existsSync(kitFile)) {
       const data = readJson(kitFile);
-      const isObject = data !== null && typeof data === 'object' && !Array.isArray(data);
-      if (data !== null && !isObject) fail(kitFile, 'must be a JSON object');
-      kit = isObject ? 'ok' : 'invalido';
+      const problems = data === null ? null : validateKit(data, dir);
+      problems?.forEach((message) => fail(kitFile, message));
+      if (problems === null || problems.length > 0) kit = 'invalido';
+      else kit = data.aprovadoEm ? 'ok' : 'aguardando-aprovacao';
     }
 
     const videos = subfolders(path.join(dir, VIDEOS)).map((videoName) => {
@@ -126,14 +130,16 @@ export function estado(folder) {
 }
 
 // One next step, in the order the Esteira needs them: a broken document first, then the
-// Perfil, a first Projeto, an unfinished Kit, a Vídeo waiting for her, a Vídeo in progress,
+// Perfil, a first Projeto, an unfinished Kit, a Kit awaiting her approval, a Vídeo waiting for her, a Vídeo in progress,
 // and finally a new Vídeo.
 function nextStep({ errors, perfil, projetos, waiting }) {
   if (errors.length > 0) return { action: 'corrigir-erros' };
   if (!perfil.present) return { action: 'perfil' };
   if (projetos.length === 0) return { action: 'novo-projeto' };
-  const unfinished = projetos.find((projeto) => projeto.kit !== 'ok');
+  const unfinished = projetos.find((projeto) => projeto.kit === 'pendente');
   if (unfinished) return { action: 'concluir-projeto', projeto: unfinished.id };
+  const unapproved = projetos.find((projeto) => projeto.kit === 'aguardando-aprovacao');
+  if (unapproved) return { action: 'aprovar-kit', projeto: unapproved.id };
   if (waiting.length > 0) return { action: 'continuar-video', ...waiting[0] };
   for (const projeto of projetos) {
     const video = projeto.videos.find((v) => v.status && !STATUSES.get(v.status).finished);

@@ -1,3 +1,80 @@
 {
-  "formato": "9:16"
+  "schemaVersion": 1,
+  "aprovadoEm": "2026-09-29T12:00:00.000Z",
+  "formato": "9:16",
+  "cores": {
+    "primaria": "#111111",
+    "destaque": "#FFD400",
+    "fundo": "#FFFFFF",
+    "texto": "#111111"
+  },
+  "tipografia": {
+    "titulo": {
+      "familia": "Inter",
+      "peso": 800,
+      "arquivo": null
+    },
+    "texto": {
+      "familia": "Inter",
+      "peso": 500,
+      "arquivo": null
+    },
+    "escala": {
+      "titulo": 96,
+      "corpo": 48
+    }
+  },
+  "legendas": {
+    "ativas": true,
+    "estilo": "palavra-destacada",
+    "fonte": "texto",
+    "tamanho": 56,
+    "cor": "#FFFFFF",
+    "destaque": "#FFD400",
+    "posicao": "inferior",
+    "caixaAlta": false,
+    "palavrasPorVez": 3
+  },
+  "movimento": {
+    "intensidade": "equilibrada",
+    "ritmo": "equilibrado",
+    "entradaMs": 300,
+    "transicao": "corte",
+    "recursos": []
+  },
+  "camera": {
+    "comportamento": "",
+    "enquadramento": ""
+  },
+  "zonaDoRosto": {},
+  "imagens": {
+    "prints": "inteiros, com marca-texto exatamente na frase citada",
+    "interacao": ""
+  },
+  "som": {
+    "efeitos": "sutis"
+  },
+  "musica": {
+    "politica": "no-app"
+  },
+  "entregaveis": {
+    "formatos": [
+      "9:16"
+    ],
+    "overlays": false
+  },
+  "creditos": {
+    "porVideo": null,
+    "porMes": null
+  },
+  "fazer": [],
+  "evitar": [],
+  "glossario": [],
+  "referencias": [],
+  "ativos": {
+    "logos": [],
+    "fontes": [],
+    "cartaoFinal": null,
+    "outros": []
+  }
 }
