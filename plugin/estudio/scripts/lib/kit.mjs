@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { KIT_ASSETS } from './layout.mjs';
-import { isObject } from './valores.mjs';
+import { isIsoDate, isObject } from './valores.mjs';
 
 const KIT_SCHEMA_VERSION = 1;
 const FORMATOS = ['9:16', '16:9', '1:1'];
@@ -34,7 +34,7 @@ const positiveInt = (v) => (Number.isInteger(v) && v > 0 ? null : 'must be a who
 const weight = (v) => (Number.isInteger(v) && v >= 100 && v <= 900 ? null : 'must be a font weight from 100 to 900');
 const budget = (v) => (v === null || (typeof v === 'number' && v >= 0) ? null : 'must be a number of credits (0 or more) or null');
 const color = (v) => (typeof v === 'string' && /^#[0-9A-Fa-f]{6}$/.test(v) ? null : 'must be a color like "#1A2B3C"');
-const isoDate = (v) => (v === null || (typeof v === 'string' && !Number.isNaN(Date.parse(v))) ? null : 'must be a date (ISO) or null');
+const isoDateOrNull = (v) => (v === null || isIsoDate(v) ? null : 'must be a date (ISO) or null');
 const orNull = (check) => (v, ...rest) => (v === null ? null : check(v, ...rest));
 const listOf = (check) => (v, ctx, where) => {
   if (!Array.isArray(v)) return 'must be a list';
@@ -69,7 +69,7 @@ const font = shape({ familia: text, peso: weight, arquivo: orNull(asset) });
 
 const KIT_SHAPE = shape({
   schemaVersion: (v) => (v === KIT_SCHEMA_VERSION ? null : `must be ${KIT_SCHEMA_VERSION}`),
-  aprovadoEm: isoDate,
+  aprovadoEm: isoDateOrNull,
   formato: oneOf(FORMATOS),
   cores: mapOf(color, ['primaria', 'destaque', 'fundo', 'texto']),
   tipografia: shape({ titulo: font, texto: font, escala: mapOf(positive, ['titulo', 'corpo']) }),

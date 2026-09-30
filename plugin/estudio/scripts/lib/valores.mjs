@@ -4,6 +4,9 @@ import fs from 'node:fs';
 // A plain JSON object: not null, not a list.
 export const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
+// A date string Date.parse reads (ISO).
+export const isIsoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
+
 // A JSON file's content; undefined when it is missing or not valid JSON.
 export function readJson(file) {
   try {

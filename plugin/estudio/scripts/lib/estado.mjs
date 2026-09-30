@@ -11,6 +11,7 @@ import { readPerfil } from './perfil.mjs';
 import {
   APROVACOES_AUTOMATICAS, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
+import { isIsoDate } from './valores.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
 const IGNORABLE = new Set(['Thumbs.db', 'desktop.ini']);
@@ -40,7 +41,6 @@ export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas', 'turnosI
 export const STATUS_NAMES = [...STATUSES.keys()];
 export const wholeCount = (v) => Number.isInteger(v) && v >= 0;
 const credits = (v) => typeof v === 'number' && v >= 0;
-const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
 // The Vídeo document's record fields other than Status, Rodada and Nível, each checked only
 // when present and not empty (older Vídeo documents have none of them).
@@ -48,22 +48,22 @@ const VIDEO_RECORD = [
   ...COUNTERS.map((key) => [key, wholeCount, 'must be a whole number, 0 or more']),
   ['creditosEstimados', credits, 'must be a number of credits, 0 or more'],
   ['creditosGastos', credits, 'must be a number of credits, 0 or more'],
-  ['creditosAprovadosEm', isoDate, 'must be a date (ISO)'],
-  ['creditosParadosEm', isoDate, 'must be a date (ISO)'],
+  ['creditosAprovadosEm', isIsoDate, 'must be a date (ISO)'],
+  ['creditosParadosEm', isIsoDate, 'must be a date (ISO)'],
   ['higgseditCreditosEstimados', credits, 'must be a number of credits, 0 or more'],
   ['higgseditCreditosGastos', credits, 'must be a number of credits, 0 or more'],
-  ['higgseditAprovadoEm', isoDate, 'must be a date (ISO)'],
-  ['higgseditParadoEm', isoDate, 'must be a date (ISO)'],
-  ['iniciadoEm', isoDate, 'must be a date (ISO)'],
-  ['entregueEm', isoDate, 'must be a date (ISO)'],
-  ['arquivadoEm', isoDate, 'must be a date (ISO)'],
+  ['higgseditAprovadoEm', isIsoDate, 'must be a date (ISO)'],
+  ['higgseditParadoEm', isIsoDate, 'must be a date (ISO)'],
+  ['iniciadoEm', isIsoDate, 'must be a date (ISO)'],
+  ['entregueEm', isIsoDate, 'must be a date (ISO)'],
+  ['arquivadoEm', isIsoDate, 'must be a date (ISO)'],
 ];
 // The numbers of one delivered Vídeo, for the Projeto's metrics: its counters, its Rodadas and
 // the minutes from `novo-video` to the Entrega. Null when it cannot be measured: not delivered
 // yet (its numbers are not final), or without valid dates (delivered before the studio kept them).
 const round1 = (n) => Math.round(n * 10) / 10;
 function measurement(video, data) {
-  if (!isFinished(video.status) || !isoDate(data.iniciadoEm) || !isoDate(data.entregueEm)) return null;
+  if (!isFinished(video.status) || !isIsoDate(data.iniciadoEm) || !isIsoDate(data.entregueEm)) return null;
   const minutos = (Date.parse(data.entregueEm) - Date.parse(data.iniciadoEm)) / 60000;
   if (minutos < 0 || COUNTERS.some((key) => data[key] != null && !wholeCount(data[key]))) return null;
   const counters = Object.fromEntries(COUNTERS.map((key) => [key, data[key] ?? 0]));

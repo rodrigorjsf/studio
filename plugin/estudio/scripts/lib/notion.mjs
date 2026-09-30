@@ -27,11 +27,10 @@ import { parseFrontmatter, writeDocument } from './frontmatter.mjs';
 import { NOTION_PAGINAS, NOTION_RESUMO, PROJETOS, VIDEOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
 import { findVideo } from './video.mjs';
-import { isObject } from './valores.mjs';
+import { isIsoDate, isObject } from './valores.mjs';
 
 // A file of the Estúdio layout (`notion/paginas.json`) inside a Projeto or Vídeo folder.
 const at = (dir, rel) => path.join(dir, ...rel.split('/'));
-const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
 // A Página Notion is an https address on Notion's own hosts: notion.so (the app) or a
 // workspace's public notion.site. The host is checked, not the text, so no other site passes.
@@ -69,7 +68,7 @@ export function linksProblems(data) {
     // On disk `subpaginas` is always written; only a new link may leave it out (default no).
     const problem = linkProblem({ subpaginas: null, ...pagina });
     if (problem) problems.push(`pagina ${i + 1}: ${problem}`);
-    else if (!isoDate(pagina.vinculadaEm)) problems.push(`pagina ${i + 1}: vinculadaEm must be a date (ISO)`);
+    else if (!isIsoDate(pagina.vinculadaEm)) problems.push(`pagina ${i + 1}: vinculadaEm must be a date (ISO)`);
   });
   const urls = data.paginas.map((p) => p?.url);
   if (new Set(urls).size !== urls.length) problems.push('a page is linked twice');
@@ -79,7 +78,7 @@ export function linksProblems(data) {
 // The problems of a Resumo Notion's frontmatter.
 export function resumoProblems(data) {
   const problems = [];
-  if (!isoDate(data.geradoEm)) problems.push('geradoEm must be the date the Resumo was written (ISO)');
+  if (!isIsoDate(data.geradoEm)) problems.push('geradoEm must be the date the Resumo was written (ISO)');
   const paginasLidas = data.paginasLidas ?? null;
   if (!Array.isArray(paginasLidas) || paginasLidas.length === 0) problems.push('paginasLidas must list the Páginas Notion it was taken from');
   else paginasLidas.forEach((url) => { const p = notionUrlProblem(url); if (p) problems.push(`paginasLidas: ${p}`); });
@@ -269,7 +268,7 @@ export function conferirNotion(folder, projetoNome, videoNome, editadasText) {
   } catch (err) {
     return { checked: false, reason: 'invalid-edit', message: `not valid JSON (${err.message})` };
   }
-  if (!isObject(editadas) || !Object.values(editadas).every((v) => v === null || isoDate(v))) {
+  if (!isObject(editadas) || !Object.values(editadas).every((v) => v === null || isIsoDate(v))) {
     return { checked: false, reason: 'invalid-edit', message: 'must map each linked page to its last-edited date (ISO) or null' };
   }
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
