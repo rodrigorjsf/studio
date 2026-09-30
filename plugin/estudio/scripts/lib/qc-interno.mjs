@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { wholeCount } from './estado.mjs';
 import { QC_INTERNO, REVISAO } from './layout.mjs';
-import { BUILDING, locate } from './revisao.mjs';
+import { BUILDING, internalTurns, locate } from './revisao.mjs';
 import { updateVideoRecord } from './video.mjs';
 
 // The three Críticos of every version, by agent name.
@@ -58,52 +58,44 @@ function readTurn(text) {
   return { vereditos, custo: { tokens, segundos } };
 }
 
-function readTurns(file) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8')).turnos ?? [];
-  } catch {
-    return [];
-  }
-}
-
 export function qcInterno(folder, projetoNome, videoNome, turnText) {
-  const turn = readTurn(turnText);
-  if (turn.problem) return { recorded: false, reason: 'invalid-turn', message: turn.problem };
+  const input = readTurn(turnText);
+  if (input.problem) return { recorded: false, reason: 'invalid-turn', message: input.problem };
   const { projeto, video, dir, status, gate, latest, pending, refusal } = locate(folder, projetoNome, videoNome);
   if (refusal) return { recorded: false, ...refusal };
   if (!BUILDING.has(status)) return { recorded: false, reason: 'not-building', projeto, video, status };
   if (!pending) return { recorded: false, reason: 'no-version', projeto, video };
   if (gate === 'aberto') return { recorded: false, reason: 'awaiting-criadora', projeto, video, versao: latest };
 
-  const file = path.join(dir, REVISAO, latest, QC_INTERNO);
-  const turnos = readTurns(file);
+  const { turnos, problem } = internalTurns(dir, latest);
+  if (problem) return { recorded: false, reason: 'invalid-turns', projeto, video, message: problem };
   const last = turnos.at(-1);
   if (last?.aprovado) return { recorded: false, reason: 'already-approved', projeto, video, versao: latest };
   // A new cycle of turns starts after an escalation she answered (the Gate is closed again).
   const ciclo = last ? last.ciclo + (last.escalado ? 1 : 0) : 1;
-  const numero = last && !last.escalado ? last.turno + 1 : 1;
-  const reprovacoes = CRITICOS.filter((name) => turn.vereditos[name].veredito === 'reprovado')
-    .map((name) => ({ critico: name, motivos: turn.vereditos[name].motivos }));
+  const turno = last && !last.escalado ? last.turno + 1 : 1;
+  const reprovacoes = CRITICOS.filter((name) => input.vereditos[name].veredito === 'reprovado')
+    .map((name) => ({ critico: name, motivos: input.vereditos[name].motivos }));
   const aprovado = reprovacoes.length === 0;
-  const escalado = !aprovado && numero >= MAX_TURNOS;
-  const record = { ciclo, turno: numero, aprovado, escalado, vereditos: turn.vereditos, custo: turn.custo, registradoEm: new Date().toISOString() };
+  const escalado = !aprovado && turno >= MAX_TURNOS;
+  const record = { ciclo, turno, aprovado, escalado, vereditos: input.vereditos, custo: input.custo, registradoEm: new Date().toISOString() };
 
   const { data, message } = updateVideoRecord(dir, (current) => {
     current.status = 'QC interno';
     if (escalado) current.gate = 'aberto';
     current.turnosInternos = (current.turnosInternos ?? 0) + 1;
-    current.tokensInternos = (current.tokensInternos ?? 0) + turn.custo.tokens;
-    current.segundosInternos = (current.segundosInternos ?? 0) + turn.custo.segundos;
+    current.tokensInternos = (current.tokensInternos ?? 0) + input.custo.tokens;
+    current.segundosInternos = (current.segundosInternos ?? 0) + input.custo.segundos;
   });
   if (!data) return { recorded: false, reason: 'invalid-document', projeto, video, message };
-  fs.writeFileSync(file, `${JSON.stringify({ turnos: [...turnos, record] }, null, 2)}\n`);
+  fs.writeFileSync(path.join(dir, REVISAO, latest, QC_INTERNO), `${JSON.stringify({ turnos: [...turnos, record] }, null, 2)}\n`);
   return {
     recorded: true,
     projeto,
     video,
     versao: latest,
     ciclo,
-    turno: numero,
+    turno,
     aprovado,
     reprovacoes,
     proximo: aprovado ? 'abrir-revisao' : (escalado ? 'escalar' : 'corrigir'),

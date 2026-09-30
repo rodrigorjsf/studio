@@ -59,6 +59,10 @@ function versaoConstruida(dir) {
   const { out } = run('nova-versao', dir, PROJETO, VIDEO);
   assert.equal(out.ready, true, JSON.stringify(out));
   for (const nome of ['01-abertura.png', '02-numero.png']) fs.writeFileSync(path.join(out.pasta, nome), 'still');
+  // The three Críticos approve it (ticket #13): her review opens only after them.
+  const aprovado = { veredito: 'aprovado', motivos: [] };
+  const vereditos = { 'qc-tecnico': aprovado, 'guardiao-da-marca': aprovado, 'revisor-de-plataforma': aprovado };
+  assert.equal(run('qc-interno', dir, PROJETO, VIDEO, JSON.stringify({ vereditos, custo: { tokens: 0, segundos: 0 } })).out.recorded, true);
   return out;
 }
 

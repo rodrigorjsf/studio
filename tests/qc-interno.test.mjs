@@ -182,3 +182,28 @@ test('a turn needs a version being built: none yet, or a Vídeo under her review
   const unknown = run('qc-interno', dir, PROJETO, 'Outro', JSON.stringify(turno({}))).out;
   assert.deepEqual([unknown.recorded, unknown.reason], [false, 'unknown-video']);
 });
+
+test('her review opens only after the Críticos: never before a turn, nor after a rejection still being fixed', () => {
+  const { dir } = versaoParaJulgar();
+  const antes = run('abrir-revisao', dir, PROJETO, VIDEO).out;
+  assert.deepEqual([antes.opened, antes.reason], [false, 'not-reviewed']);
+  const reprovado = turno({ 'revisor-de-plataforma': { veredito: 'reprovado', motivos: ['gancho: nada nos 3 primeiros segundos'] } });
+  registrar(dir, reprovado);
+  assert.equal(run('abrir-revisao', dir, PROJETO, VIDEO).out.reason, 'not-reviewed');
+  assert.equal(noEstado(dir).status, 'QC interno');
+  // After the escalation she may choose to see the version as it is.
+  registrar(dir, reprovado);
+  registrar(dir, reprovado);
+  const { out } = run('abrir-revisao', dir, PROJETO, VIDEO);
+  assert.equal(out.opened, true, JSON.stringify(out));
+  assert.equal(noEstado(dir).status, 'Revisão');
+});
+
+test('a damaged turn record is refused, never read as a fresh start that would lift the cap', () => {
+  const { dir, video } = versaoParaJulgar();
+  registrar(dir, turno({ 'qc-tecnico': { veredito: 'reprovado', motivos: ['duration: 1 frame short'] } }));
+  fs.writeFileSync(path.join(video, 'revisao', 'v01', 'qc-interno.json'), '{"turnos": [');
+  const { out } = registrar(dir, turno({}));
+  assert.deepEqual([out.recorded, out.reason], [false, 'invalid-turns']);
+  assert.equal(registro(path.join(video, 'video.md')).turnosInternos, '1');
+});
