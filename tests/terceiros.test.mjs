@@ -15,7 +15,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, 'vendor.json')
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
 test('every verbatim-vendored file still matches the sha256 its manifest records', () => {
-  const verbatim = manifest.sources.flatMap((source) => source.files ?? []);
+  const verbatim = manifest.sources.filter((source) => source.mode === 'vendored-subset').flatMap((source) => source.files);
   assert.ok(verbatim.length >= 3, 'the sampler, its runtime helper and the MIT LICENSE are vendored verbatim');
   for (const file of verbatim) {
     const local = path.join(pluginRoot, file.path);
@@ -29,6 +29,33 @@ test('each upstream is pinned to a full commit SHA with its license', () => {
     assert.match(source.sha, /^[0-9a-f]{40}$/, `${source.id}: pin a full commit SHA`);
     assert.ok(source.license, `${source.id}: name the license`);
   }
+});
+
+// ---- the mirrored speech model (ticket #31, ADR 0006) ----
+
+const MODEL_FILES = ['model.bin', 'config.json', 'tokenizer.json', 'vocabulary.json', 'preprocessor_config.json'];
+
+test('the speech-model source is a pinned mirror: upstream, commit, license and five checksummed Release files', () => {
+  const model = manifest.sources.find((s) => s.id === 'speech-model');
+  assert.ok(model, 'vendor.json has a speech-model source');
+  assert.equal(model.mode, 'mirrored');
+  assert.equal(model.owner, 'mobiuslabsgmbh');
+  assert.equal(model.repo, 'faster-whisper-large-v3-turbo');
+  assert.equal(model.sha, '0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf');
+  assert.equal(model.license, 'MIT');
+  assert.deepEqual(model.files.map((f) => f.name).sort(), [...MODEL_FILES].sort());
+  for (const file of model.files) {
+    assert.match(file.sha256, /^[0-9a-f]{64}$/, `${file.name}: sha256`);
+    assert.match(file.url, /^https:\/\/github\.com\/rodrigorjsf\/studio\/releases\/download\/modelo-large-v3-turbo-0a363e9\/[^/]+$/, `${file.name}: Release URL`);
+    assert.ok(file.url.endsWith(`/${file.name}`), `${file.name}: the URL names the file`);
+  }
+});
+
+test('the third-party notice carries the model\'s MIT attribution', () => {
+  const notice = fs.readFileSync(path.join(pluginRoot, 'THIRD_PARTY.md'), 'utf8');
+  assert.match(notice, /mobiuslabsgmbh\/faster-whisper-large-v3-turbo/);
+  assert.ok(notice.includes('0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf'), 'names the pinned commit');
+  assert.match(notice, /large-v3-turbo[\s\S]{0,1500}MIT/, 'names the MIT license for the model');
 });
 
 // ---- independence: the Criadora installs only estudio ----
