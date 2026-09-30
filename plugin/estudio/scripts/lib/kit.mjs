@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { KIT_ASSETS } from './layout.mjs';
+import { isObject } from './valores.mjs';
 
 const KIT_SCHEMA_VERSION = 1;
 const FORMATOS = ['9:16', '16:9', '1:1'];
@@ -25,7 +26,6 @@ export function defaultKit() {
 }
 
 // ---- checkers: each returns null when the value is fine, or a plain problem ----
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const oneOf = (values) => (v) => (values.includes(v) ? null : `must be one of: ${values.join(', ')}`);
 const text = (v) => (typeof v === 'string' ? null : 'must be text');
 const flag = (v) => (typeof v === 'boolean' ? null : 'must be true or false');

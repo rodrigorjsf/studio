@@ -36,6 +36,7 @@ import { boxProblem } from './ingest.mjs';
 import { KIT, PALAVRAS, PLANO, PRINTS, VIDEO_DOC, VIDEO_KIT, ZONA_DO_ROSTO } from './layout.mjs';
 import { notionLevels } from './notion.mjs';
 import { findVideo, kitGaps, registrarVideo } from './video.mjs';
+import { readJson } from './valores.mjs';
 
 // The scene repertoire of the editorial direction, by the names the Plano uses.
 export const SCENES = ['camera', 'camera-enfase', 'camera-motion', 'camera-espaco', 'aula', 'demo', 'cena', 'broll', 'transformacao'];
@@ -58,14 +59,6 @@ const plain = (word) => nfc(String(word)).toLowerCase().replace(/^[\p{P}\p{S}\s]
 
 const round = (v) => Math.round(v * 10000) / 10000;
 const overlaps = (a, b) => a.x < b.x + b.largura && b.x < a.x + a.largura && a.y < b.y + b.altura && b.y < a.y + a.altura;
-
-function readJson(file) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return undefined;
-  }
-}
 
 // The problems of one scene (1-based `n`), in reading order.
 function sceneProblems(cena, n, { palavras, duracao, zona, formato, prints }) {

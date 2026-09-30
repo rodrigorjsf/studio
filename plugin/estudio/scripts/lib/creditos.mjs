@@ -22,11 +22,11 @@ import {
   GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
 } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
+import { isObject, readJson } from './valores.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
 const MARGEM = 0.2;
 const isCredits = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 // Credits are kept to the cent: quoted costs such as 1.75 per second add up without float noise.
 const toCents = (v) => Math.round(v * 100) / 100;
 const limiteDe = (estimados) => toCents(estimados * (1 + MARGEM));
@@ -45,14 +45,6 @@ const creditsOr0 = (v) => (isCredits(v) ? v : 0);
 // What a budget holds of the Kit's: the larger of its estimate and what it spent.
 const usedBy = (record, budget) => Math.max(creditsOr0(record[budget.estimados]), creditsOr0(record[budget.gastos]));
 const approvedIn = (record, budget, month) => typeof record[budget.aprovadoEm] === 'string' && record[budget.aprovadoEm].startsWith(month);
-
-function readJson(file) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return undefined;
-  }
-}
 
 // The JSON input of a command, checked against the keys it accepts (nothing else is written).
 function readInput(text, accepted, required) {

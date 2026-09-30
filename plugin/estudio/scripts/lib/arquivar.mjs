@@ -16,8 +16,8 @@ import { editarKit, LOCKED, merge } from './editar.mjs';
 import { APRENDIZADOS } from './layout.mjs';
 import { locate } from './revisao.mjs';
 import { updateVideoRecord } from './video.mjs';
+import { isObject } from './valores.mjs';
 
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 function learningProblem(item, i) {
   const where = `aprendizados[${i}]`;

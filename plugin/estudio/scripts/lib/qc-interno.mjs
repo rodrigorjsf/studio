@@ -19,13 +19,13 @@ import { wholeCount } from './estado.mjs';
 import { QC_INTERNO, REVISAO } from './layout.mjs';
 import { BUILDING, internalTurns, locate } from './revisao.mjs';
 import { updateVideoRecord } from './video.mjs';
+import { isObject } from './valores.mjs';
 
 // The three Críticos of every version, by agent name.
 export const CRITICOS = ['qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma'];
 const VEREDITOS = ['aprovado', 'reprovado'];
 // Rejected turns in a row before the loop stops and the Diretor asks her.
 export const MAX_TURNOS = 3;
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // The turn as the Diretor passes it: `{"vereditos": {<crítico>: {"veredito", "motivos"}}, "custo":
 // {"tokens", "segundos"}}`, checked on its own. A rejection carries its reasons.

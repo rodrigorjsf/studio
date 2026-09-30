@@ -27,10 +27,10 @@ import { parseFrontmatter, writeDocument } from './frontmatter.mjs';
 import { NOTION_PAGINAS, NOTION_RESUMO, PROJETOS, VIDEOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
 import { findVideo } from './video.mjs';
+import { isObject } from './valores.mjs';
 
 // A file of the Estúdio layout (`notion/paginas.json`) inside a Projeto or Vídeo folder.
 const at = (dir, rel) => path.join(dir, ...rel.split('/'));
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
 // A Página Notion is an https address on Notion's own hosts: notion.so (the app) or a

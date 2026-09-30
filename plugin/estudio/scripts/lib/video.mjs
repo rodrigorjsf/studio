@@ -13,6 +13,7 @@ import { measureZone } from './ingest.mjs';
 import {
   AMOSTRAS_ROSTO, FRAMES_ROSTO, FRAMES_VISAO_GERAL, KIT, MEDICOES_ROSTO, ORIGINAL, PRINTS, PROJETOS, VIDEO_DOC, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
+import { isObject } from './valores.mjs';
 
 // The Vídeo briefing asks only what a Kit de marca never answers — these five, every time —
 // plus the Kit's own gaps (see kitGaps). Formato, style, captions, music and the rest come
@@ -90,7 +91,6 @@ export function novoVideo(folder, projetoNome, videoNome, recording) {
 // the metric counters. Anything else in the record is not hers to change here.
 const RECORDABLE = ['nivel', 'status', 'gate', 'somar'];
 const GATE_STATES = ['aberto', null];
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 function recordProblem(record) {
   if (!isObject(record)) return `must be a JSON object with ${RECORDABLE.join(', ')}`;

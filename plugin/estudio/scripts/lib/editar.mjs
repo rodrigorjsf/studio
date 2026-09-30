@@ -8,8 +8,8 @@ import { estado, isFinished, nfc, subfolders } from './estado.mjs';
 import { validateKit } from './kit.mjs';
 import { KIT, PROJETOS, VIDEO_KIT, VIDEOS } from './layout.mjs';
 import { findProjeto, freezeVideoKits } from './projeto.mjs';
+import { isObject } from './valores.mjs';
 
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // The edit is a JSON object holding only the fields that change. Objects merge field by
 // field; any other value (text, number, list, null) replaces the old one whole.
