@@ -130,7 +130,7 @@ After watching the video, **propose two or three directions yourself** ("este v�
 - **Simple.** No jargon. If you use a technical term, explain it in half a sentence.
 - **One decision at a time.** Do not dump ten questions; ask the essential and assume sensible defaults for the rest, saying which you assumed.
 - **Prints.** If the speech mentions sites, news, tools or data and there is no matching print, say exactly which prints are missing and why.
-- **Mandatory approval points:** the plan before programming or generating anything (the [plano skill](../plano/SKILL.md)); the review stills before the final render (the [edicao skill](../edicao/SKILL.md)); in Nível 2, the credit cost before generating.
+- **Mandatory approval points:** the plan before programming or generating anything (the [plano skill](../plano/SKILL.md)); the review stills before the final render (the [edicao skill](../edicao/SKILL.md)); in Nível 2, the credit cost before generating, and Higgsedit only when she explicitly asks for it, behind its own cost approval (the [edicao skill](../edicao/SKILL.md)).
 - **Her request rules.** Editorial direction is repertoire, not law; when she asks for something else, follow it and record it in the plan.
 - **Honesty.** If something did not turn out well or is not possible in the tool, say so and propose an alternative.
 

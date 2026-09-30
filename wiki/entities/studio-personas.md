@@ -34,6 +34,7 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 | Assistente de edição | subagent | Sonnet 5.5 · high |
 | Editor de pré-corte | subagent | Sonnet 5.5 · high |
 | Artista generativo | subagent | Sonnet 5.5 · high |
+| Montador Higgsedit | subagent (`plugin/estudio/agents/montador-higgsedit.md`, added in ticket #16: Higgsedit montage only on her explicit request) | Sonnet 5.5 · high |
 | Finalizador | subagent | Sonnet 5.5 · high |
 | QC técnico (Crítico) | subagent (`plugin/estudio/agents/qc-tecnico.md`, built in ticket #12: runs `qc`, tools Bash/Read) | Sonnet 5.5 · high |
 | Revisor de plataforma (Crítico) | subagent | Sonnet 5.5 · high |

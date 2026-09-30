@@ -1,18 +1,26 @@
-// Nível 2's Higgsfield credits, held behind her credit Gate. Nothing is generated before she
-// approves the cost, and spending about 20% over what she approved stops the work.
+// Nível 2's Higgsfield credits, held behind her Gates. Nothing is paid before she approves the
+// cost, and spending about 20% over what she approved stops the work.
 //
-//   aprovar-creditos  her credit Gate: the Plano's estimate (or a new one she approved after a
-//                     stop), her balance as the connector's `balance` reads it, the Kit's budget
-//   gastar-creditos   before each generation: the balance covers it, its prompt forbids text,
-//                     and the credits spent stay within the approved estimate plus ~20%
+//   aprovar-creditos   her credit Gate: the Plano's estimate (or a new one she approved after a
+//                      stop), her balance as the connector's `balance` reads it, the Kit's budget
+//   gastar-creditos    before each generation: the balance covers it, its prompt forbids text,
+//                      and the credits spent stay within the approved estimate plus ~20%
+//   aprovar-higgsedit  her Higgsedit Gate: only on her explicit request (her words), for a part of
+//                      the Vídeo or all of it, with its own estimate, balance and budget check
+//   gastar-higgsedit   before each paid Higgsedit run: the same balance and ~20% stop, on its own
+//                      estimate
 //
-// "Spent" is the sum of the costs the connector quotes for each generation, as the Artista
-// generativo passes them before submitting; the balance is read again before each one.
+// The two are separate budgets of the same Vídeo, each with its own Gate and its own stop; the
+// Kit's budget (per Vídeo, per month) holds both together.
+// "Spent" is the sum of the costs the connector quotes for each generation or run, as the persona
+// passes them before submitting; the balance is read again before each one.
 import fs from 'node:fs';
 import path from 'node:path';
 import { isFinished, nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
-import { GERADOS, GERADOS_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT } from './layout.mjs';
+import {
+  GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
+} from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
@@ -22,6 +30,21 @@ const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 // Credits are kept to the cent: quoted costs such as 1.75 per second add up without float noise.
 const toCents = (v) => Math.round(v * 100) / 100;
 const limiteDe = (estimados) => toCents(estimados * (1 + MARGEM));
+
+// A budget's fields in video.md, and the refusal a spend gets before its Gate.
+const GERACAO = {
+  estimados: 'creditosEstimados', gastos: 'creditosGastos', aprovadoEm: 'creditosAprovadosEm', paradoEm: 'creditosParadosEm',
+  semAprovacao: 'no-credit-approval',
+};
+const MONTAGEM = {
+  estimados: 'higgseditCreditosEstimados', gastos: 'higgseditCreditosGastos', aprovadoEm: 'higgseditAprovadoEm', paradoEm: 'higgseditParadoEm',
+  semAprovacao: 'no-higgsedit-approval',
+};
+const outro = (budget) => (budget === GERACAO ? MONTAGEM : GERACAO);
+const creditsOr0 = (v) => (isCredits(v) ? v : 0);
+// What a budget holds of the Kit's: the larger of its estimate and what it spent.
+const usedBy = (record, budget) => Math.max(creditsOr0(record[budget.estimados]), creditsOr0(record[budget.gastos]));
+const approvedIn = (record, budget, month) => typeof record[budget.aprovadoEm] === 'string' && record[budget.aprovadoEm].startsWith(month);
 
 function readJson(file) {
   try {
@@ -65,9 +88,8 @@ function creditVideo(folder, projetoNome, videoNome) {
 }
 
 // The credits her other Vídeos of the Projeto (in `videosDir`, all but `self`) were approved for
-// in the current month: for each, the larger of its estimate and what it spent.
-function approvedThisMonth(videosDir, self) {
-  const month = new Date().toISOString().slice(0, 7);
+// in `month`: for each budget approved that month, the larger of its estimate and what it spent.
+function approvedThisMonth(videosDir, self, month) {
   return fs.readdirSync(videosDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name !== self)
     .reduce((sum, entry) => {
@@ -77,65 +99,169 @@ function approvedThisMonth(videosDir, self) {
       } catch {
         return sum;
       }
-      if (typeof data.creditosAprovadosEm !== 'string' || !data.creditosAprovadosEm.startsWith(month)) return sum;
-      const used = Math.max(isCredits(data.creditosEstimados) ? data.creditosEstimados : 0, isCredits(data.creditosGastos) ? data.creditosGastos : 0);
-      return sum + used;
+      return sum + [GERACAO, MONTAGEM].filter((b) => approvedIn(data, b, month)).reduce((s, b) => s + usedBy(data, b), 0);
     }, 0);
 }
 
-export function aprovarCreditos(folder, projetoNome, videoNome, inputText) {
-  const { input, problem } = readInput(inputText, ['saldo', 'creditosEstimados'], ['saldo']);
-  if (problem) return { approved: false, reason: 'invalid-input', message: problem };
-  if (!isCredits(input.saldo)) return { approved: false, reason: 'invalid-input', message: 'saldo must be her balance in credits, 0 or more' };
-  if ('creditosEstimados' in input && !isCredits(input.creditosEstimados)) {
-    return { approved: false, reason: 'invalid-input', message: 'creditosEstimados must be a number of credits, 0 or more' };
-  }
-  const found = creditVideo(folder, projetoNome, videoNome);
-  if (found.refusal) return { approved: false, ...found.refusal };
+// Her Gate on one budget of a Nível 2 Vídeo whose Plano she approved: a new total estimate,
+// never below what that budget already spent, her balance covering what is still to be spent, and
+// the Kit's budget covering it with the Vídeo's other budget. `recordGate` adds what the Gate
+// keeps besides the credits, from the updated record. Returns its JSON answer.
+function approve(found, budget, creditosEstimados, saldo, recordGate = () => {}) {
   const { projeto, video, dir, record, kit, status } = found;
   const refuse = (reason, extra = {}) => ({ approved: false, reason, projeto, video, ...extra });
   if (record.nivel !== 2) return refuse('not-nivel-2');
   if (isFinished(status)) return refuse('finished', { status });
   const plano = readJson(path.join(dir, PLANO));
   if (!plano?.aprovadoEm) return refuse('plano-not-approved');
-
-  const creditosEstimados = input.creditosEstimados ?? plano.creditosEstimados;
   if (!isCredits(creditosEstimados)) return refuse('no-estimate');
-  // After a stop, she approves a new total estimate, never below what was already spent; her
-  // balance must cover what is still to be spent.
-  const gastos = isCredits(record.creditosGastos) ? record.creditosGastos : 0;
+
+  const gastos = creditsOr0(record[budget.gastos]);
   if (creditosEstimados < gastos) return refuse('below-spent', { creditosEstimados, creditosGastos: gastos });
-  const { saldo } = input;
   if (saldo < creditosEstimados - gastos) return refuse('insufficient-balance', { saldo, creditosEstimados, creditosGastos: gastos });
   const orcamento = { porVideo: kit?.creditos?.porVideo ?? null, porMes: kit?.creditos?.porMes ?? null };
-  const doMes = orcamento.porMes === null ? 0 : approvedThisMonth(path.join(dir, '..'), path.basename(dir));
-  if ((orcamento.porVideo !== null && creditosEstimados > orcamento.porVideo)
+  const month = new Date().toISOString().slice(0, 7);
+  const doVideo = usedBy(record, outro(budget));
+  const doMes = orcamento.porMes === null
+    ? 0
+    : approvedThisMonth(path.join(dir, '..'), path.basename(dir), month) + (approvedIn(record, outro(budget), month) ? doVideo : 0);
+  if ((orcamento.porVideo !== null && doVideo + creditosEstimados > orcamento.porVideo)
     || (orcamento.porMes !== null && doMes + creditosEstimados > orcamento.porMes)) {
-    return refuse('over-budget', { creditosEstimados, orcamento, aprovadosNoMes: doMes });
+    return refuse('over-budget', { creditosEstimados, orcamento, aprovadosNoVideo: doVideo, aprovadosNoMes: doMes });
   }
 
   const { data, message } = updateVideoRecord(dir, (current) => {
-    current.creditosEstimados = creditosEstimados;
-    current.creditosGastos = gastos;
-    current.creditosAprovadosEm = new Date().toISOString();
-    // It closes only the Gate its own stop opened, never another Gate of hers still open.
-    if (current.creditosParadosEm) {
-      current.gate = null;
-      delete current.creditosParadosEm;
+    current[budget.estimados] = creditosEstimados;
+    current[budget.gastos] = gastos;
+    current[budget.aprovadoEm] = new Date().toISOString();
+    // It closes only the Gate its own stop opened: never another Gate of hers still open, nor
+    // the one the other budget's stop holds open.
+    if (current[budget.paradoEm]) {
+      delete current[budget.paradoEm];
+      if (!current[outro(budget).paradoEm]) current.gate = null;
     }
     current.gates = (current.gates ?? 0) + 1;
   });
   if (!data) return refuse('invalid-document', { message });
+  recordGate(data);
   return {
     approved: true,
     projeto,
     video,
     creditosEstimados,
     limite: limiteDe(creditosEstimados),
-    creditosGastos: data.creditosGastos,
+    creditosGastos: data[budget.gastos],
     saldo,
     gates: data.gates,
   };
+}
+
+function balanceProblem(input) {
+  if (!isCredits(input.saldo)) return 'saldo must be her balance in credits, 0 or more';
+  if ('creditosEstimados' in input && !isCredits(input.creditosEstimados)) return 'creditosEstimados must be a number of credits, 0 or more';
+  return null;
+}
+
+export function aprovarCreditos(folder, projetoNome, videoNome, inputText) {
+  const { input, problem } = readInput(inputText, ['saldo', 'creditosEstimados'], ['saldo']);
+  const invalid = problem ?? balanceProblem(input);
+  if (invalid) return { approved: false, reason: 'invalid-input', message: invalid };
+  const found = creditVideo(folder, projetoNome, videoNome);
+  if (found.refusal) return { approved: false, ...found.refusal };
+  const plano = readJson(path.join(found.dir, PLANO));
+  return approve(found, GERACAO, input.creditosEstimados ?? plano?.creditosEstimados, input.saldo);
+}
+
+// The part of the Vídeo Higgsedit montages: all of it, or one stretch of her Master in seconds.
+const VIDEO_INTEIRO = 'video-inteiro';
+function trechoProblem(trecho) {
+  if (trecho === VIDEO_INTEIRO) return null;
+  const isSecond = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  if (!isObject(trecho) || Object.keys(trecho).sort().join() !== 'fim,inicio' || !isSecond(trecho.inicio) || !isSecond(trecho.fim) || trecho.fim <= trecho.inicio) {
+    return `trecho must be "${VIDEO_INTEIRO}" or {"inicio": <s>, "fim": <s>}, the stretch of her Master in seconds, fim after inicio`;
+  }
+  return null;
+}
+
+export function aprovarHiggsedit(folder, projetoNome, videoNome, inputText) {
+  const fields = ['pedido', 'trecho', 'creditosEstimados', 'saldo'];
+  const { input, problem } = readInput(inputText, fields, ['trecho', 'creditosEstimados', 'saldo']);
+  if (problem) return { approved: false, reason: 'invalid-input', message: problem };
+  // Higgsedit never runs on the studio's own initiative, nor on her Autonomia: only when she asked.
+  if (typeof input.pedido !== 'string' || input.pedido.trim() === '') {
+    return { approved: false, reason: 'no-request', message: 'pedido must be her explicit request for a Higgsedit feature, in her words' };
+  }
+  const invalid = balanceProblem(input) ?? trechoProblem(input.trecho);
+  if (invalid) return { approved: false, reason: 'invalid-input', message: invalid };
+  const found = creditVideo(folder, projetoNome, videoNome);
+  if (found.refusal) return { approved: false, ...found.refusal };
+  const pedido = input.pedido.trim();
+  const out = approve(found, MONTAGEM, input.creditosEstimados, input.saldo, (data) => {
+    const file = path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/'));
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const registrados = readJson(file) ?? [];
+    registrados.push({ pedido, trecho: input.trecho, creditosEstimados: input.creditosEstimados, aprovadoEm: data[MONTAGEM.aprovadoEm] });
+    fs.writeFileSync(file, `${JSON.stringify(registrados, null, 2)}\n`);
+  });
+  return out.approved ? { ...out, pedido, trecho: input.trecho } : out;
+}
+
+// One paid item (a generation or a Higgsedit run) against a budget: her Gate on it, no stop and no
+// open Gate, the item's own `refusal` (a reason, or null), the balance, a new file, and the ~20%
+// limit. `entry` is what the ledger keeps of it.
+function spend(found, budget, { arquivo, creditos, saldo }, { pasta, registro, entry, refusal = null }) {
+  const { projeto, video, dir, record } = found;
+  const refuse = (reason, extra = {}) => ({ authorized: false, reason, projeto, video, ...extra });
+  if (!record[budget.aprovadoEm] || !isCredits(record[budget.estimados])) return refuse(budget.semAprovacao);
+  // Stopped after an overrun, or any Gate she has not answered: nothing more until she decides.
+  // Only her new approval of this budget lifts its stop; closing the Gate by hand does not.
+  if (record[budget.paradoEm] || record.gate === 'aberto') return refuse('awaiting-approval');
+  if (refusal) return refuse(refusal);
+  if (saldo < creditos) return refuse('insufficient-balance', { saldo, creditos });
+
+  const ledgerFile = path.join(dir, ...registro.split('/'));
+  const ledger = readJson(ledgerFile) ?? [];
+  const file = nfc(arquivo);
+  if (ledger.some((item) => item.arquivo === file)) return refuse('duplicate-file', { arquivo: file });
+  const gastos = creditsOr0(record[budget.gastos]);
+  const estimados = record[budget.estimados];
+  const limite = limiteDe(estimados);
+  if (gastos + creditos > limite + 1e-9) {
+    const { data, message } = updateVideoRecord(dir, (current) => {
+      current.gate = 'aberto';
+      current[budget.paradoEm] = new Date().toISOString();
+    });
+    if (!data) return refuse('invalid-document', { message });
+    return refuse('over-limit', { creditos, creditosGastos: gastos, creditosEstimados: estimados, limite });
+  }
+
+  const { data, message } = updateVideoRecord(dir, (current) => {
+    current[budget.gastos] = toCents(gastos + creditos);
+  });
+  if (!data) return refuse('invalid-document', { message });
+  fs.mkdirSync(path.join(dir, pasta), { recursive: true });
+  ledger.push({ arquivo: file, ...entry, creditos, registradoEm: new Date().toISOString() });
+  fs.writeFileSync(ledgerFile, `${JSON.stringify(ledger, null, 2)}\n`);
+  return {
+    authorized: true,
+    projeto,
+    video,
+    arquivo: file,
+    destino: path.join(dir, ...file.split('/')),
+    creditosGastos: data[budget.gastos],
+    creditosEstimados: estimados,
+    limite,
+    restante: toCents(limite - data[budget.gastos]),
+  };
+}
+
+// A file directly inside `pasta`, with one of the `extensions`: "<pasta>/<name>.<ext>".
+function fileProblem(arquivo, pasta, extensions, example) {
+  const parts = typeof arquivo === 'string' ? arquivo.split('/') : [];
+  if (parts.length !== 2 || parts[0] !== pasta || !extensions.test(parts[1]) || parts[1].startsWith('.')) {
+    return `arquivo must be ${extensions === GENERATED_FILE ? 'an image or clip' : 'a video'} directly inside "${pasta}/", like "${example}"`;
+  }
+  return null;
 }
 
 // A prompt must forbid text in the image, in English or pt-BR ("no text", "sem texto"): every
@@ -148,62 +274,38 @@ const SPEND_FIELDS = ['arquivo', 'creditos', 'saldo', 'modelo', 'prompt'];
 function spendProblem(input) {
   if (!isCredits(input.creditos)) return 'creditos must be the cost the connector quotes, 0 or more';
   if (!isCredits(input.saldo)) return 'saldo must be her balance in credits, 0 or more';
+  return null;
+}
+
+function generationProblem(input) {
   if (typeof input.modelo !== 'string' || input.modelo.trim() === '') return 'modelo must name the Higgsfield model';
   if (typeof input.prompt !== 'string' || input.prompt.trim() === '') return 'prompt must be the text sent to the model';
-  const parts = typeof input.arquivo === 'string' ? input.arquivo.split('/') : [];
-  if (parts.length !== 2 || parts[0] !== GERADOS || !GENERATED_FILE.test(parts[1]) || parts[1].startsWith('.')) {
-    return `arquivo must be an image or clip directly inside "${GERADOS}/", like "${GERADOS}/03_broll_ampulheta.mp4"`;
-  }
-  return null;
+  return fileProblem(input.arquivo, GERADOS, GENERATED_FILE, `${GERADOS}/03_broll_ampulheta.mp4`);
 }
 
 export function gastarCreditos(folder, projetoNome, videoNome, inputText) {
   const { input, problem } = readInput(inputText, SPEND_FIELDS, SPEND_FIELDS);
-  const invalid = problem ?? spendProblem(input);
+  const invalid = problem ?? spendProblem(input) ?? generationProblem(input);
   if (invalid) return { authorized: false, reason: 'invalid-input', message: invalid };
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { authorized: false, ...found.refusal };
-  const { projeto, video, dir, record } = found;
-  const refuse = (reason, extra = {}) => ({ authorized: false, reason, projeto, video, ...extra });
-  if (!record.creditosAprovadosEm || !isCredits(record.creditosEstimados)) return refuse('no-credit-approval');
-  // Stopped after an overrun, or any Gate she has not answered: nothing more until she decides.
-  // Only her new credit approval lifts the stop; closing the Gate by hand does not.
-  if (record.creditosParadosEm || record.gate === 'aberto') return refuse('awaiting-approval');
-  if (!FORBIDS_TEXT.test(input.prompt)) return refuse('prompt-allows-text');
-  const { creditos, saldo } = input;
-  if (saldo < creditos) return refuse('insufficient-balance', { saldo, creditos });
-
-  const ledgerFile = path.join(dir, ...GERADOS_REGISTRO.split('/'));
-  const ledger = readJson(ledgerFile) ?? [];
-  const arquivo = nfc(input.arquivo);
-  if (ledger.some((entry) => entry.arquivo === arquivo)) return refuse('duplicate-file', { arquivo });
-  const gastos = record.creditosGastos ?? 0;
-  const limite = limiteDe(record.creditosEstimados);
-  if (gastos + creditos > limite + 1e-9) {
-    const { data, message } = updateVideoRecord(dir, (current) => {
-      current.gate = 'aberto';
-      current.creditosParadosEm = new Date().toISOString();
-    });
-    if (!data) return refuse('invalid-document', { message });
-    return refuse('over-limit', { creditos, creditosGastos: gastos, creditosEstimados: record.creditosEstimados, limite });
-  }
-
-  const { data, message } = updateVideoRecord(dir, (current) => {
-    current.creditosGastos = toCents(gastos + creditos);
+  return spend(found, GERACAO, input, {
+    pasta: GERADOS,
+    registro: GERADOS_REGISTRO,
+    entry: { modelo: input.modelo, prompt: input.prompt },
+    refusal: FORBIDS_TEXT.test(input.prompt) ? null : 'prompt-allows-text',
   });
-  if (!data) return refuse('invalid-document', { message });
-  fs.mkdirSync(path.join(dir, GERADOS), { recursive: true });
-  ledger.push({ arquivo, modelo: input.modelo, creditos, prompt: input.prompt, registradoEm: new Date().toISOString() });
-  fs.writeFileSync(ledgerFile, `${JSON.stringify(ledger, null, 2)}\n`);
-  return {
-    authorized: true,
-    projeto,
-    video,
-    arquivo,
-    destino: path.join(dir, ...arquivo.split('/')),
-    creditosGastos: data.creditosGastos,
-    creditosEstimados: record.creditosEstimados,
-    limite,
-    restante: toCents(limite - data.creditosGastos),
-  };
+}
+
+// What a Higgsedit run may be saved as: one video, directly inside the Vídeo's `higgsedit/`.
+const MONTAGE_FILE = /^[^/\\]+\.(mp4|mov)$/i;
+const HIGGSEDIT_FIELDS = ['arquivo', 'creditos', 'saldo'];
+
+export function gastarHiggsedit(folder, projetoNome, videoNome, inputText) {
+  const { input, problem } = readInput(inputText, HIGGSEDIT_FIELDS, HIGGSEDIT_FIELDS);
+  const invalid = problem ?? spendProblem(input) ?? fileProblem(input.arquivo, HIGGSEDIT, MONTAGE_FILE, `${HIGGSEDIT}/01_transicao_3d.mp4`);
+  if (invalid) return { authorized: false, reason: 'invalid-input', message: invalid };
+  const found = creditVideo(folder, projetoNome, videoNome);
+  if (found.refusal) return { authorized: false, ...found.refusal };
+  return spend(found, MONTAGEM, input, { pasta: HIGGSEDIT, registro: HIGGSEDIT_REGISTRO, entry: {} });
 }

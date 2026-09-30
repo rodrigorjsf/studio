@@ -46,8 +46,9 @@ export const MasterMudo: React.FC<{projeto: string; video: string; master: strin
 }) => <Video src={arquivoDoVideo(projeto, video, master)} muted objectFit="cover" style={{width: '100%', height: '100%', ...style}} />;
 
 // A Nível 2 asset generated on Higgsfield, from the Vídeo's gerados/ folder (`arquivo` as gerados.json
-// records it, e.g. "gerados/03_broll_ampulheta.mp4"): an image, or a clip that is always muted, so her
-// original audio stays the edit's only sound. It fills the frame over the Master; place it inside a <Sequence>.
+// records it, e.g. "gerados/03_broll_ampulheta.mp4"), or a stretch Higgsedit montaged on her request,
+// from its higgsedit/ folder: an image, or a clip that is always muted, so her original audio stays
+// the edit's only sound. It fills the frame over the Master; place it inside a <Sequence>.
 const CLIPE = /\.(mp4|mov|webm)$/i;
 export const Gerado: React.FC<{projeto: string; video: string; arquivo: string; style?: React.CSSProperties}> = ({
   projeto, video, arquivo, style,
