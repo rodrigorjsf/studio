@@ -20,6 +20,8 @@ Proposed packaging of the studio as a Claude Code plugin.
 
 Related: [studio-personas](../entities/studio-personas.md), [approval-gate](approval-gate.md).
 
+> **Settled (ticket #15):** the plugin declares no Higgsfield server; Higgsfield comes only from her own connector, and the credit gate is enforced by the `gastar-creditos` CLI check before each generation, not by a hook. See "Built: Nível 2 Higgsfield assets" below.
+
 > **Settled (grilling 2026-09-29):** plugin name `estudio`, entry skill `/estudio:estudio` (not `/studio:dirigir`); package in `plugin/estudio/`; Higgsfield API-key path dropped for v1. See [estudio-plugin-decisions](../analyses/estudio-plugin-decisions.md).
 
 ## Built: Estúdio folder and `estado` (ticket #3)
@@ -108,3 +110,14 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 - Loudness is measured as played in stereo: a mono track is copied to both channels, because Remotion renders a mono Master that way (+3 LU against a plain mono measure, found by `tests/edicao.test.mjs`).
 - `entregar` now takes `"<ffmpeg>" "<ffprobe>"` and runs the same checks on every MP4 in `entrega/`, so a failed QC always blocks the Entrega; overlays keep the duration and no-audio checks. Its answer carries `verificacaoManual` (photosensitivity) too. A silent Master and an equally silent render pass `loudness`.
 - Persona `plugin/estudio/agents/qc-tecnico.md` (`claude-sonnet-5-5`, effort `high`, tools Bash/Read: no editing tools, enforced by `scripts/check-plugin.mjs`). The Motion designer renders each version in full into `revisao/vNN/`; the QC técnico judges it before her review opens, and judges the Finalizador's MP4s before the Diretor runs `entregar` (the Finalizador no longer runs it). Tests: `tests/qc.test.mjs` (Seam 1, ffmpeg fixtures: pass and each failure reason), `tests/entrega.test.mjs`.
+
+## Built: Nível 2 Higgsfield assets (ticket #15)
+
+- Higgsfield is an asset source only (ADR 0002). She reaches it through her own connector, logged in with her account. The edit is still assembled in Remotion. `plugin/estudio/skills/estudio/references/level-2-higgsfield.md` was rewritten to say so: no Higgsedit montage, no API-key path, and assets in `gerados/`. Higgsedit on explicit request, behind its own cost Gate, is ticket #16.
+- CLI `plugin/estudio/scripts/lib/creditos.mjs`:
+  - `aprovar-creditos` is the credit Gate, for a Nível 2 Vídeo with an approved Plano. It takes `{saldo, creditosEstimados?}`. It refuses `insufficient-balance` (the balance does not cover the estimate minus what is already spent), `over-budget` (the Kit's `creditos.porVideo`, or `porMes` counting the Projeto's other Vídeos approved this month) and `below-spent`. Otherwise it writes `creditosEstimados` and `creditosAprovadosEm` to `video.md`, lifts a stop (closing only the Gate that stop opened) and adds 1 to `gates`. Autonomia never approves it.
+  - `gastar-creditos` runs before each generation is paid. It takes exactly `{arquivo, creditos, saldo, modelo, prompt}`; any other key, a secret included, is refused unwritten. It refuses without the credit Gate, while a Gate is open or after a stop until she approves again (`creditosParadosEm`), when the prompt lacks `no text`/`sem texto`, when the balance does not cover the cost, and for a file already paid for. A cost that would take the spending past the estimate × 1.2 is refused as `over-limit`: the check also opens the Gate, so the work stops and `estado` shows the Vídeo waiting for her. Otherwise it adds the cost to `creditosGastos` and appends the generation to `gerados/gerados.json`. "Spent" is the sum of the quoted costs.
+- Persona `plugin/estudio/agents/artista-generativo.md` (`claude-sonnet-5-5`, effort `high`). Its tools are Bash, Read, `mcp__claude_ai_Higgsfield` and `mcp__higgsfield`: the two server names her connector can take. That is not yet verified end to end. It generates before the Motion designer builds, downloads into `gerados/`, and redoes an image that shows text.
+- Template: `<Gerado>` in `plugin/estudio/template/src/_shared/edicao.tsx` shows a generated image or clip over the frame, and a clip is always muted. `arquivoDoVideo` serves any file of the Vídeo folder.
+- The structure check (`scripts/check-plugin.mjs`) rejects a package that names `HF_KEY`, `HF_API_KEY`, `HF_API_SECRET` or `hf_api.py`.
+- Tests: `tests/creditos.test.mjs` (Seam 1), `tests/gerados.test.mjs` (Seam 2: a generated image reaches the frame; a noisy generated clip leaves her loudness unchanged) and `tests/plugin-structure.test.mjs` (Seam 3).

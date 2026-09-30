@@ -74,7 +74,7 @@ Write `<vídeo>/plano.json` (keys in pt-BR; every text she reads in pt-BR):
 - **Prints.** A scene that shows a Print names a file of `<vídeo>/prints/` in `print.arquivo` and, in `print.frase`, the exact phrase the highlighter covers. The Print is shown whole.
 - **Her requests win.** Put each thing she asked for in `pedidosDela` (pt-BR, one line each, saying how the Plano follows it), and follow it even when the repertoire would suggest otherwise.
 - **Resumos Notion.** When `<resumos-notion>` names any, let the Plano follow them (a script's order, a key message, a word to show) and cite each one in `resumosNotion`: `nivel` is `projeto` or `video`, and `geradoEm` is the date in its frontmatter, copied exactly. With none, write `"resumosNotion": []`.
-- **Time and cost.** `tempoEstimadoMin` is how many minutes the studio expects to spend until the Entrega (build, review, render). For a Nível 2 Vídeo, `creditosEstimados` is the Higgsfield credits the generated images and clips will cost; otherwise `null`.
+- **Time and cost.** `tempoEstimadoMin` is how many minutes the studio expects to spend until the Entrega (build, review, render). For a Nível 2 Vídeo, `creditosEstimados` is the Higgsfield credits the generated images and clips will cost (each at the approximate cost in `<plugin>/skills/estudio/references/level-2-higgsfield.md`, plus a redo margin), within the Kit's `creditos.porVideo` when it is set; each scene that needs one says in its `visual` which image or clip is generated, with no text in it; otherwise `null`.
 - Leave `quadros` empty: the Diretor de arte fills it. Never write `aprovadoEm` or `quadrosAprovadosEm`: only her approval stamps them.
 
 ## Check it

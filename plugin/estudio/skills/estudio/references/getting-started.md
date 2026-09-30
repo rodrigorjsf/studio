@@ -75,9 +75,8 @@ studio/
 │     ├─ prints/       screenshots and images of what you want animated
 │     ├─ frames/       (generated) frames sampled from the video
 │     ├─ transcricao/  (generated) text with the timing of each word
-│     ├─ hf/           (Nível 2) images and videos generated on Higgsfield
-│     ├─ plano.md      (generated) the edit plan you approve
-│     └─ edit.jsx      (Nível 2) assembly script for Higgsedit
+│     ├─ gerados/      (Nível 2) images and clips generated on Higgsfield
+│     └─ plano.md      (generated) the edit plan you approve
 │
 ├─ edicoes/            ← the finished video COMES OUT HERE
 │  └─ 001. meu-video/
@@ -87,7 +86,7 @@ studio/
 │  ├─ videos/          one subfolder per video of yours
 │  ├─ estilos/         code of the gallery examples
 │  └─ _shared/         reused pieces
-├─ tools/              local transcription and the Higgsfield Cloud API generator
+├─ tools/              local transcription
 └─ scripts/            automatic checks
 ```
 

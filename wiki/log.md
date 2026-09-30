@@ -61,3 +61,6 @@ Pages: concepts/notion-context.md, overview.md.
 
 ## [2026-09-30] update | Technical QC built: `qc`, QC técnico, `entregar` blocked by a failed QC (ticket #12)
 Pages: concepts/plugin-architecture.md, entities/studio-personas.md, overview.md.
+
+## [2026-09-30] update | Nível 2 Higgsfield assets built: credit Gate, pre-spend check, `<Gerado>`, Artista generativo (ticket #15)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.

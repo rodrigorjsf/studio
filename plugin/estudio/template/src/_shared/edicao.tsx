@@ -10,7 +10,7 @@
 //   - register it with calculateMetadata={calcularMetadadosDaEdicao} and the props of PropsDaEdicao,
 //     `duracao` being the Master's duration in seconds as ffprobe reads it.
 import React from 'react';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 import {calcularMetadadosDoKit, KIT_PADRAO, PropsDoKit} from './kit';
 import {LegendaDoKit, Palavra, useFontesDoKit} from './marca';
@@ -37,19 +37,32 @@ export const calcularMetadadosDaEdicao = async <P extends PropsDaEdicao>(
   durationInFrames: Math.max(1, Math.round(parametros.props.duracao * FPS_DA_EDICAO)),
 });
 
-const origemDoMaster = (projeto: string, video: string, master: string) => staticFile(`${projeto}/videos/${video}/${master}`);
+// A file of the Vídeo folder (projetos/<projeto>/videos/<video>/<arquivo>), as the template serves it.
+export const arquivoDoVideo = (projeto: string, video: string, arquivo: string) => staticFile(`${projeto}/videos/${video}/${arquivo}`);
 
 // Her Master again, silent: for a split screen or a camera card drawn over the edit.
 export const MasterMudo: React.FC<{projeto: string; video: string; master: string; style?: React.CSSProperties}> = ({
   projeto, video, master, style,
-}) => <Video src={origemDoMaster(projeto, video, master)} muted objectFit="cover" style={{width: '100%', height: '100%', ...style}} />;
+}) => <Video src={arquivoDoVideo(projeto, video, master)} muted objectFit="cover" style={{width: '100%', height: '100%', ...style}} />;
+
+// A Nível 2 asset generated on Higgsfield, from the Vídeo's gerados/ folder (`arquivo` as gerados.json
+// records it, e.g. "gerados/03_broll_ampulheta.mp4"): an image, or a clip that is always muted, so her
+// original audio stays the edit's only sound. It fills the frame over the Master; place it inside a <Sequence>.
+const CLIPE = /\.(mp4|mov|webm)$/i;
+export const Gerado: React.FC<{projeto: string; video: string; arquivo: string; style?: React.CSSProperties}> = ({
+  projeto, video, arquivo, style,
+}) => {
+  const src = arquivoDoVideo(projeto, video, arquivo);
+  const estilo: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover', ...style};
+  return <AbsoluteFill>{CLIPE.test(arquivo) ? <Video src={src} muted objectFit="cover" style={estilo} /> : <Img src={src} style={estilo} />}</AbsoluteFill>;
+};
 
 export const Edicao: React.FC<PropsDaEdicao & {children?: React.ReactNode}> = ({
   projeto, video, master, sobreposicao = false, kit = KIT_PADRAO, children,
 }) => (
   <AbsoluteFill style={{background: sobreposicao ? 'transparent' : kit.cores.fundo}}>
     {sobreposicao ? null : (
-      <Video src={origemDoMaster(projeto, video, master)} objectFit="cover" style={{width: '100%', height: '100%'}} />
+      <Video src={arquivoDoVideo(projeto, video, master)} objectFit="cover" style={{width: '100%', height: '100%'}} />
     )}
     {children}
   </AbsoluteFill>

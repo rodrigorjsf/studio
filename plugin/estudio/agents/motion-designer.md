@@ -31,6 +31,7 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 - `<vídeo>/video.md`: the section "O que muda do Kit" (the look she chose at the Quadros de estilo).
 - The Kit the Vídeo follows: `<vídeo>/kit.json` if it exists, else `<estudio>/projetos/<projeto>/kit.json`.
 - `<vídeo>/transcricao/palavras.json` (`[{w, s, e}]`, seconds) and `<vídeo>/zona-do-rosto.json` (`zona`).
+- Nível 2: `<vídeo>/gerados/gerados.json`, the images and clips generated for the Plano's scenes (each `arquivo` is inside `<vídeo>/gerados/`).
 - `<plugin>/skills/estudio/references/remotion/index.md`, then the rule file of each topic you touch, and `<plugin>/skills/estudio/references/editorial-direction.md` for the scenes of the repertoire.
 
 ## Build the edit
@@ -47,7 +48,8 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
    - never trim, loop, speed up or re-time the Master;
    - colors, fonts, caption style and motion come from the `kit` prop and `src/_shared/marca.tsx` (`LegendaDoKit`, `useEntradaDoKit`, `estiloDaFonte`); never write a color or a font by hand;
    - nothing drawn over her camera touches the `zona`; in 9:16, text sits between 0.1302 and 0.7813 of the height; Prints are shown whole, the highlighter exactly on `print.frase`;
-   - the composition takes the prop `sobreposicao` through to `<Edicao>`, so the Finalizador can render the transparent overlay when she asks for one.
+   - the composition takes the prop `sobreposicao` through to `<Edicao>`, so the Finalizador can render the transparent overlay when she asks for one;
+   - Nível 2: each generated image or clip goes in its scene's `<Sequence>` as `<Gerado projeto={projeto} video={video} arquivo="gerados/…" />` from `src/_shared/edicao.tsx`, which always mutes a clip; all text goes on top of it in the composition, never inside the generated file.
 3. **Register it** in `<estudio>/src/Root.tsx`, inside a `<Folder name="<projeto slug>">`, with id `<slug>`, `calculateMetadata={calcularMetadadosDaEdicao}` and `defaultProps` `{projeto, video, master, duracao, formato: null}` (`video` = the Vídeo folder name, `duracao` = step 1).
 4. **Typecheck** from `<estudio>`:
 
