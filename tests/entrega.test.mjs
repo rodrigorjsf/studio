@@ -94,6 +94,8 @@ test('a render as long as the Master, with her audio once, is delivered: Entregu
   assert.equal(video.status, 'Entregue');
   assert.equal(video.waitingForCriadora, false);
   assert.ok(!Number.isNaN(Date.parse(out.entregueEm)));
+  // Flashes are not measured: the delivery names the check left to a person.
+  assert.deepEqual(out.verificacaoManual.map((v) => v.check), ['photosensitivity']);
 });
 
 test('a render shorter than the Master by more than one frame is refused, and the Vídeo stays Aprovado', needs, () => {

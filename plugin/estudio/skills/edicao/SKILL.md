@@ -91,7 +91,7 @@ It moves the Vídeo to **Revisão**, sets `rodada` to the version's number and o
    "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" entregar "." "<projeto>" "<nome do vídeo>" "<ffmpeg>" "<ffprobe>"
    ```
 
-   `entregar` holds every file in `entrega` against the Master — every MP4 through the same technical QC as `qc`, so a failed QC always blocks the Entrega; an overlay: the same duration (±1 frame) and no audio — and marks the Vídeo **Entregue**. On `not-ready`, its `problemas` go back as in item 3; never tell her it is delivered before `"delivered": true`.
+   `entregar` holds every file in `entrega` against the Master — every MP4 through the same technical QC as `qc`, so a failed QC always blocks the Entrega; an overlay: the same duration (±1 frame) and no audio — and marks the Vídeo **Entregue**; its `verificacaoManual` names the photosensitivity check to pass on to her at the close. On `not-ready`, its `problemas` go back as in item 3; never tell her it is delivered before `"delivered": true`.
 5. **Open the folder for her.** Run `abrir` from the answer: `"<abrir.programa>" "<abrir.argumentos[0]>"`. Explorer (Windows, WSL) exits with code 1 even when it opened the folder: do not report that as a failure. If no window can open (a computer without a desktop), give her the `pasta` path instead.
 6. **Close.** In pt-BR: the video is ready, where it is (the Vídeo's `entrega` folder), each file and what it is for (the vertical one for Reels, TikTok and Shorts), and that the music is added in the app when her Kit's music policy says so. Say what she can ask now: a 16:9 version, the overlays, another Vídeo.
 

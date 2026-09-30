@@ -28,7 +28,7 @@ const LOUDNESS_TOLERANCE_LU = 1.5;
 const BLACK_MIN_S = 0.5;
 const FROZEN_MIN_S = 2;
 
-export const roundMs = (v) => Math.round(v * 1000) / 1000;
+const roundMs = (v) => Math.round(v * 1000) / 1000;
 const rate = (fraction) => {
   const [num, den] = (fraction ?? '0/0').split('/').map(Number);
   return num / den > 0 ? num / den : 0;
@@ -71,7 +71,7 @@ function stretches(log, startKey, endKey, fim) {
 }
 
 // A level from the ebur128 summary; null for silence (-inf, or the -70 LUFS absolute gate).
-const dbValue = (log, label) => {
+const summaryLevel = (log, label) => {
   const m = log.match(new RegExp(`${label}:\\s+(-?[\\d.]+|-inf)`));
   const value = m && m[1] !== '-inf' ? Number(m[1]) : null;
   return value !== null && value > -70 ? value : null;
@@ -92,8 +92,8 @@ function analyse(ffmpeg, file, media) {
   return {
     pretos: stretches(log, 'black_start', 'black_end', media.duracao),
     congelados: stretches(log, 'lavfi.freezedetect.freeze_start', 'lavfi.freezedetect.freeze_end', media.duracao),
-    loudnessIntegrado: audio ? dbValue(summary, 'I') : null,
-    truePeak: audio ? dbValue(summary, 'Peak') : null,
+    loudnessIntegrado: audio ? summaryLevel(summary, 'I') : null,
+    truePeak: audio ? summaryLevel(summary, 'Peak') : null,
   };
 }
 
@@ -105,7 +105,7 @@ export function measure(ffmpeg, ffprobe, file) {
 }
 
 const overlaps = (a, b) => a.inicio < b.fim && b.inicio < a.fim;
-const span = (s) => `${s.inicio}–${s.fim} s`;
+const formatStretch = (s) => `${s.inicio}–${s.fim} s`;
 
 // Why a file does not last as long as the Master, within one frame of the file itself plus a
 // millisecond for the rounding of the timestamps; null when it does.
@@ -129,21 +129,23 @@ export function renderProblems(render, master) {
   if (render.faixasDeAudio !== 1) {
     fail('audio-tracks', `has ${render.faixasDeAudio} audio tracks; her original audio must play exactly once`);
   } else if (master.faixasDeAudio > 0) {
-    const [ouvido, original] = [render.loudnessIntegrado ?? -Infinity, master.loudnessIntegrado ?? -Infinity];
-    if (!(Math.abs(ouvido - original) <= LOUDNESS_TOLERANCE_LU)) {
+    const [heard, recorded] = [render.loudnessIntegrado, master.loudnessIntegrado];
+    // Silence on both sides is her recording as it is; silence on one side only is a fault.
+    const same = heard === null || recorded === null ? heard === recorded : Math.abs(heard - recorded) <= LOUDNESS_TOLERANCE_LU;
+    if (!same) {
       fail('loudness', `measures ${render.loudnessIntegrado ?? 'silence'} LUFS, the Master ${master.loudnessIntegrado ?? 'silence'} LUFS (more than ${LOUDNESS_TOLERANCE_LU} LU apart): her voice must play once, as recorded`);
     }
   }
   const pretos = render.pretos.filter((s) => !master.pretos.some((m) => overlaps(s, m)));
-  if (pretos.length > 0) fail('black-frames', `turns black at ${pretos.map(span).join(', ')}, where the Master does not`);
+  if (pretos.length > 0) fail('black-frames', `turns black at ${pretos.map(formatStretch).join(', ')}, where the Master does not`);
   const congelados = render.congelados
     .filter((s) => !master.congelados.some((m) => overlaps(s, m)))
     .filter((s) => !render.pretos.some((p) => overlaps(s, p)));
-  if (congelados.length > 0) fail('frozen-frames', `stands still at ${congelados.map(span).join(', ')}, where the Master does not`);
+  if (congelados.length > 0) fail('frozen-frames', `stands still at ${congelados.map(formatStretch).join(', ')}, where the Master does not`);
   return problems;
 }
 
-const PHOTOSENSITIVITY = {
+export const PHOTOSENSITIVITY = {
   check: 'photosensitivity',
   message: 'not measured: watch the render for flashes or fast flicker (more than three flashes in any one second) before it reaches her audience',
 };

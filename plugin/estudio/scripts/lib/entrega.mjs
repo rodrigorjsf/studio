@@ -8,14 +8,15 @@
 //   - an overlay (MOV) lasts as long as the Master, within one frame, and carries no audio, since
 //     her voice is already in the Master it is laid over.
 // A file that fails is named with its reasons and nothing changes. On success it returns the
-// program that opens the delivery folder on this computer, for the Diretor to run.
+// program that opens the delivery folder on this computer, for the Diretor to run, and the
+// photosensitivity check left to a person.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { ENTREGA, VIDEO_DOC } from './layout.mjs';
-import { durationProblem, measure, probe, renderProblems } from './qc.mjs';
+import { durationProblem, measure, PHOTOSENSITIVITY, probe, renderProblems } from './qc.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
 
 const extension = (name) => path.extname(name).toLowerCase();
@@ -82,5 +83,5 @@ export function entregar(folder, projetoNome, videoNome, ffmpeg, ffprobe) {
     current.entregueEm = entregueEm;
   });
   if (!data) return refuse('invalid-document', { message });
-  return { delivered: true, projeto, video, status: data.status, entregueEm, pasta, arquivos, abrir: opener(pasta) };
+  return { delivered: true, projeto, video, status: data.status, entregueEm, pasta, arquivos, abrir: opener(pasta), verificacaoManual: [PHOTOSENSITIVITY] };
 }

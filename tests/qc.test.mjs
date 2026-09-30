@@ -167,6 +167,18 @@ test('black the Master already has is not the render\'s fault', needs, () => {
   assert.equal(out.medidas.render.pretos.length, 1);
 });
 
+test('a render as silent as her Master passes: silence is her recording, not a fault', needs, () => {
+  const gravacao = path.join(root, 'gravação muda.mp4');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc2=s=1080x1920:r=30:d=3', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono:d=3',
+    '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', gravacao);
+  const { dir, video } = estudioCom(gravacao);
+  const relativo = 'revisao/v01/render.mp4';
+  ffmpeg('-i', gravacao, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', path.join(video, relativo));
+  const out = qc(relativo, dir);
+  assert.equal(out.passed, true, JSON.stringify(out.problemas));
+  assert.equal(out.medidas.render.loudnessIntegrado, null);
+});
+
 test('a render that is missing or unreadable is refused with its reason', needs, () => {
   assert.equal(qc('revisao/v01/nada.mp4').reason, 'no-render');
   fs.writeFileSync(path.join(videoDir, 'revisao', 'v01', 'quebrada.mp4'), 'not a video');
