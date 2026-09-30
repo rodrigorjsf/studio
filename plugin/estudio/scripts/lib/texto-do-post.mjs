@@ -36,6 +36,10 @@ const SECTION_HEADINGS = {
   tiktok: { heading: 'TikTok', names: ['tiktok'] },
   shorts: { heading: 'Shorts', names: ['shorts', 'youtube', 'youtubeshorts'] },
 };
+// Fail at load, not mid-check, when a platform joins `PLATAFORMAS` without its row here.
+if (PLATAFORMAS.some((p) => !SECTION_HEADINGS[p]) || Object.keys(SECTION_HEADINGS).length !== PLATAFORMAS.length) {
+  throw new Error('SECTION_HEADINGS needs exactly one row per platform of PLATAFORMAS');
+}
 
 const INSTAGRAM_MAX_HASHTAGS = 5; // since 2025-12-18, platform-rules.md
 const MAX_HASHTAGS = 60; // YouTube ignores every hashtag past this; the check applies it to every platform

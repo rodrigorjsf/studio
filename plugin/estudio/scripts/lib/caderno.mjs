@@ -29,6 +29,13 @@ export const SECOES = { elogios: 'Elogios', queixas: 'Queixas', solucoes: 'SoluÃ
 
 const entryLine = (id, texto, persona, video, data) => `- **#${id}** ${texto} â€” _${[persona, video, data].filter(Boolean).join(', ')}_`;
 
+// `now` as her local YYYY-MM-DD, not UTC: from the evening in Brazil UTC is already tomorrow.
+const localIsoDate = (now) => [
+  String(now.getFullYear()).padStart(4, '0'),
+  String(now.getMonth() + 1).padStart(2, '0'),
+  String(now.getDate()).padStart(2, '0'),
+].join('-');
+
 function skeleton(title) {
   return [`# ${title}`, '', ...Object.values(SECOES).flatMap((heading) => [`## ${heading}`, ''])].join('\n');
 }
@@ -112,9 +119,7 @@ export function caderno(folder, inputText) {
   const where = locate(folder, input);
   if (where.refusal) return { written: false, ...where.refusal };
   const { file, title, video } = where;
-  const now = new Date();
-  // Her local date, not UTC: from the evening in Brazil UTC is already tomorrow.
-  const data = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n, i) => String(n).padStart(i === 0 ? 4 : 2, '0')).join('-');
+  const data = localIsoDate(new Date());
   const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : skeleton(title);
   const base = { written: true, acao: input.acao, camada: input.camada, data, caminho: file };
 
