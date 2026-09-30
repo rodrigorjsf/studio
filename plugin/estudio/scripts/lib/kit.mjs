@@ -78,6 +78,19 @@ const fraction = (v) => (typeof v === 'number' && v >= 0 && v <= 1 ? null : 'mus
 const faceZone = shape({ x: fraction, y: fraction, largura: fraction, altura: fraction });
 const font = shape({ familia: text, peso: weight, arquivo: orNull(asset) });
 
+const PLATAFORMAS_CHECK = optional(noRepeats(nonEmptyListOf(oneOf(PLATAFORMAS))));
+
+// Whether a Kit's `plataformas` is usable, by the same rule the Kit validation applies: absent
+// (all three), or a non-empty list of known platforms without repeats.
+export function plataformasValidas(kit) {
+  if (!isObject(kit)) return false;
+  if (!('plataformas' in kit)) return true;
+  let ok = true;
+  const ctx = { problem: () => { ok = false; }, check(checker, value, where) { if (checker(value, this, where)) ok = false; } };
+  ctx.check(PLATAFORMAS_CHECK, kit.plataformas, '.plataformas');
+  return ok;
+}
+
 const KIT_SHAPE = shape({
   schemaVersion: (v) => (v === KIT_SCHEMA_VERSION ? null : `must be ${KIT_SCHEMA_VERSION}`),
   aprovadoEm: isoDateOrNull,
@@ -100,7 +113,7 @@ const KIT_SHAPE = shape({
   som: shape({ efeitos: text }),
   musica: shape({ politica: oneOf(POLITICAS_MUSICA) }),
   entregaveis: shape({ formatos: nonEmptyListOf(oneOf(FORMATOS)), overlays: flag }),
-  plataformas: optional(noRepeats(nonEmptyListOf(oneOf(PLATAFORMAS)))),
+  plataformas: PLATAFORMAS_CHECK,
   creditos: shape({ porVideo: budget, porMes: budget }),
   fazer: listOf(text),
   evitar: listOf(text),

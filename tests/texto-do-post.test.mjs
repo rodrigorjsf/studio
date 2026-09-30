@@ -275,7 +275,7 @@ test('a Kit that cannot be read, or whose platform list is unusable, is refused 
   fs.writeFileSync(projetoKit(dir), 'não é json');
   assert.deepEqual(check(dir).out, { checked: false, reason: 'invalid-kit', projeto: PROJETO, video: VIDEO });
 
-  for (const plataformas of [[], ['facebook'], ['reels', 'youtube'], 'reels', null, { reels: true }]) {
+  for (const plataformas of [[], ['facebook'], ['reels', 'youtube'], ['reels', 'reels'], 'reels', null, { reels: true }]) {
     fs.writeFileSync(projetoKit(dir), kit);
     comPlataformas(projetoKit(dir), plataformas);
     const { out } = check(dir);

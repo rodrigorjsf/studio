@@ -25,10 +25,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
-import { PLATAFORMAS, plataformasDoKit } from './kit.mjs';
+import { PLATAFORMAS, plataformasDoKit, plataformasValidas } from './kit.mjs';
 import { ENTREGA, KIT, TEXTO_DO_POST, VIDEO_KIT } from './layout.mjs';
 import { findVideo } from './video.mjs';
-import { isObject, readJson } from './valores.mjs';
+import { readJson } from './valores.mjs';
 
 // Each platform of the Kit: the heading the Social media writes and the names a heading may carry
 // (matched on its letters and digits alone, in lower case). One row per platform of `PLATAFORMAS`.
@@ -110,8 +110,7 @@ export function textoDoPost(folder, projetoNome, videoNome) {
   const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
   // A Kit whose platform list is not a non-empty list of the platforms the studio writes for is the
   // Kit's to fix (`estado` reports it too).
-  const listed = isObject(kit) ? kit.plataformas : null;
-  if (!isObject(kit) || (listed !== undefined && (!Array.isArray(listed) || listed.length === 0 || !listed.every((p) => PLATAFORMAS.includes(p))))) {
+  if (!plataformasValidas(kit)) {
     return { checked: false, reason: 'invalid-kit', projeto, video };
   }
   const plataformas = plataformasDoKit(kit);
