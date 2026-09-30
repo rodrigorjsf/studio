@@ -2,7 +2,7 @@
 
 > Translated from the upstream studio guide `1-primeiros-passos.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (section 2 below) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 This tutorial takes you from zero to the first edit. It takes about 20 minutes, most of it waiting on installs.
 
@@ -27,85 +27,33 @@ You can use Claude in three ways. All of them work with this repository:
 
 > The `watch` skill **does not work in Cowork or in the regular Claude chat**. Always use a **Code** session.
 
-## 2. Install the programs
+## 2. Prepare the computer (the plugin's installer)
 
-*Pending: the plugin's no-admin installer (ticket #4) replaces this step.*
+The plugin replaces the upstream install ritual (package managers, cloning, `npm run instalar`) with its own no-admin installer. The `estudio` skill runs it only after the Criadora answers "sim" to one question, "Posso preparar seu computador para editar vídeos? (~10 min, grátis)"; see *The preparation question* in the skill.
 
-### Windows
+| What | Where it goes | Size (download) |
+|---|---|---|
+| Portable Node (official build, pinned version) | plugin data folder, `runtime/node/` | ~30–50 MB |
+| Static ffmpeg + ffprobe | plugin data folder, `runtime/ffmpeg/` | ~30–200 MB, by system |
+| Python through `uv`, with faster-whisper in its own environment | plugin data folder, `runtime/uv/`, `runtime/uv-python/`, `runtime/python/` | ~150 MB |
+| Remotion dependencies (`npm install` of the Estúdio's `package.json`) | the Estúdio folder, `node_modules/` | ~250 MB |
 
-Open **PowerShell** and run these, one at a time:
+- Nothing needs an admin password or opens a system window: every file lands in a folder she owns, and download caches stay in the plugin data folder too.
+- Claude Code deletes the plugin data folder when the plugin is uninstalled, so the runtimes leave with it. `node_modules/` is part of her Estúdio folder, like her videos, and stays.
+- Every step is safe to repeat: a program that already works — the studio's own or one already on the computer — is not downloaded again.
+- The programs the studio downloads are **not** on the computer's PATH. Run them by the full path the computer check prints (`tools.node`, `tools.ffmpeg`, `tools.ffprobe`, `tools.python`).
+- The `watch` and `remotion-best-practices` skills from the upstream setup are not installed by this step.
 
-```powershell
-winget install --id OpenJS.NodeJS.LTS --exact
-winget install --id Python.Python.3.12 --exact
-winget install --id Gyan.FFmpeg --exact
-winget install --id yt-dlp.yt-dlp --exact
-winget install --id Git.Git --exact
-```
+## 3. About the free skills
 
-Close and reopen PowerShell, then check:
-
-```powershell
-node --version
-python --version
-ffmpeg -version
-```
-
-### macOS
-
-Install [Homebrew](https://brew.sh) and run:
-
-```bash
-brew install node python ffmpeg yt-dlp git
-```
-
-## 3. Download the Studio and install everything
-
-*Pending: the plugin's no-admin installer (ticket #4) replaces this step.*
-
-### Easy way: ask Claude
-
-Open a **Code** session in Claude and paste:
-
-```text
-Instala o repositório https://github.com/mackswendhell/studio na pasta C:\dev (siga a seção "Instalação" do README).
-```
-
-It clones, installs the dependencies and the two free skills (**remotion-best-practices** and **watch**). When it finishes, **open a new Claude session** inside the `studio` folder: new skills only show up in a new session.
-
-### Manual way
-
-Pick a folder **outside** OneDrive, iCloud or Dropbox (syncing interferes with rendering). For example, `C:\dev` on Windows or `~/dev` on Mac.
-
-```bash
-cd C:\dev
-git clone https://github.com/mackswendhell/studio.git
-cd studio
-npm run instalar
-```
-
-`npm run instalar` does everything at once: Remotion dependencies, local transcription (`faster-whisper`), the `remotion-best-practices` skill (inside the project) and the `watch` skill. At the end it prints a summary of what worked and what failed.
-
-No Git? Download the ZIP from the green **Code → Download ZIP** button on GitHub, unzip it and run `npm run instalar` inside the folder.
-
-Test Remotion:
-
-```bash
-npm run studio
-```
-
-It opens a browser page with the gallery examples. If you see the compositions under `Estilos` and can press play, everything is fine. Close it with `Ctrl+C` in the terminal.
-
-## 4. About the free skills
-
-Skills are knowledge packages that Claude loads when it needs them. `npm run instalar` already installs both:
+Skills are knowledge packages that Claude loads when it needs them. Upstream, `npm run instalar` installed both; the plugin's installer (section 2) does not:
 
 - **`watch`**: watches videos, extracts frames and transcribes ([bradautomates/claude-video](https://github.com/bradautomates/claude-video));
 - **`remotion-best-practices`**: Remotion best practices ([remotion-dev/skills](https://github.com/remotion-dev/skills)).
 
 Using only Claude Desktop, without the `claude` terminal command? `watch` is declared in the project (`.claude/settings.json`), so Claude offers to install it when you open the folder: accept. If it does not show up, install it by hand at **Personalizar → Plugins → Adicionar → Adicionar marketplace → Adicionar de um repositório** (Customize → Plugins → Add → Add marketplace → Add from a repository), paste `https://github.com/bradautomates/claude-video`, click **Sincronizar** (Sync) and install **Watch**.
 
-## 5. (Optional) Free Groq key
+## 4. (Optional) Free Groq key
 
 `watch` can use Groq to transcribe quickly. It is free within a generous limit.
 
@@ -117,13 +65,13 @@ Using only Claude Desktop, without the `claude` terminal command? `watch` is dec
 
 Without this key everything works the same: `tools/transcrever.py` transcribes locally, for free.
 
-## 6. (Nível 2 only) Connect Higgsfield
+## 5. (Nível 2 only) Connect Higgsfield
 
 Follow the section [Connect Higgsfield to Claude](level-2-higgsfield.md#1-connect-higgsfield-to-claude). Summary: in Claude Desktop, **Configurações → Conectores → Adicionar conector personalizado** (Settings → Connectors → Add custom connector), URL `https://mcp.higgsfield.ai/mcp`, and log in to your account.
 
 ---
 
-## 7. Understanding the folders
+## 6. Understanding the folders
 
 ```text
 studio/
@@ -158,7 +106,7 @@ Rule of thumb: **you only touch `projetos/`** (to hand in material) **and `edico
 
 The whole `projetos/` folder is kept out of Git (`.gitignore`), except for the example. That way your videos and prints do not end up on GitHub by accident if you publish a fork.
 
-## 8. Your first edit
+## 7. Your first edit
 
 1. Create the folder `projetos/001. meu-video/video/` and put your video there (MP4 or MOV, already cut).
 2. Create `projetos/001. meu-video/prints/` and save screenshots of everything you mention in the video: websites, news, tool screens.
@@ -174,7 +122,7 @@ The whole `projetos/` folder is kept out of Git (`.gitignore`), except for the e
 
 Do not know what to ask for? Ask Claude itself: "o que dá para fazer com esse vídeo?" (what can be done with this video?). It was instructed to suggest options.
 
-## 9. Quick glossary
+## 8. Quick glossary
 
 | Term | Meaning |
 |---|---|

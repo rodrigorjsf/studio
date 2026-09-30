@@ -49,7 +49,7 @@ Claude runs these phases in order and **stops at the approval points**.
 
 1. **Frames and overview (`watch` skill):** Claude follows the skill's own instructions. Example:
    `python "<pasta da skill watch>/scripts/watch.py" "<vídeo>" --detail balanced --max-frames 60 --out-dir "<projeto>/frames"`
-   It reads all the frames and maps framing, face position, background and light. `watch` also transcribes the video to understand the content: locally (WhisperX, in newer versions of the skill) or with a free Groq key (see [getting started](getting-started.md#5-optional-free-groq-key)). With neither, use `--no-whisper`: the next step already transcribes.
+   It reads all the frames and maps framing, face position, background and light. `watch` also transcribes the video to understand the content: locally (WhisperX, in newer versions of the skill) or with a free Groq key (see [getting started](getting-started.md#4-optional-free-groq-key)). With neither, use `--no-whisper`: the next step already transcribes.
 2. **Per-word timing (local and free):**
    `python tools/transcrever.py "<vídeo>" "<projeto>/transcricao"`
    Produces `palavras.json` (start and end of each word) and `transcript.md`.
