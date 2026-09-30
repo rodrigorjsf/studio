@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const sourceRoot = path.resolve('src');
+// The repo's own compositions and the Remotion template scaffolded into every Estúdio.
+const sourceRoots = [path.resolve('src'), path.resolve('plugin/estudio/template/src')];
 const allowed = new Set(['_shared/synchronized-split.tsx']);
 
 const collect = (directory) =>
@@ -12,7 +13,8 @@ const collect = (directory) =>
   });
 
 const violations = [];
-for (const absolute of collect(sourceRoot)) {
+const files = sourceRoots.flatMap((sourceRoot) => collect(sourceRoot).map((absolute) => ({sourceRoot, absolute})));
+for (const {sourceRoot, absolute} of files) {
   const relative = path.relative(sourceRoot, absolute).replaceAll('\\', '/');
   if (allowed.has(relative)) continue;
   const source = fs.readFileSync(absolute, 'utf8');
@@ -24,7 +26,7 @@ for (const absolute of collect(sourceRoot)) {
     buildsCameraGeometryManually &&
     !source.includes('getSynchronizedSplitState')
   ) {
-    violations.push(relative);
+    violations.push(path.relative(process.cwd(), absolute).replaceAll('\\', '/'));
   }
 }
 

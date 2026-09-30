@@ -22,3 +22,6 @@ Pages: sources/spec-estudio-plugin-v1.md, index.md.
 
 ## [2026-09-29] ingest | Grilling record — Notion context; spec 1.1
 Pages: sources/grilling-notion-context-2026-09-29.md, sources/spec-estudio-plugin-v1.md, concepts/notion-context.md, analyses/estudio-plugin-decisions.md, index.md. SCHEMA.md: README.md indexes in raw/ may be updated.
+
+## [2026-09-29] update | Estúdio folder scaffold and `estado` CLI built (ticket #3)
+Pages: concepts/plugin-architecture.md, overview.md.

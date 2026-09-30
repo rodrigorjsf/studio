@@ -2,7 +2,7 @@
 
 > Translated from the upstream studio guide `4-nivel-2-higgsfield.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder and its Remotion template (ticket #3) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 In Nível 2, besides assembling the edit, Claude **generates images and videos with AI** on [Higgsfield](https://higgsfield.ai): cinematic B-rolls, animated illustrations, visual metaphors, scene transformations. The final assembly runs on **Higgsedit**, Higgsfield's own editor, inside a cloud environment.
 
