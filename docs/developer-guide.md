@@ -47,7 +47,7 @@ flowchart TB
 
 ## Commands
 
-npm is broken on the maintainer's WSL machine; the script bodies run fine with `node` directly.
+Each `npm` script body also runs directly with `node`, for machines where `npm` itself fails.
 
 | What | Command |
 |---|---|

@@ -3,7 +3,9 @@
 // WHY   Seam 3 of the Estúdio spec: a valid manifest, pinned personas, Críticos without
 //       editing tools, a package free of development material and within platform limits,
 //       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
-//       holding a Notion tool), and no trace of the Higgsfield API-key path.
+//       holding a Notion tool), no trace of the Higgsfield API-key path, a valid display color on
+//       every persona, and no upstream leftover (the forked repo's paths, install ritual, ticket
+//       markers).
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
 //       Prints {"ok":bool,"plugins":[names],"errors":[messages]} and exits 1 when not ok.

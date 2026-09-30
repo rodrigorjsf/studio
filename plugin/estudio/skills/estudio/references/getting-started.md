@@ -91,7 +91,7 @@ Rule of thumb: **she only touches `prints/`** (to hand in material) **and `entre
 
 ## 6. Her first edit
 
-1. She opens her Estúdio folder in Claude (Desktop → **Code** → choose folder; or `claude` in a terminal inside it) and types `/estudio:estudio`.
+1. She opens her Estúdio folder in Claude (Desktop → **Code** → choose folder) and types `/estudio:estudio`.
 2. The Diretor offers to prepare her computer and to set up the folder, then interviews her once about herself (Perfil) and once per domain (Projeto), and she approves the Kit de marca.
 3. For each new Vídeo she hands in the recording and answers only what the Kit does not already answer (`/estudio:novo-video`).
 4. She approves (or adjusts) the edit plan and the Quadros de estilo.
