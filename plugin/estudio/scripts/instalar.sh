@@ -218,12 +218,12 @@ END
     rm -f "$MODEL_DIR/$name"
     if [ ! -s "$partial" ] || [ "$(sha256_of "$partial")" != "$sha" ]; then
       if ! fetch_model_file "$url" "$partial"; then
-        [ -s "$partial" ] || rm -rf "$DATA_DIR/partial" # nothing arrived: nothing to continue
+        [ -s "$partial" ] || rm -rf "${MODEL_PARTIAL_DIR%/*}" # nothing arrived: nothing to continue
         fail "baixar o arquivo $name do modelo de fala"
       fi
     fi
     if [ "$(sha256_of "$partial")" != "$sha" ]; then
-      rm -rf "$DATA_DIR/partial" # only this file was waiting there
+      rm -rf "${MODEL_PARTIAL_DIR%/*}" # only this file was waiting there
       echo "O arquivo $name do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
       exit 1
     fi
@@ -231,7 +231,7 @@ END
   done <<END
 $pending
 END
-  rm -rf "$DATA_DIR/partial" # empty: every file moved into the model folder
+  rm -rf "${MODEL_PARTIAL_DIR%/*}" # empty: every file moved into the model folder
   echo "Modelo de fala: pronto."
 }
 
