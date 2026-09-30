@@ -24,7 +24,7 @@ const SECTIONS = ['Objetivo', 'Chamada para ação', 'Momentos-chave', 'O que mu
 
 // The Kit's text fields left empty in the Projeto Grilling ("sem preferência" then): the only
 // Kit topics the Vídeo briefing may ask again, as `field.path` names.
-function kitGaps(value, where = '') {
+export function kitGaps(value, where = '') {
   if (value === '') return [where];
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return [];
   return Object.entries(value).flatMap(([key, child]) => kitGaps(child, where ? `${where}.${key}` : key));
@@ -82,17 +82,20 @@ export function novoVideo(folder, projetoNome, videoNome, recording) {
   };
 }
 
-// What the Diretor records on a Vídeo as it moves: the Nível she chose, a new Status, and
-// what to add to the metric counters. Anything else in the record is not hers to change here.
-const RECORDABLE = ['nivel', 'status', 'somar'];
+// What the Diretor records on a Vídeo as it moves: the Nível she chose, a new Status, a Gate
+// opened (`"aberto"`: the Vídeo waits for her decision) or closed (`null`), and what to add to
+// the metric counters. Anything else in the record is not hers to change here.
+const RECORDABLE = ['nivel', 'status', 'gate', 'somar'];
+const GATE_STATES = ['aberto', null];
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 function recordProblem(record) {
-  if (!isObject(record)) return 'must be a JSON object with nivel, status or somar';
+  if (!isObject(record)) return `must be a JSON object with ${RECORDABLE.join(', ')}`;
   const other = Object.keys(record).find((key) => !RECORDABLE.includes(key));
   if (other) return `${other} cannot be recorded here (${RECORDABLE.join(', ')})`;
   if ('nivel' in record && !NIVEIS.has(record.nivel)) return 'nivel must be 1 or 2';
   if ('status' in record && !STATUS_NAMES.includes(record.status)) return `status must be one of: ${STATUS_NAMES.join(', ')}`;
+  if ('gate' in record && !GATE_STATES.includes(record.gate)) return 'gate must be "aberto" (waiting for her) or null (closed)';
   if ('somar' in record) {
     if (!isObject(record.somar)) return 'somar must be an object of counters';
     for (const [key, value] of Object.entries(record.somar)) {
@@ -105,7 +108,7 @@ function recordProblem(record) {
 
 // The Vídeo `videoNome` of the Projeto `projetoNome`, with its folder on disk (a Mac may
 // store names decomposed), or the refusal to return.
-function findVideo(folder, projetoNome, videoNome) {
+export function findVideo(folder, projetoNome, videoNome) {
   const state = estado(folder);
   const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(projetoNome));
   if (!projeto) return { refusal: { reason: 'unknown-projeto' } };
@@ -139,10 +142,11 @@ export function registrarVideo(folder, projetoNome, videoNome, recordText) {
   }
   if ('nivel' in record) data.nivel = record.nivel;
   if ('status' in record) data.status = record.status;
+  if ('gate' in record) data.gate = record.gate;
   for (const [key, value] of Object.entries(record.somar ?? {})) data[key] = (data[key] ?? 0) + value;
   fs.writeFileSync(doc, replaceFrontmatter(text, data));
   const counters = Object.fromEntries(COUNTERS.map((key) => [key, data[key] ?? 0]));
-  return { recorded: true, projeto, video, status: data.status, nivel: data.nivel, ...counters };
+  return { recorded: true, projeto, video, status: data.status, nivel: data.nivel, gate: data.gate ?? null, ...counters };
 }
 
 // `zona-do-rosto`: joins the Assistente de edição's per-frame face measurements into the

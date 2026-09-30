@@ -19,6 +19,10 @@
 //   projetos/<projeto>/videos/<vídeo>/frames/zona-do-rosto/ face-zone frames, the sampler's amostras.json
 //                                    and medicoes.json, the face measured on each frame (see ingest.mjs)
 //   projetos/<projeto>/videos/<vídeo>/zona-do-rosto.json    the Zona do rosto `zona-do-rosto` measured
+//   projetos/<projeto>/videos/<vídeo>/plano.json            the Plano: scenes on Palavras-gatilho, the
+//                                    directions proposed, her requests, the Quadros de estilo and the
+//                                    approval stamps (schema and checks: plano.mjs)
+//   projetos/<projeto>/videos/<vídeo>/quadros/              the Quadros de estilo, one PNG per label
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder (the Master of a Pré-corte, versions,
@@ -42,3 +46,5 @@ export const FRAMES_ROSTO = 'frames/zona-do-rosto';
 export const AMOSTRAS_ROSTO = 'frames/zona-do-rosto/amostras.json';
 export const MEDICOES_ROSTO = 'frames/zona-do-rosto/medicoes.json';
 export const ZONA_DO_ROSTO = 'zona-do-rosto.json';
+export const PLANO = 'plano.json';
+export const QUADROS = 'quadros';

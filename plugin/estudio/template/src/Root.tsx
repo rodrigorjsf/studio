@@ -7,6 +7,7 @@ import {VerticalLegendas} from './estilos/VerticalLegendas';
 import {VerticalPrint} from './estilos/VerticalPrint';
 import {calcularMetadadosDoKit, DIMENSOES, PropsDoKit} from './_shared/kit';
 import {PreviaDoKit} from './kit/PreviaDoKit';
+import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro, QuadroDeEstilo} from './quadro/QuadroDeEstilo';
 
 const FPS = 30;
 const SEIS_SEGUNDOS = 6 * FPS;
@@ -24,6 +25,21 @@ export const RemotionRoot: React.FC = () => (
         durationInFrames={SEIS_SEGUNDOS}
         defaultProps={{projeto: '', formato: null} satisfies PropsDoKit}
         calculateMetadata={calcularMetadadosDoKit}
+      />
+    </Folder>
+
+    {/* Quadro de estilo de um Vídeo: o visual proposto sobre um quadro real da gravação dela. O Diretor de arte
+        renderiza um still por rótulo do Plano: "video" = pasta do Vídeo, "master" = caminho do Master dentro dela,
+        "duracao" = segundos do Master, --frame = tempo do quadro × 30. O Kit é o do Vídeo, se ele tiver o seu. */}
+    <Folder name="Quadros">
+      <Composition
+        id="QuadroDeEstilo"
+        component={QuadroDeEstilo}
+        {...DIMENSOES['9:16']}
+        fps={FPS_DO_QUADRO}
+        durationInFrames={FPS_DO_QUADRO}
+        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, titulo: ''} satisfies PropsDoQuadro}
+        calculateMetadata={calcularMetadadosDoQuadro}
       />
     </Folder>
 

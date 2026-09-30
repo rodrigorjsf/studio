@@ -108,8 +108,8 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
   assert.equal(out.isEstudio, true);
   assert.deepEqual(out.errors, []);
   assert.equal(out.perfil.present, true);
-  // Vídeos from before the ingest existed: nothing ingested, no briefing section left open.
-  const pre = { briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false } };
+  // Vídeos from before the ingest existed: nothing ingested, no briefing section left open, no Plano.
+  const pre = { briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes' };
   assert.deepEqual(out.projetos, [
     {
       id: 'Minha Empresa', briefing: 'completo', kit: 'ok',

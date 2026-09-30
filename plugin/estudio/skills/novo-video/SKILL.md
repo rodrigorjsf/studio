@@ -98,7 +98,7 @@ Run `estado`. When this Vídeo shows `briefing: "completo"` and both `ingest` va
 "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" registrar-video "." "<projeto>" "<nome do vídeo>" '{"status": "Planejamento"}'
 ```
 
-Close in one sentence: the Vídeo is ready, and the next step is the edit plan (the Plano), which she approves before anything is built. *Pending: the Plano and the Quadros de estilo arrive in ticket #10.* Say what she can ask now: add Prints, start another Vídeo, or change a Projeto (`/estudio:editar-projeto`).
+Close in one sentence: the Vídeo is ready, and the next step is the edit plan (the Plano), which she approves before anything is built. Then go on with the [plano skill](../plano/SKILL.md). Say what she can ask now: add Prints, start another Vídeo, or change a Projeto (`/estudio:editar-projeto`).
 
 ## Rules
 

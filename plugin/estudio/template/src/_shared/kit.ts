@@ -8,6 +8,8 @@
 //   projeto: the Projeto folder name, e.g. "Minha Empresa". Empty = the default Kit.
 //   formato: null = the Kit's default Formato (9:16 unless she chose otherwise);
 //            "16:9" or "1:1" = a variant she asked for.
+//   video:   the Vídeo folder name, when the composition belongs to one Vídeo: a Vídeo that keeps
+//            its own Kit (`videos/<vídeo>/kit.json`, its Kit snapshot) follows that one.
 import {CalculateMetadataFunction, staticFile} from 'remotion';
 import kitPadrao from './kit-padrao.json';
 
@@ -57,6 +59,7 @@ export const DIMENSOES: Record<Formato, {width: number; height: number}> = {
 export type PropsDoKit = {
   projeto: string;
   formato: Formato | null;
+  video?: string;
   // Filled by calcularMetadadosDoKit; never set it by hand.
   kit?: Kit;
 };
@@ -64,8 +67,12 @@ export type PropsDoKit = {
 // A file of the Projeto (an asset such as "kit/logo.png"), served from the public folder.
 export const arquivoDoProjeto = (projeto: string, caminho: string) => staticFile(`${projeto}/${caminho}`);
 
-export const carregarKit = async (projeto: string, signal?: AbortSignal): Promise<Kit> => {
+export const carregarKit = async (projeto: string, signal?: AbortSignal, video?: string): Promise<Kit> => {
   if (!projeto) return KIT_PADRAO;
+  if (video) {
+    const doVideo = await fetch(arquivoDoProjeto(projeto, `videos/${video}/kit.json`), {signal});
+    if (doVideo.ok) return (await doVideo.json()) as Kit;
+  }
   const resposta = await fetch(arquivoDoProjeto(projeto, 'kit.json'), {signal});
   if (!resposta.ok) throw new Error(`Kit de marca não encontrado: projetos/${projeto}/kit.json`);
   return (await resposta.json()) as Kit;
@@ -75,7 +82,7 @@ export const calcularMetadadosDoKit = async <P extends PropsDoKit>({
   props,
   abortSignal,
 }: Parameters<CalculateMetadataFunction<P>>[0]) => {
-  const kit = await carregarKit(props.projeto, abortSignal);
+  const kit = await carregarKit(props.projeto, abortSignal, props.video);
   return {...DIMENSOES[props.formato ?? kit.formato], props: {...props, kit}};
 };
 

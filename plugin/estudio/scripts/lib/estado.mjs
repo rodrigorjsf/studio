@@ -8,7 +8,7 @@ import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readPerfil } from './perfil.mjs';
 import {
-  KIT, MARKER, PALAVRAS, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
+  KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
@@ -130,7 +130,7 @@ export function estado(folder) {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
       const video = {
         id: nfc(videoName), status: null, rodada: null, nivel: null, briefing: 'completo',
-        ingest: { transcricao: false, zonaDoRosto: false }, waitingForCriadora: false,
+        ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', waitingForCriadora: false,
       };
       // The ingest, as far as it went: a Vídeo interrupted midway resumes from what is missing.
       const videoFile = (rel) => path.join(dir, VIDEOS, videoName, ...rel.split('/'));
@@ -142,6 +142,16 @@ export function estado(folder) {
       };
       video.ingest.transcricao = ingested(PALAVRAS, transcriptProblem);
       video.ingest.zonaDoRosto = ingested(ZONA_DO_ROSTO, zonaProblem);
+      // The Plano and its Quadros de estilo: `rascunho` until `aprovar-plano` stamps them.
+      // Whether they break a rule is `plano`'s to check, against the transcript and the face.
+      const planoFile = videoFile(PLANO);
+      const planoData = fs.existsSync(planoFile) ? readJson(planoFile) : null;
+      if (planoData !== null && (typeof planoData !== 'object' || Array.isArray(planoData))) fail(planoFile, 'must be a JSON object');
+      else if (planoData !== null) {
+        video.plano = planoData.aprovadoEm ? 'aprovado' : 'rascunho';
+        if (planoData.quadrosAprovadosEm) video.quadros = 'aprovados';
+        else if (Array.isArray(planoData.quadros) && planoData.quadros.length > 0) video.quadros = 'rascunho';
+      }
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
       const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;

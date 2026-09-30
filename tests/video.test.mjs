@@ -222,7 +222,8 @@ test('registrar-video refuses what is not a valid record and changes nothing', (
     ['{"status": "Pronto"}', 'status must be one of: Briefing, Planejamento, Construção, QC interno, Revisão, Ajustes, Aprovado, Entregue, Arquivado'],
     ['{"somar": {"perguntas": -1}}', 'somar.perguntas must be a whole number, 0 or more'],
     ['{"somar": {"minutos": 3}}', 'somar.minutos is not a counter (perguntas, gates, aprovacoesAutomaticas)'],
-    ['{"original": "outro.mp4"}', 'original cannot be recorded here (nivel, status, somar)'],
+    ['{"original": "outro.mp4"}', 'original cannot be recorded here (nivel, status, gate, somar)'],
+    ['{"gate": "fechado"}', 'gate must be "aberto" (waiting for her) or null (closed)'],
     ['nível um', 'not valid JSON'],
   ]) {
     const { out } = run('registrar-video', dir, 'Minha Empresa', 'Dica rápida', edit);

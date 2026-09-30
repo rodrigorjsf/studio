@@ -46,3 +46,6 @@ Pages: concepts/plugin-architecture.md, overview.md.
 
 ## [2026-09-29] update | New Vídeo briefing and ingest built (ticket #9)
 Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-30] update | Plano and Quadros de estilo built (ticket #10)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.

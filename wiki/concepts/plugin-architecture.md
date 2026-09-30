@@ -1,7 +1,7 @@
 ---
 title: Plugin architecture
 type: concept
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [../sources/estudio-profissional-de-video-report.md, ../sources/grilling-estudio-plugin-2026-09-29.md]
 ---
 
@@ -57,3 +57,27 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 - Persona `plugin/estudio/agents/assistente-de-edicao.md` (`claude-sonnet-5-5`, effort `high`, tools Bash/Read/Write): transcribes with `plugin/estudio/scripts/transcrever.py` (faster-whisper, model cached in the plugin data folder, Kit glossary as a spelling hint), samples frames with `amostrar.py`, measures a face box on every face-zone frame (`medicoes.json`) and returns a report with the Prints that would help.
 - Zona do rosto rule (`plugin/estudio/scripts/lib/ingest.mjs`): accepted only from a face-zone sampler run over the whole clip (no gap wider than 1 s, or duration/600 past 10 min) with every frame measured; the zone is the union of the boxes plus a 0.05 margin, or `null` when no face appears.
 - `estado` reports per Vídeo `briefing` and `ingest.{transcricao, zonaDoRosto}` and validates the counters, timestamps, `palavras.json` and `zona-do-rosto.json`. The installers pin `faster-whisper==1.2.1` with `av<19` (PyAV 19 breaks every transcription). Tests: `tests/video.test.mjs`, `tests/transcrever.test.mjs`.
+
+## Built: Plano and Quadros de estilo (ticket #10)
+
+- Skill `plugin/estudio/skills/plano/SKILL.md` (`/estudio:plano`): for a Vídeo in `Planejamento`, the Diretor has the Roteirista-estrategista draft the Plano, checks it, has the Diretor de arte render the Quadros de estilo, and holds the Gate. The Plano and the Quadros share one Gate when the Kit defines the style (no empty Kit text field). Otherwise the Plano has its own Gate and the Quadros a second one. Her requests go to `pedidosDela` and win over the repertoire.
+- Plano file `videos/<vídeo>/plano.json`, schema in `plugin/estudio/scripts/lib/plano.mjs`. It holds:
+  - `tempoEstimadoMin`, plus `creditosEstimados` for Nível 2;
+  - 2–3 `direcoes`, exactly one of them `recomendada`;
+  - `pedidosDela`;
+  - `cenas`, each a repertoire `tipo` with `inicio`/`fim` and a `gatilho {indice, palavra}` into `palavras.json`; only `camera` may omit it. Optional `elementos[].area` and a `print {arquivo, frase}`;
+  - `quadros[] {rotulo, tempo, arquivo}`;
+  - the stamps `aprovadoEm` and `quadrosAprovadosEm`.
+- CLI `plano` (read-only) refuses the following:
+  - a trigger whose word is not the transcript's;
+  - a scene that starts before its word is said;
+  - a scene that ends after the Master;
+  - an element over the Zona do rosto on a full camera. Moved-camera scenes are listed in `rostoNaoVerificado` instead;
+  - text outside the 9:16 Área livre (y 250/1920 to 1−420/1920);
+  - a missing Print or highlight phrase;
+  - fewer than 2 or more than 3 Quadros, or Quadros not rendered.
+
+  It also returns `gate: unico | separado` and `lacunasDoKit`.
+- CLI `aprovar-plano <plano|quadros|plano-e-quadros>` refuses the wrong Gate shape or a Plano that breaks a rule. On approval it stamps the Plano, closes the Gate and adds 1 to `gates`; once both parts are approved the Vídeo moves to `Construção`. `registrar-video` now also records `gate: "aberto" | null`. `estado` reports `plano` and `quadros` for each Vídeo.
+- Personas `plugin/estudio/agents/roteirista-estrategista.md` and `diretor-de-arte.md` (`claude-opus-5-5`, effort `medium`, tools Bash/Read/Write).
+- Template composition `plugin/estudio/template/src/quadro/QuadroDeEstilo.tsx` draws the Master (`<Video>` from `@remotion/media`) at the chosen frame, with the Kit's title and caption on top. `carregarKit` now follows the Vídeo's own Kit (prop `video`). Tests: `tests/plano.test.mjs` (Seam 1) and `tests/quadro.test.mjs` (Seam 2, a real H.264 frame).

@@ -195,11 +195,14 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
 
   const details = claude(['plugin', 'details', 'estudio@studio'], env);
   // The entry skill, the Perfil interview (/estudio:perfil), the Projeto interview (/estudio:novo-projeto),
-  // the Projeto list (/estudio:projetos), the Projeto edit (/estudio:editar-projeto) and the new Vídeo
-  // (/estudio:novo-video), plus the Assistente de edição persona.
+  // the Projeto list (/estudio:projetos), the Projeto edit (/estudio:editar-projeto), the new Vídeo
+  // (/estudio:novo-video) and its Plano (/estudio:plano), plus the Assistente de edição, the
+  // Roteirista-estrategista and the Diretor de arte personas.
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
-  for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
-  assert.match(details.out, /Agents \(\d+\)[\s\S]*assistente-de-edicao/, details.out);
+  for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
+  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte']) {
+    assert.match(details.out, new RegExp(`Agents \\(\\d+\\)[\\s\\S]*${agent}`), details.out);
+  }
 
   const [plugin] = JSON.parse(claude(['plugin', 'list', '--json'], env).out);
   assert.equal(plugin.id, 'estudio@studio');
