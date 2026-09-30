@@ -1,0 +1,1028 @@
+[00:00:00] Esse vídeo foi editado inteiro pelo
+[00:00:01] Cloud Code, rodando o Oppul 5.5, mais
+[00:00:04] novo modelo da Antropic, e conectando a
+[00:00:07] Higsfield a ele. Eu gravei de uma vez,
+[00:00:09] não abri em nenhum momento o programa de
+[00:00:11] edição. Os movimentos saíram da
+[00:00:13] Remotion, que é uma skill gratuita que
+[00:00:15] você pode instalar no Cloud Code,
+[00:00:16] Remotion Best Practice. Esse movimento
+[00:00:18] de zoom devagar que se aproxima de mim
+[00:00:20] quando eu falo alguma coisa importante.
+[00:00:22] O punk atravessa toda a cena, esses
+[00:00:24] movimentos de câmera, a folha de papel
+[00:00:26] passando em frente, a tela que troca o
+[00:00:29] fundo e esses recortes de papel caindo
+[00:00:31] na tela com sombra, com textura, com
+[00:00:33] cara de colagem feita à mão. Não dá para
+[00:00:36] você desenhar isso em código. Essa parte
+[00:00:38] quem criou foi a Hickfield e quem
+[00:00:40] decidiu o que entrava em cada segundo
+[00:00:42] foi o Opus 5. Que segurou um trabalho de
+[00:00:45] dezenas de etapas do começo ao fim, sem
+[00:00:47] perder o contexto. Hoje eu vou te
+[00:00:49] mostrar como tirar o máximo também
+[00:00:51] dessas skills gratuitas, a Remotion e a
+[00:00:53] Watch Vídeo. Depois eu vou chegar a um
+[00:00:56] vídeo profissional com qualidade de
+[00:00:57] estúdio conectando o plugin da Rigs são
+[00:01:00] dois níveis diferentes. No primeiro, só
+[00:01:02] com skills gratuitas que você pode
+[00:01:04] começar a utilizar hoje mesmo dentro do
+[00:01:06] Cloud Code. E no segundo nível nós vamos
+[00:01:08] tirar essa qualidade de estúdio
+[00:01:10] conectando ao Cloud Code o plugin da
+[00:01:12] Higsfield. E você não precisa saber
+[00:01:14] programar nem entender de edição. Você
+[00:01:17] descreve o vídeo a forma que você quer,
+[00:01:18] com linguagem natural e o Cloud como
+[00:01:20] diretor conectado a essas skills e a
+[00:01:22] Higsfield monta o vídeo para você a
+[00:01:24] partir de uma pasta vazia. Então, para
+[00:01:26] esse vídeo, o que nós vamos utilizar é
+[00:01:28] aqui o Cloud Code. E já apareceu aqui
+[00:01:31] para mim a nova atualização do Cloud
+[00:01:33] Oppo 5.5. Ele acabou de atualizar, então
+[00:01:36] eu vou clicar aqui em experimente agora
+[00:01:37] e eu já vou ver que ele tá como padrão,
+[00:01:39] o Oppul 5.5 aqui e no esforço médio, que
+[00:01:43] é onde tá o melhor custo benefício desse
+[00:01:45] novo modelo. O novo modelo Dantico,
+[00:01:47] Oppul 5.5 veio como padrão esse nível de
+[00:01:50] esforço médio. E eu já rodei aqui vários
+[00:01:52] testes nesse esforço médio e o resultado
+[00:01:54] tem sido excelente. Não precisa ir para
+[00:01:57] o nível alto ou extra alto aqui. É você
+[00:02:00] aumentar muito pouco o nível do seu
+[00:02:02] resultado e ter um custo muito maior.
+[00:02:04] Então eu já criei aqui na minha área de
+[00:02:05] trabalho uma pasta chamada estúdio.
+[00:02:07] Dentro dessa pasta eu coloquei apenas um
+[00:02:09] único vídeo. Então é uma pasta vazia,
+[00:02:11] não tem nenhuma skill instalada. Nós
+[00:02:13] vamos começar o processo do zero. Então
+[00:02:15] voltando aqui no Cloud Code e você
+[00:02:18] precisa verificar se você tá no ícone de
+[00:02:19] fato do Cloud Code Desktop. Você tem
+[00:02:22] aqui essa versão ao lado que tem o chat
+[00:02:24] e o callwork, o mesmo que você costuma
+[00:02:26] utilizar na web. E aqui ao lado você tem
+[00:02:28] o cloud code, que é onde nós vamos estar
+[00:02:30] utilizando. Agora a primeira coisa que
+[00:02:32] nós vamos precisar fazer é selecionar
+[00:02:33] essa pasta que nós criamos, que está
+[00:02:35] aqui na área de trabalho. Basta você
+[00:02:37] selecionar ela uma única vez e
+[00:02:39] selecionar essa pasta, o Cloud vai
+[00:02:40] perguntar se você confia nesse diretório
+[00:02:43] que ele vai trabalhar, vai manipular,
+[00:02:45] criar todos os arquivos. Vou clicar
+[00:02:46] aqui. Confio sim. E agora sim, a gente
+[00:02:48] já pode ver que estamos dentro desse
+[00:02:51] diretório, dessa pasta que vai virar o
+[00:02:53] nosso projeto, o nosso estúdio com tudo
+[00:02:56] instalado. Aqui eu quero fazer o
+[00:02:57] processo do início. Então nós vamos
+[00:02:59] fazer uso de duas skills que são
+[00:03:01] gratuitas nesse primeiro nível. A
+[00:03:03] primeira é essa remotion. Eu já tenho
+[00:03:05] alguns vídeos aqui no canal falando
+[00:03:06] sobre a remotion. Ela dá uma direção
+[00:03:09] completa. Essa skill, ela é muito mais
+[00:03:11] completa do que as pessoas imaginam. Ela
+[00:03:13] não é só para fazer algumas edições, ela
+[00:03:15] tem aqui mais de 300 efeitos que ela
+[00:03:17] consegue fazer, transições também,
+[00:03:19] efeitos avançados de transição. Ela é
+[00:03:22] muito completa. Eu vou entregar aqui
+[00:03:23] também esse material com todo o manual
+[00:03:26] das possibilidades, porque quando você
+[00:03:27] sabe tudo que ela consegue fazer, você
+[00:03:30] consegue fazer o melhor uso dela. E eu
+[00:03:32] quero entregar isso hoje para vocês
+[00:03:34] também. Uma outra skill que nós vamos
+[00:03:35] precisar aqui para esse projeto é essa
+[00:03:37] daqui que vai ser os olhos para o nosso
+[00:03:40] OPO 5. Para nós começarmos a criar
+[00:03:42] vídeo. Aqui o Oppus 5. Ele não só
+[00:03:45] transcreve o vídeo, tanto vídeos do
+[00:03:47] YouTube quanto vídeos localmente. Então
+[00:03:50] aquele vídeo que nós temos aqui nessa
+[00:03:51] pasta no computador, nós conseguimos dar
+[00:03:54] o caminho para o Cloud Code, transcrever
+[00:03:56] esse vídeo, não só transcrever o vídeo
+[00:03:59] com todos os tempos de fala, porque vai
+[00:04:01] ser muito importante pra gente conseguir
+[00:04:03] dar ao Cloud Code, que vai ser o diretor
+[00:04:05] desse nosso estúdio de edição de vídeo,
+[00:04:07] vai dar ao Cloud Code esse tempo de
+[00:04:10] fala, vai dar o Cloud Code a direção de
+[00:04:12] onde que cada elemento precisa acontecer
+[00:04:14] e no momento certo que precisa
+[00:04:16] acontecer. Mas ter só transcrição não
+[00:04:18] bastaria. Imagino que você tenha um
+[00:04:20] vídeo dinâmico que você fala e tem
+[00:04:22] diferentes cenários. Por exemplo, a
+[00:04:24] watch vídeo, ela também tira os frames
+[00:04:26] de cada momento de fala e você pode
+[00:04:28] ajustar isso no prompt. Você pode tirar
+[00:04:30] frames a cada 4 segundos, 8 segundos, 16
+[00:04:33] segundos ou a cada segundo. Fica um
+[00:04:36] pouco mais caro, mas o preço é centavos.
+[00:04:38] Eu, quando eu instalei no primeiro
+[00:04:40] momento, eu fiquei até recioso de fazer
+[00:04:41] uso dessa skill, imaginando que ficaria
+[00:04:44] muito caro fazer a transcrição e os
+[00:04:46] frames, mas na verdade isso tudo é feito
+[00:04:48] em script de código. Então aquilo que é
+[00:04:51] exercício da LLM do OP 5, na verdade
+[00:04:53] custa centavos, que é apenas ela mandar
+[00:04:56] rodar um script para poder fazer toda a
+[00:04:58] transcrição e todos os frames do vídeo.
+[00:05:01] Então essa skill watch Vídeo, ela é
+[00:05:03] essencial para dar essa direção também
+[00:05:05] visual para o Cloud Code, pra gente
+[00:05:07] poder fazer a edição de vídeo. Eu vou
+[00:05:09] fazer esse processo do zero com vocês,
+[00:05:11] mas eu já deixei aqui esse repositório
+[00:05:13] que eu vou disponibilizar para vocês. Eu
+[00:05:15] acabei de criar para entregar hoje para
+[00:05:17] vocês. É um repositório completo que já
+[00:05:19] une essa direção para o Oppo 5. Uma
+[00:05:22] direção também para a Remotion, a Watch
+[00:05:24] Vídeo e também com a Higfield em dois
+[00:05:27] níveis de edição. É um repositório que
+[00:05:28] tá público, tá? Você pode instalar, você
+[00:05:31] pode fazer um fork e editar esse
+[00:05:32] repositório na forma que você achar
+[00:05:35] melhor. E ele tá aqui com uma licença
+[00:05:37] MIT, então você pode utilizar, você pode
+[00:05:40] comercializar se você quiser. E aqui a
+[00:05:42] gente já tem dois níveis de edição, que
+[00:05:44] é o que nós vamos fazer nesse tutorial
+[00:05:45] de hoje. Primeiro nível, edição com
+[00:05:47] código puro, e um segundo nível usando o
+[00:05:50] plugin da Higsfield. E toda a direção
+[00:05:52] você já tem aqui. Então basta você
+[00:05:54] copiar o link desse repositório e voltar
+[00:05:57] aqui para o cloud Code e você vai pedir
+[00:05:59] para ele clonar esse repositório. Mas
+[00:06:01] agora aqui tem um ponto importante, não
+[00:06:03] basta você falar para ele clonar, você
+[00:06:05] vai pedir para ele clonar e ler o
+[00:06:07] arquivo Readm, que é onde está as
+[00:06:10] instruções do que ele tem que fazer. Tem
+[00:06:12] várias dependências aqui. São duas
+[00:06:14] skills e isso é uma forma simplificada
+[00:06:16] da gente poder passar num tutorial, mas
+[00:06:18] aqui para essas duas skills funcionarem
+[00:06:21] tem vários outros arquivos, vários
+[00:06:22] plugins que ela precisa instalar para
+[00:06:25] ela funcionar de forma perfeita. Então
+[00:06:27] aqui dentro desse arquivo readm desse
+[00:06:29] repositório, eu já deixei todas essas
+[00:06:31] instruções que quando seu OP 5.5, seu
+[00:06:33] agente lê, ele já vai saber como fazer.
+[00:06:36] Então aqui basta você pedir para ele, eu
+[00:06:39] vou mandar aqui o pedido, clone para mim
+[00:06:40] esse repositório dentro dessa pasta, mas
+[00:06:43] antes de clonar, leia o arquivo readidm
+[00:06:46] que está dentro desse repositório,
+[00:06:48] porque lá estão todas as instruções para
+[00:06:50] você montar a pasta conforme instruído
+[00:06:53] pelo autor. Vou mandar aqui então esse
+[00:06:55] pedido. Agora, a partir disso, ele vai
+[00:06:56] montar todas as dependências da forma
+[00:06:58] que você precisa. E depois que você
+[00:07:00] tiver clonado esse arquivo, você pode
+[00:07:02] fechar o Cloud Code uma vez e abrir para
+[00:07:04] garantir que todas as dependências,
+[00:07:06] todas as skills vão ser reconhecidas na
+[00:07:08] próxima sessão. E entrando aqui, você
+[00:07:10] vai ver uma pasta como essa daqui desse
+[00:07:12] meu diretório que eu já tenho o clone do
+[00:07:14] estúdio, que é o que nós vamos utilizar
+[00:07:16] hoje. Eu vou aumentar aqui um pouco a
+[00:07:17] visualização para você ver um pouco
+[00:07:18] maior. E são essas pastas que nós vamos
+[00:07:20] ver aqui dentro desse projeto. O que nós
+[00:07:23] temos aqui? Um primeiro arquivo
+[00:07:24] cloud.md, MD, que é onde tem as nossas
+[00:07:27] skills, as instruções, onde tem também
+[00:07:29] esse arquivo de edições, que é para onde
+[00:07:31] vai o produto final da edição. E nós
+[00:07:34] temos aqui essa pasta de projetos, que é
+[00:07:36] onde nós vamos entrar com o projeto, com
+[00:07:38] aquele vídeo bruto que nós vamos mandar.
+[00:07:40] Então, aqui tem um primeiro projeto, ou
+[00:07:42] seja, você vai ter uma pasta para cada
+[00:07:43] projeto, para cada vídeo que você vai
+[00:07:45] editar. E da mesma forma aqui dentro
+[00:07:47] dessa outra pasta de edições, vai
+[00:07:49] aparecer uma subpasta de cada vídeo
+[00:07:51] editado. Então na pasta de edições vai
+[00:07:54] chegar o vídeo final já editado com
+[00:07:56] todas as inserções, com as montagens,
+[00:07:58] transições, os cortes, o produto final
+[00:08:00] do vídeo. E aqui dentro de projetos vai
+[00:08:03] entrar o vídeo bruto, uma pasta para
+[00:08:05] cada projeto para você manter a
+[00:08:06] organização. Essa pasta é onde o código
+[00:08:09] vai acontecer. Essa pasta chamada src a
+[00:08:13] remotion trabalha criando todas as
+[00:08:15] inserções. E dentro aqui do nosso
+[00:08:17] cloud.m, que é o cérebro de toda essa
+[00:08:20] operação, é onde tem todas as
+[00:08:21] instruções. Então, um primeiro nível,
+[00:08:23] que é o nível gratuito, 100% gratuito,
+[00:08:25] com as skills gratuitas, que você pode
+[00:08:27] fazer muita coisa. E o segundo nível é o
+[00:08:30] nível que nós estamos chamando de nível
+[00:08:31] de estúdio para você poder ter uma
+[00:08:34] qualidade de um criativo, algo muito
+[00:08:36] mais elaborado, que nós vamos chegar
+[00:08:38] aqui no exemplo do vídeo. Você pode
+[00:08:39] olhar com calma, fazer alguma adaptação,
+[00:08:42] porque esse arquivo cloud.m MD é aquele
+[00:08:45] arquivo que o Cloud ele vai ler sempre
+[00:08:47] que você começar um novo projeto. Ele lê
+[00:08:50] aquilo, é a instrução dele para ele
+[00:08:52] saber como trabalhar. Então eu vou
+[00:08:53] voltar lá na área de trabalho que eu
+[00:08:54] tenho o meu vídeo bruto. Eu vou dar um
+[00:08:56] conttrl X aqui nesse vídeo, voltar aqui
+[00:08:58] na nossa pasta. Como eu falei para
+[00:09:00] vocês, dentro aqui dessa pasta de
+[00:09:02] projetos é onde nós vamos entrar. Então,
+[00:09:04] como normalmente eu faço, eu abro uma
+[00:09:06] nova pasta, eu vou dar o nome dessa
+[00:09:07] pasta de estúdio, que é o exemplo que
+[00:09:09] nós vamos usar nesse vídeo. E agora
+[00:09:11] dentro dessa pasta, eu vou colar aqui o
+[00:09:13] vídeo bruto, que é a gravação que eu
+[00:09:15] fiz. Ele tem alguns silêncios, ele tem
+[00:09:18] aqui algumas pausas, ele é um vídeo já
+[00:09:20] com corte bruto e não tem nenhuma edição
+[00:09:22] do início ao fim. Você vê que é eu
+[00:09:23] falando na frente da tela sem nenhuma
+[00:09:26] edição. É a partir desse arquivo que nós
+[00:09:28] vamos voltar aqui no nosso cloud code.
+[00:09:30] Então, qual foi a primeira mensagem que
+[00:09:32] ele me mandou aqui por meio desse ask
+[00:09:34] user question? Quando você manda uma
+[00:09:35] primeira requisição, ele lê o cloud.m
+[00:09:39] que você quer fazer agora. Então aqui eu
+[00:09:42] vou responder que eu quero fazer um
+[00:09:43] primeiro nível de edição, que é a edição
+[00:09:45] do nível um, ou seja, gratuita a partir
+[00:09:48] das skills remotion, as skills watch
+[00:09:51] vídeo também, os plugins, as ferramentas
+[00:09:54] FFPEG, ferramenta de transcrição de
+[00:09:56] vídeo, ou seja, um pacote aqui dentro
+[00:09:59] desse repositório para fazer uma edição
+[00:10:02] a partir de código puro. aqui a partir
+[00:10:05] dessa primeira automação, então ele vai
+[00:10:07] preparar o ambiente pra gente poder
+[00:10:09] começar a fazer esse nível nesse
+[00:10:11] primeiro nível. E ele já começou aqui o
+[00:10:13] processo. Note que eu nem tinha falado,
+[00:10:16] você vê que já apareceu aqui, tava o
+[00:10:18] vídeo e agora eu já tô ouvindo aqui o
+[00:10:20] meu computador trabalhando. Deixa eu até
+[00:10:22] voltar aqui. Isso, ele já começou o
+[00:10:24] processo em execução. Uma tarefa em
+[00:10:26] execução. Qual tarefa de execução?
+[00:10:28] Python script. O que que ele tá fazendo
+[00:10:30] agora? Ele reconheceu o vídeo é 01 que
+[00:10:33] eu anexei lá dentro da pasta e ele tá
+[00:10:35] fazendo já a transcrição desse vídeo, ou
+[00:10:37] seja, já o processo automático. Ele
+[00:10:40] ainda não vai começar a edição. Depois
+[00:10:42] ele vai me perguntar aqui algumas
+[00:10:43] coisas. Ele tá dizendo: "Já comecei a
+[00:10:45] transcrever o vídeo palavra por palavra,
+[00:10:48] depois vou assistir todos os quadros e
+[00:10:51] propor duas ou três edições para esse
+[00:10:54] vídeo. Enquanto isso, me diga o que você
+[00:10:56] quer." Então, é aqui que a gente vai
+[00:10:58] mandar o prompt para ele para dizer o
+[00:11:00] formato que a gente quer. Só que
+[00:11:01] descrever algo nesse nível é muito
+[00:11:04] difícil. Então, quero ver o que que a
+[00:11:05] gente consegue fazer aqui com o OPO 5.
+[00:11:08] Criando vídeo com código pluro. Então,
+[00:11:10] eu vou colocar aqui essas imagens de
+[00:11:11] referência. São imagens de clipe de
+[00:11:14] papel que tem uma identidade um pouco
+[00:11:15] mais humanizada, né, que que foge um
+[00:11:17] pouco dessa estrutura de A. Então, esse
+[00:11:19] é um vídeo que eu vi aleatório na
+[00:11:20] internet e tem essa esse formato de
+[00:11:24] papel cortado, né? Então, eu quero fazer
+[00:11:26] uma animação seguindo mais ou menos essa
+[00:11:28] identidade visual. Voltando aqui no
+[00:11:30] Cloud Code, eu tô vendo que ele já
+[00:11:31] terminou o processo de transcrição. E eu
+[00:11:33] já tô vendo aqui no primeiro processo,
+[00:11:36] ele transcreveu e a transcrição
+[00:11:37] automática, normalmente ela reconhece
+[00:11:40] cloud como sendo nuvem, né? Porque a
+[00:11:42] pronúncia correta do cloud seria cloud.
+[00:11:44] E quando a gente fala diferente, mas
+[00:11:46] pelo contexto, ele já reconheceu e ele
+[00:11:48] já mudou isso automaticamente na
+[00:11:50] transcrição. Ele fez a transcrição lá na
+[00:11:52] pasta, criou essa pasta de transcrição.
+[00:11:55] Aqui dentro da pasta de transcrição, eu
+[00:11:56] já posso ver o nosso vídeo todo
+[00:11:58] transcrito. Então o cloud ele precisa
+[00:12:01] disso daqui para poder fazer a direção
+[00:12:04] completa do que que vai entrar e o que
+[00:12:06] vai entrar, quando que vai entrar, o
+[00:12:07] movimento da câmera. Ou seja, já temos
+[00:12:09] aqui um processo inicial pra gente poder
+[00:12:11] começar essa edição. Voltando aqui, ele
+[00:12:14] já fez esses ajustes e agora ele já tá
+[00:12:16] me dizendo aqui os prints que podem
+[00:12:18] fazer falta. Eu já copiei esses prints
+[00:12:19] lá na pasta, mas ele tá me dizendo aqui
+[00:12:21] para jogar esses prints dentro da pasta
+[00:12:24] que ele criou aqui. Então, como eu já
+[00:12:26] fui copiando os prints depois, ele já
+[00:12:28] foi trabalhando, na verdade ele
+[00:12:29] antecipou, né? Então eu vou jogar aqui
+[00:12:31] esses prints para essa pasta de prints.
+[00:12:33] E agora temos então um arquivo bruto de
+[00:12:36] sequência, temos a transcrição que ele
+[00:12:37] já fez. A partir disso, nós já temos
+[00:12:39] quase tudo que nós precisamos para
+[00:12:41] começar o nosso processo. Só falta os
+[00:12:43] frames. Ele não faz isso de forma
+[00:12:45] automática, porque nem sempre você vai
+[00:12:47] precisar tirar frames dos vídeos. Às
+[00:12:49] vezes é só uma narração que você quer
+[00:12:51] fazer, uma animação, uma apresentação.
+[00:12:53] Então a gente já pode colocar isso no
+[00:12:54] prompt na hora de pedir para ele fazer o
+[00:12:56] vídeo. Eu vou mostrar para você como eu
+[00:12:57] faço de fato na prática na hora de criar
+[00:13:00] um vídeo. Quanto maior o contexto,
+[00:13:02] quanto mais você consegue descrever o
+[00:13:04] que que você quer que aconteça, ali é um
+[00:13:06] vídeo explicando exatamente esse
+[00:13:07] processo, as skills que eu uso. É um
+[00:13:09] vídeo que eu vou postar no shorts ou nos
+[00:13:11] re. Então eu vou descrever para ele o
+[00:13:13] que eu quero que aconteça no vídeo.
+[00:13:16] Então a partir desse vídeo que você já
+[00:13:18] transcreveu na pasta, você vai fazer um
+[00:13:21] único frame, porque eu mantenho a
+[00:13:23] posição do início ao fim desse vídeo.
+[00:13:26] Pode tirar apenas um único frame para
+[00:13:27] você ver como eu estou posicionado na
+[00:13:29] câmera. E você vai construir todos os
+[00:13:32] movimentos, toda a dinâmica do vídeo de
+[00:13:34] acordo com a minha fala. Então, na
+[00:13:36] medida que eu vou explicando aquilo que
+[00:13:38] acontece, as skills que eu uso para
+[00:13:40] poder editar o cloud como diretor, dê
+[00:13:43] uma identidade ao cloud code Oppul 5
+[00:13:45] como diretor, use um frame que tem um
+[00:13:48] print, na verdade, que tem na pasta, que
+[00:13:50] eu tô demonstrando exatamente a
+[00:13:52] identidade visual do lançamento do Alp.
+[00:13:55] Tem que ter essa mesma identidade visual
+[00:13:56] nessas animações e também essa
+[00:13:58] identidade de recorte de papel. Então,
+[00:14:00] faça parecer orgânico, natural para que
+[00:14:03] o vídeo aconteça de forma como um
+[00:14:06] tutorial, uma demonstração de todos os
+[00:14:08] elementos acontecendo. Na medida que eu
+[00:14:10] vou falando, você vai montando as
+[00:14:12] ilustrações. Em alguns momentos pode ter
+[00:14:14] tela cheia, em outros momentos tela
+[00:14:16] dividida, em outros momentos apenas as
+[00:14:18] ilustrações que você vai criar para
+[00:14:20] poder dar essa variação. Faça transições
+[00:14:23] leves entre a tela cheia da
+[00:14:25] demonstração, entre o momento que você
+[00:14:28] vai dividir a tela mostrando. Pode ser
+[00:14:30] um quadro com a minha câmera, com meu
+[00:14:31] rosto um pouco menor, enquanto você vai
+[00:14:34] mostrando as coisas acontecendo na tela,
+[00:14:36] entrando os elementos de forma dinâmica
+[00:14:39] para que todo o fluxo seja interessante,
+[00:14:42] envolvente do início ao fim. Então esse
+[00:14:45] é o prompt. Então assim, eu não descrevo
+[00:14:47] exatamente aquele prompt. Eu não faço,
+[00:14:49] na verdade, um metaprompt dizendo para
+[00:14:51] ele exatamente o que tem que acontecer
+[00:14:53] em cada segundo, porque eu quero dar
+[00:14:55] essa liberdade criativa. Então, isso é
+[00:14:57] uma coisa que eu coloco no final do meu
+[00:14:58] pedido. Essas são as minhas instruções
+[00:15:00] de forma geral, mas não se restrinja a
+[00:15:03] elas. Se você vê alguma coisa que vai
+[00:15:04] ficar mais interessante, melhor, você
+[00:15:06] tem a liberdade criativa para poder
+[00:15:08] modificar ou adicionar algum elemento
+[00:15:11] que eu não tenha citado nesse pedido. Eu
+[00:15:14] já vou mandar esse pedido para ele. Essa
+[00:15:15] parte final do prompt é onde a partir
+[00:15:17] ali do Opus 5, os modelos começaram a
+[00:15:20] ficar tão bons que quando você pede para
+[00:15:22] ele fazer algo que você não estava
+[00:15:24] pensando ou te indicar, te apontar
+[00:15:27] alguma coisa que talvez você não estava
+[00:15:28] vendo, um ponto cego seu, é onde o
+[00:15:30] agente te surpreende. Então ele vai
+[00:15:32] agora rodar o processo e agorinha a
+[00:15:33] gente vai ver o resultado desse vídeo
+[00:15:35] montado completo lá na pasta. E a partir
+[00:15:38] desse pedido, ele levou aqui uns 2
+[00:15:39] minutos e criou esse plano de edição.
+[00:15:42] Então você pode olhar com calma esse
+[00:15:43] plano de edição e ele sempre vai
+[00:15:44] trabalhar dessa forma, mesmo aqui nesse
+[00:15:46] primeiro nível usando a remotion e a
+[00:15:49] watch vídeo. Ele criou aqui algum plano,
+[00:15:50] o que que vai acontecer em cada momento,
+[00:15:52] o que faz sentido e qual o tipo de
+[00:15:55] animação que ele vai criar. Então, hora
+[00:15:56] vai ser câmera, ou seja, tela cheia,
+[00:15:58] hora vai ser uma notícia, um print. Hora
+[00:16:00] vai ser uma câmera dividida como se
+[00:16:03] fosse uma imagem, como uma apresentação,
+[00:16:05] na verdade, né? Quando você tem uma
+[00:16:07] imagem e a tela pequena do lado, você
+[00:16:10] tem biroll também, que são as animações
+[00:16:12] apenas em tela cheia. Em cada momento
+[00:16:14] você pode ajustar de acordo com a
+[00:16:16] numeração. Aqui ele fez o gancho, que é
+[00:16:18] a fase inicial, ele identificou que é um
+[00:16:20] vídeo como se fosse desses vídeos curtos
+[00:16:23] até o CTA final, que é um dos estilos de
+[00:16:25] edição que a gente tem dentro desse
+[00:16:27] repositório. Então aqui eu quero já
+[00:16:29] aprovar direto esse projeto. Eu vou
+[00:16:31] dizer aprovado. E ele vai continuar a
+[00:16:35] edição a partir desse plano. Se eu
+[00:16:36] quisesse modificar alguma coisa, essa
+[00:16:38] seria a hora aqui. Lembrando que esse
+[00:16:41] primeiro nível ele tem algumas
+[00:16:43] limitações, já é muita coisa que você
+[00:16:44] consegue criar, mas ele não faz, por
+[00:16:46] exemplo, algumas animações que a gente
+[00:16:48] faz no nível dois. Mas eu quero editar
+[00:16:50] exatamente o mesmo vídeo pra gente ver e
+[00:16:52] comparar lado a lado qual é o resultado
+[00:16:54] que você tem usando esse processo e
+[00:16:56] usando o nível dois. Agora sim, ele já
+[00:16:59] terminou toda a edição. Ele levou quase
+[00:17:01] 20 minutos para fazer tudo. Eu tô vendo
+[00:17:03] aqui o processo, a cadeia de pensamentos
+[00:17:05] de toda a edição. Ele criou todo esse
+[00:17:08] storyboard aqui antes de fazer a edição.
+[00:17:11] Eu fui acompanhando aqui pro vídeo não
+[00:17:12] ficar muito grande, mas mostrando aqui
+[00:17:13] agora para vocês. Ao longo do processo,
+[00:17:16] o Oppo 5. Ele já foi gerando uma imagem
+[00:17:19] inicialmente e corrigindo aquela imagem
+[00:17:22] quando sair alguma coisa fora do frame.
+[00:17:24] E ele foi ajustando isso para evitar
+[00:17:26] retrabalho pra versão final que sai na
+[00:17:29] pasta. Agora eu tô muito curioso para
+[00:17:30] ver o processo aqui. É o nível um de
+[00:17:32] edição. Ele já fez tudo isso 20 minutos.
+[00:17:35] Eu achei interessante. Ele seguiu aqui
+[00:17:37] aquela identidade visual que a gente
+[00:17:38] colocou lá na pasta. Abrindo aqui agora
+[00:17:40] na pasta, ele tirou os frames para ver a
+[00:17:43] posição do rosto na hora de dividir tela
+[00:17:45] para não ficar fora do frame. Então ele
+[00:17:47] pegou todas essas amostragens aqui antes
+[00:17:49] da edição. E como eu falei para vocês,
+[00:17:51] esse projeto ele acontece do início ao
+[00:17:52] fim, onde esses arquivos brutos eles são
+[00:17:55] editados aqui dentro dessa pasta
+[00:17:57] projetos. E voltando aqui agora na pasta
+[00:17:59] principal do estúdio, a gente vai ter
+[00:18:01] essa pasta aqui de edições, que agora
+[00:18:02] sim ele criou essa nova pasta, onde nós
+[00:18:05] temos aqui esses frames, ou seja, aquele
+[00:18:07] storyeboard que ele criou, que nós vimos
+[00:18:08] lá também dentro do cloud code. E agora
+[00:18:11] sim, apenas o arquivo final MP4 com a
+[00:18:14] prévia da visualização aqui. Agora eu já
+[00:18:17] vi que ele criou também uma legenda. Eu
+[00:18:19] não dei nenhuma instrução específica de
+[00:18:21] formato de legenda, então eu quero ver
+[00:18:23] qual formato da legenda que ele criou.
+[00:18:25] Então a gente vai ver aqui agora o
+[00:18:26] resultado final. dessa edição. Tô muito
+[00:18:28] curioso para ver como que ficou a edição
+[00:18:30] desse vídeo. Eu vou tocar ela aqui
+[00:18:31] agora. Agora dá para editar um vídeo com
+[00:18:33] cara profissional, sem abrir o programa
+[00:18:34] de edição nenhum. Eu uso para isso
+[00:18:36] quatro peças. A primeira é o Code
+[00:18:38] rodando o Opus. A identidade do
+[00:18:40] lançamento do Opus 5 que tinha esse
+[00:18:42] frame na pasta, ele criou para gerar,
+[00:18:44] &gt;&gt; ele é o diretor. Ele leu o que eu quero,
+[00:18:46] decide o que cada trecho do vídeo
+[00:18:48] precisa, chama ferramenta.
+[00:18:49] &gt;&gt; Aqui ficou um pouco fora do frame, mas
+[00:18:51] às vezes acontece, era possível ajustar
+[00:18:52] isso no prompt também. O frame do vídeo
+[00:18:55] nesse momento ficou um pouco cortada a
+[00:18:57] parte certa e o que ela deve fazer. E o
+[00:18:59] Opus 5. Ele aguenta um trabalho comprido
+[00:19:01] desses, do primeiro corte até o render,
+[00:19:03] sem esquecer o que eu pedi lá no começo.
+[00:19:05] E a segunda peça é a watchvíde, uma
+[00:19:07] skill que dá olhos ao cloud, o fundo com
+[00:19:09] a identidade visual do corte de papel,
+[00:19:11] agora montando o storyboard com a
+[00:19:13] legenda sincronizada segundo a segundo
+[00:19:15] no momento animação é tudo na rem
+[00:19:16] daquele vídeo inteiro. E aí ele manda
+[00:19:18] para o cloud code para ele planejar
+[00:19:20] todas as inserções de acordo com a
+[00:19:22] posição que eu estou no vídeo. A
+[00:19:23] terceira, nossa, isso aqui ficou muito
+[00:19:24] bom aqui, muito acertado. de acordo com
+[00:19:27] a posição que eu tô no vídeo que eu
+[00:19:28] estou e ele cria o frame da posição, que
+[00:19:30] é exatamente o formato que ela edita.
+[00:19:33] Ela pelos frames que ela tira naquele
+[00:19:35] começo do vídeo, eu pedi só alguns,
+[00:19:37] então por alguns movimentos, então
+[00:19:39] acabou saindo em algumas horas, mas se
+[00:19:41] você pedir para ele criar o frame eh do
+[00:19:43] início ao fim, esses erros, né, que ele
+[00:19:45] pode fazer de acordo com o movimento ou
+[00:19:48] se você tiver cenas diferentes, é bom
+[00:19:50] você pedir todos os frames naquela etapa
+[00:19:52] inicial ou no prompt edição inicial para
+[00:19:55] ele não errar esses enquadramentos no
+[00:19:57] vídeo. A terceira peça é a remot, a
+[00:19:59] skill que monta tudo isso. Ela corta os
+[00:20:01] silêncios, faz as transcrições, os
+[00:20:03] movimentos de câmera, coloca texto na
+[00:20:04] tela, decide onde eu fico em cada
+[00:20:06] quadro. E como tudo isso é código, eu
+[00:20:08] mudo qualquer coisa depois, sem precisar
+[00:20:10] refazer tudo de novo. E uma dica que
+[00:20:12] mudou os meus resultados é, em vez de eu
+[00:20:13] tentar descrever o estilo do vídeo que
+[00:20:15] eu quero, eu mostro para ele um exemplo.
+[00:20:16] Eu separo um vídeo e a idade visual aqui
+[00:20:20] a partir de código. Qual que é a grande
+[00:20:22] diferença? E esse repositório tá
+[00:20:23] disponível para vocês, tá pessoal? Isso
+[00:20:25] tudo é no nível um de criação. Esse é o
+[00:20:27] repositório que ele já tá montado. Por
+[00:20:30] que que eu montei esse repositório para
+[00:20:31] entregar para vocês? Porque no último
+[00:20:33] vídeo que eu gravei mostrando o processo
+[00:20:34] que eu faço para usar remotion a watch
+[00:20:36] vídeo, algumas pessoas travaram na hora
+[00:20:38] de configurar o cloud.m. Aqui nesse
+[00:20:41] repositório tá tudo pronto para você
+[00:20:43] poder criar esse primeiro nível de
+[00:20:45] vídeo. Aqui a minha opinião honesta
+[00:20:48] sobre esse formato de gravação tem
+[00:20:50] alguns elementos aqui. Quem entende de
+[00:20:52] edição, mais do que eu, eu não sou
+[00:20:53] editor de vídeo, mas aqui você pode ver
+[00:20:56] que ele já pega o arquivo em MP4, ele
+[00:20:59] cria inserções no formato overlay. Ou
+[00:21:02] seja, antes, eu já uso essa skill há
+[00:21:05] bastante tempo, antes dessa skill, a
+[00:21:06] gente precisava criar esses arquivos
+[00:21:08] separados e depois unir esse ao nosso
+[00:21:12] arquivo principal esses overlays. Ou
+[00:21:14] seja, já era muito útil, mas aqui agora
+[00:21:16] ele mesmo já faz esse processo e tem os
+[00:21:18] arquivos prontos no formato final.
+[00:21:21] Então, a identidade visual, qual que é a
+[00:21:23] grande diferença aqui? Está exatamente
+[00:21:25] naquela etapa inicial onde ele pede uma
+[00:21:29] referência visual. aqui é o que faz, é o
+[00:21:31] 8020 do projeto. Todas essas animações
+[00:21:33] dá já uma dinâmica muito legal.
+[00:21:35] Inclusive, pessoal, eu não lembro de
+[00:21:37] nenhum vídeo aqui antes do OPO 5.
+[00:21:41] Legendas animadas. Então, imagina, você
+[00:21:43] pode colocar no prompt inclusive qual
+[00:21:45] tipo exato da legenda você quer que ele
+[00:21:47] cria. Então, não precisa nem mais baixar
+[00:21:50] aqueles pacotes de letters animados.
+[00:21:52] Aqui ele já faz isso para você. Agora,
+[00:21:55] eu confesso que tem algumas coisas,
+[00:21:56] apesar da identidade visual dá esse tom
+[00:21:59] bem único, tem algumas coisas que você,
+[00:22:01] se você é um editor, você vê que às
+[00:22:02] vezes fica um pouco fora, né? Causa
+[00:22:05] alguma, alguma impressão que alguém que
+[00:22:07] é mais exigente, assim, um editor mesmo,
+[00:22:09] que entende de After Effects, edição de
+[00:22:11] vídeo, talvez se incomodasse, mas aqui
+[00:22:13] já é muito melhor do que qualquer coisa
+[00:22:15] que eu conseguiria fazer. Eu edito os
+[00:22:18] meus próprios vídeos. Eu já trabalhei
+[00:22:20] com coprodução usando o Premiere Pro,
+[00:22:23] editar curso, mas nada desses elementos
+[00:22:25] de motion gráficos eu conseguia fazer.
+[00:22:27] Isso era muito caro, na verdade. Alguém
+[00:22:29] que era editor de motion graphics, era
+[00:22:32] uma sala especial ali dentro do estúdio
+[00:22:34] e o cara cobrava caro para poder fazer
+[00:22:36] essas coisas que você pede e o Cloud
+[00:22:39] Code cria com código. Agora, pra gente
+[00:22:41] avançar no próximo nível, eu tô aqui com
+[00:22:44] a conta da Higsfield aberta. Agora eu
+[00:22:46] quero ver. E aqui é uma comparação
+[00:22:47] honesta e fiel, porque eu quero ver como
+[00:22:51] que vai ser esse mesmo projeto editado
+[00:22:54] agora conectando a Higsfield, porque ali
+[00:22:57] com o OPO 5.
+[00:22:59] Muito bom. Eu sei que eu não conseguiria
+[00:23:02] fazer um projeto naquele formato. Mas
+[00:23:04] agora como que a gente conecta então o
+[00:23:06] nosso Cloud Code lá? O projeto ele já
+[00:23:08] está pronto. O cloud ele já sabe que a
+[00:23:10] gente vai utilizar. O que que nós vamos
+[00:23:12] fazer? E você precisa também para poder
+[00:23:14] conectar. Eu vou fechar aqui o cloud na
+[00:23:16] web, essa sessão, até porque essa sessão
+[00:23:19] ela já tá aqui com uma janela de
+[00:23:21] contexto em aproximadamente
+[00:23:23] 228.000
+[00:23:25] tokens. Ou seja, todo esse processo nós
+[00:23:28] gastamos 23%
+[00:23:30] da janela de contexto do Oppo 5.5, que é
+[00:23:33] de 1 milhão de tokens. Então aqui um
+[00:23:35] pouco, né, um processo, um vídeo de 2
+[00:23:37] minutos com todas essas animações. Foi
+[00:23:40] esse o processo total, 20 minutos aqui
+[00:23:43] de trabalho. Agora você fecha a o seu
+[00:23:45] aplicativo porque nós vamos instalar,
+[00:23:47] nós vamos, na verdade, conectar o plugin
+[00:23:49] da Higsfield aqui no nosso setup. Aqui
+[00:23:52] dentro do cloud já logado na minha
+[00:23:54] conta, você vai em personalizar. Dentro
+[00:23:56] de personalizar, você vai na aba de
+[00:23:58] conectores. Aqui em conectores, você vai
+[00:24:00] pesquisar por Higgsfield. Aqui vai
+[00:24:03] aparecer a opção nesses primeiros, já
+[00:24:05] apareceu aqui para mim. Estando
+[00:24:06] conectado a sua conta da Higsfield
+[00:24:09] normal pela web e também a sua conta do
+[00:24:11] Cloud Code no mesmo navegador. Ao clicar
+[00:24:14] aqui em conectar, ele vai te levar para
+[00:24:17] uma autenticação OAL ALF, uma vez que
+[00:24:18] você já está conectado e permitindo aqui
+[00:24:21] uma primeira vez, ele já vai reconhecer
+[00:24:24] a Higsfield em todos os sistemas, tanto
+[00:24:27] no cloud na web quanto no cloud aqui
+[00:24:29] também pelo aplicativo desktop. E antes
+[00:24:32] de nós mandarmos o pedido prompt, é bom
+[00:24:34] a gente perguntar se o MCP da Higstível
+[00:24:37] nessa sessão logo depois que você faz a
+[00:24:40] conexão. A primeira conexão, ele vai
+[00:24:42] buscar o MCP, ele confirmar se aqui
+[00:24:44] dentro do aplicativo do Cloud Code a
+[00:24:46] gente já tem o MCP disponível. E ele
+[00:24:49] está dizendo aqui que sim. Então nós já
+[00:24:50] estamos com o nosso cloud Code OPO 5.
+[00:24:54] Higsfield. Agora nós já podemos começar
+[00:24:56] o nosso projeto lá na pasta. Eu criei
+[00:24:58] essa nova subpasta da Higsfield, onde eu
+[00:25:01] coloquei exatamente os mesmos prints e o
+[00:25:04] mesmo vídeo original para fazer essa
+[00:25:06] mesma edição e ver qual será o, ou seja,
+[00:25:08] nós vamos mandar o mesmo vídeo, a mesma
+[00:25:10] referência visual usando o mesmo sistema
+[00:25:13] e o mesmo modelo, o OPO 5. No esforço
+[00:25:16] médio aqui para poder criar esse novo
+[00:25:18] vídeo. Agora eu vou mandar para ele o
+[00:25:19] mesmo processo, mas pedindo para ele
+[00:25:21] fazer já a edição do nível dois. Se você
+[00:25:24] não fala nada, ele te manda aquele ES
+[00:25:26] user question. Se você já coloca no
+[00:25:27] prompt, a tendência é que ele já faça a
+[00:25:30] edição completa. Então eu vou mandar
+[00:25:31] aqui para o meu editor como eu quero que
+[00:25:34] seja feita essa edição. Dentro dessa
+[00:25:36] pasta do projeto 002, nós temos um vídeo
+[00:25:39] que foi gravado na vertical. Eu quero
+[00:25:41] que você use a Higsfield com todas as
+[00:25:44] ferramentas de edição, de imagem e de
+[00:25:47] vídeo que tem dentro dela para criar um
+[00:25:49] projeto dinâmico com esse fluxo e a
+[00:25:52] identidade visual. que eu coloquei
+[00:25:54] dentro dessa pasta 002. Essa identidade
+[00:25:57] visual não é para restringir o modelo, é
+[00:26:00] para ser uma referência visual daquilo
+[00:26:02] que você pode criar. A fala, eu vou
+[00:26:04] explicando aquilo que eu quero que
+[00:26:05] aconteça ao longo do vídeo. Você vai
+[00:26:07] criar um storyboard, o broll, todos os
+[00:26:09] elementos seguindo a edição para ela
+[00:26:12] ficar toda dinâmica, mostrando em forma
+[00:26:14] de cortes de papel, fazendo transições
+[00:26:17] de imagem, mostrando a tela um pouco
+[00:26:20] menor, reduzida, aumentando, mostrando a
+[00:26:22] tela cheia apenas com o birow da
+[00:26:24] animação, fazendo também uma divisão de
+[00:26:26] tela para que fique animado enquanto
+[00:26:29] você ilustra aquilo que está acontecendo
+[00:26:30] na tela. Você tem a plataforma inteira
+[00:26:32] na mão, pode utilizar ela para fazer
+[00:26:35] essa edição completa do início ao fim. E
+[00:26:38] já vai processar esse prompt aqui. Eu
+[00:26:39] confesso que ele ficou um pouco mais
+[00:26:41] simples do que o primeiro que eu mandei,
+[00:26:43] mas ele vai entender e dentro desse
+[00:26:45] projeto ele já tem as instruções daquilo
+[00:26:47] que ele pode fazer. Então já vou mandar
+[00:26:48] esse pedido aqui, nem vou revisar o
+[00:26:50] pedido, ele vai usar e seguir todo o
+[00:26:52] fluxo e editar o vídeo na pasta dois.
+[00:26:55] Ele já identificou aqui que o conteúdo
+[00:26:56] na pasta dois tem identidade e a
+[00:26:58] referência visual. E ele já começou o
+[00:26:59] processo novamente com Fester Whsper
+[00:27:01] para poder fazer a transcrição. E nós
+[00:27:03] vamos ver o processo acontecendo todo de
+[00:27:05] novo pra gente ver o resultado agora sim
+[00:27:07] do vídeo de nível de estúdio. Espero que
+[00:27:10] fique de fato nesse formato diferente.
+[00:27:12] Ainda não sei o resultado que vai ser.
+[00:27:14] Tô muito curioso para ver. Aqui sim uma
+[00:27:16] comparação mais realista. mesmo modelo,
+[00:27:18] mesmas referências visuais, o mesmo
+[00:27:20] vídeo, o que é possível fazer com o
+[00:27:23] plugin da Higsfield e o que é possível
+[00:27:25] fazer com código puro. Agora sim, ele
+[00:27:27] terminou aqui esse segundo vídeo. Ele
+[00:27:29] levou um tempo bem maior, quase 50
+[00:27:30] minutos para editar o vídeo de 1
+[00:27:32] minuto50. Isso acontece porque nesse
+[00:27:35] processo de edição de estúdio, onde ele
+[00:27:37] envia o pedido lá para Higshifield, até
+[00:27:39] ela processar também as imagens, os
+[00:27:41] vídeos, voltar para o cloud Code, ele
+[00:27:43] montar tudo isso, leva um tempo maior.
+[00:27:45] Às vezes ele fica no looping apenas
+[00:27:47] esperando o processo terminar para ele
+[00:27:49] começar a montagem. Então é natural que
+[00:27:51] leve um tempo maior. Mas em relação à
+[00:27:53] sessão anterior que nós gastamos 238.000
+[00:27:56] tokens, aqui nós gastamos 420.000 tokens
+[00:28:00] ainda dentro do plano, uma sessão de
+[00:28:02] quase 1 hora. você gastar apenas isso
+[00:28:04] dentro do plano ainda. E lá na Higfield,
+[00:28:07] deixa eu ver quanto que nós já
+[00:28:09] consumimos. Eu estava no início da
+[00:28:11] sessão com 3.000 créditos, eu tinha
+[00:28:13] acabado de renovar o plano ultra e agora
+[00:28:15] eu estou aqui com 2906, ou seja, menos
+[00:28:18] de 100 créditos nós gastamos para poder
+[00:28:21] fazer esse vídeo que eu ainda não vi. Eu
+[00:28:24] já deixei aberto aqui. Voltando aqui na
+[00:28:26] pasta da edição do vídeo, nós vamos em
+[00:28:28] edições e agora tem essa nova pasta aqui
+[00:28:31] da Higsifit, que foi esse processo que
+[00:28:33] nós fizemos e já tá aqui dentro da
+[00:28:35] pasta. Eu vou ver agora junto com você.
+[00:28:37] Eu quero ver a qualidade. Eu já vi que
+[00:28:38] tem uma estética aqui diferente e eu vou
+[00:28:41] tocar ele. Enquanto a gente toca, eu vou
+[00:28:43] vendo a referência, o que que ele fez,
+[00:28:45] que eu gostei ou que eu não gostei. Tem
+[00:28:47] também a legenda que já aparece desde o
+[00:28:48] início. Então vamos ver. Agora dá para
+[00:28:50] editar um vídeo com um cara
+[00:28:51] profissional, sem abrir programa de
+[00:28:52] edição nenhum. Eu uso para isso quatro
+[00:28:55] peças. A primeira é o Cloud Cach rodando
+[00:28:57] o ele é o diretor. Ele lêu o que eu
+[00:28:59] quero, decide o que cada trecho do vídeo
+[00:29:02] precisa, chama ferenta certa e o que ela
+[00:29:04] deve fazer. E o 5.5 e aguenta um
+[00:29:06] trabalho com animação a primeiro corte
+[00:29:08] até o render, sem esquecer o que eu pedi
+[00:29:10] lá no começo. E a segunda peça é a
+[00:29:12] watchíde, um skill que dá olhos ao
+[00:29:14] cloud. Ele transcreve a minha fala
+[00:29:17] exato, tira os frames aqui
+[00:29:20] para
+[00:29:22] planejar todas as inserções de acordo
+[00:29:23] com erro ele cortou parte dos corrigir
+[00:29:26] isso que monta
+[00:29:29] faz as transmissões, os movimentos de
+[00:29:31] câmera, coloca texto na tela, decide
+[00:29:33] onde eu fico em cada qua,
+[00:29:35] esse recorte de papel do da legenda, eu
+[00:29:39] gostei mais do anterior, não sei vocês,
+[00:29:41] mas aqui tá parecendo um pouco mais
+[00:29:42] máquina de escrever, não tá? com efeito
+[00:29:44] de recorte de papel.
+[00:29:46] &gt;&gt; Eu mudo qualquer coisa depois sem
+[00:29:47] precisar refazer tudo de novo. E uma
+[00:29:49] dica que mudou os meus resultados em vez
+[00:29:51] de eu tentar descoucrier
+[00:29:56] que estav muito mais assim do que
+[00:29:58] qualquer descrição que eu pudesse
+[00:29:59] entregar para ele. E a quarta peça,
+[00:30:01] &gt;&gt; esses efeitos, você vê que na versão
+[00:30:02] anterior não tinha essa esse trimor dos
+[00:30:04] elementos que dá uma dinâmica no vídeo
+[00:30:06] inteiro. Agora já mudou para uma legenda
+[00:30:08] branca. A versão inicial era preta,
+[00:30:11] agora ficou branca.
+[00:30:13] com
+[00:30:15] recriou o logo da HF. É o conector da
+[00:30:17] Higfield com
+[00:30:18] &gt;&gt; essa abertura de papel. Isso é um vídeo
+[00:30:21] criado na Higfield. Ficou muito barato.
+[00:30:23] Eu achei que ia ficar mais caro. Menos
+[00:30:24] de R$ 100. Ah, perdão, menos de 100
+[00:30:26] créditos para você fazer um vídeo desse
+[00:30:29] tamanho, de 2 minutos com todos esses
+[00:30:32] elementos, né? É o conector da
+[00:30:33] Hickfield. Com essas outras
+[00:30:36] code e watch vídeo conectando agora com
+[00:30:39] a Ritfield, o vídeo já sai com qualidade
+[00:30:40] de
+[00:30:42] &gt;&gt; estúdio. Com ela, o Cláudio começa a
+[00:30:43] gravar porque não estava na gravação. O
+[00:30:45] objeto recortado em papel.
+[00:30:46] &gt;&gt; Aqui ele recortou o a minha luminária
+[00:30:49] que ficou ali do fundo,
+[00:30:50] &gt;&gt; a ilustração, a cena inteira,
+[00:30:52] &gt;&gt; imagem de vídeo. Nossa, isso aqui ficou
+[00:30:53] muito legal
+[00:30:55] &gt;&gt; aqui. Ele recriou o meu cenário aqui de
+[00:30:57] certa forma com o MacBook, a mesa. Isso
+[00:31:00] ficou muito bom.
+[00:31:01] &gt;&gt; Cena inteira fez o efeito do Thanos
+[00:31:03] aqui, né? Nessa parte que o vídeo ele
+[00:31:04] ganha cara de produção de estúdio. Então
+[00:31:06] essas são as quatro partes. Cloud Code é
+[00:31:08] o diretor, a watch Vídeo, os olhos, a
+[00:31:10] remotion, a mão que monta tudo. E a
+[00:31:11] imaginação desse projeto para qualidade
+[00:31:13] de estúdio é a Higfield. Inclusive esse
+[00:31:15] vídeo que você está vendo saiu de uma
+[00:31:16] gravação crua, passando por essas quatro
+[00:31:18] ferramentas.
+[00:31:19] Então aqui colocando lado a lado, nós
+[00:31:22] vemos aqui a criação feita puramente com
+[00:31:26] código. Então vou colocar aqui no mesmo
+[00:31:27] tempo. Tô aqui em 30 e 40 segundos e
+[00:31:31] aqui também 40 segundos. Então você vê a
+[00:31:34] recreação, algumas diferenças aqui, por
+[00:31:37] exemplo,
+[00:31:39] aqui ele fez um recorte de papel. Aqui
+[00:31:41] nessa primeira versão com código, você
+[00:31:43] vê que ele tá basicamente pegando as
+[00:31:45] imagens do fundo onde eu coloquei nas na
+[00:31:49] pasta de referência e colocando aqui e
+[00:31:51] usando elas numa disposição diferente.
+[00:31:53] Aqui com a Higfield ele já recriou todo
+[00:31:56] o processo, recriou todas as imagens de
+[00:31:58] referência. Aqui usou a remotion para
+[00:32:00] poder fazer esse overlay. Aqui como eu
+[00:32:02] não pedi no prompt, ele fez tudo com a
+[00:32:04] Higpit. Ele não usou a remotion para
+[00:32:06] fazer esses overlays. Eu poderia ter
+[00:32:08] pedido isso também no Prompt. Quando
+[00:32:10] você une essas skills, você pode ter os
+[00:32:12] efeitos tanto da Remotion quanto os
+[00:32:14] efeitos também da Higsifield. Inclusive,
+[00:32:17] esse processo você pode fazer um ajuste
+[00:32:19] dentro desse repositório para você poder
+[00:32:22] economizar dentro do plano da
+[00:32:23] Higgsfield, porque aqui eu achei muito
+[00:32:26] barato, foi 97 créditos que a gente
+[00:32:28] gastou para poder fazer essa animação
+[00:32:30] inteira. Tem inclusive um vídeo aqui
+[00:32:32] recriado que é esse efeito do Thanos que
+[00:32:34] ele fez no final. Todos esses recors de
+[00:32:36] papel foram muitos modelos aqui de
+[00:32:39] imagem, de geração de imagem, enquanto
+[00:32:41] aqui o efeito também, o resultado também
+[00:32:43] é muito bom. Então, no nível um, onde
+[00:32:45] você pode criar um vídeo com 5.5 desse
+[00:32:49] nível de qualidade, que é o que tá aqui
+[00:32:50] da esquerda, e também nesse nível de
+[00:32:52] qualidade aqui com a Rickfield, gastando
+[00:32:54] pouco, aqui é muito interessante quando
+[00:32:56] você quer ter uma estética diferente.
+[00:32:57] Aqui eu devo dizer também que com o
+[00:33:00] Oppus 5.
+[00:33:05] Muito bom. Aqui, por exemplo, se você me
+[00:33:08] mostrasse isso daqui e eu não soubesse
+[00:33:09] que não foi feito ah só com código, eu
+[00:33:12] nem reconheceria. E você pode ver também
+[00:33:14] que a legenda, a forma que foi criada,
+[00:33:17] ela tem uma sombra. Ou seja, essa
+[00:33:19] legenda não foi criada puramente só com
+[00:33:22] uma imagem estática. Ele fez cada frame
+[00:33:25] de cada legenda dessa e colocou uma
+[00:33:27] sombra no fundo. E a estética ficou
+[00:33:29] muito boa. Aqui eu não comentei quando
+[00:33:31] eu tava vendo o processo pelo
+[00:33:33] encadeamento do raciocínio do modelo
+[00:33:36] enquanto ele criava. Ele instalou esse
+[00:33:38] pack de letras na Remotion enquanto ele
+[00:33:41] tava fazendo. Ou seja, se você não tem
+[00:33:43] algum pacote de fonte instalado no seu
+[00:33:45] computador, ele instala durante o
+[00:33:47] processo. Mas os dois resultados muito
+[00:33:49] bons aqui. O recorte de papel feito pela
+[00:33:52] Higfield também me agradou muito. Foi a
+[00:33:54] estética que eu dei para ele. Você
+[00:33:55] poderia ter dado uma outra estética aqui
+[00:33:57] nesse finalzinho. É um efeito puramente
+[00:34:00] aqui com modelos de imagem aqui na maior
+[00:34:02] parte. Eu não pedi para ele recriar
+[00:34:04] nenhum tipo de vídeo realista que daria
+[00:34:06] para você fazer também. Eu já tenho
+[00:34:07] vídeo aqui no canal criando esses outros
+[00:34:10] modelos, mas o grande valor aqui desse
+[00:34:12] repositório, ele está exatamente em você
+[00:34:14] unir essas ferramentas onde você pode
+[00:34:17] ter total controle. com a Higfield aqui
+[00:34:19] nesse projeto que eu vou deixar para
+[00:34:21] vocês o link na descrição. Ele já vai
+[00:34:23] estar completo. Você tem o nível de
+[00:34:24] edição um que você pode fazer com essas
+[00:34:27] skills gratuitas, o nível de edição dois
+[00:34:29] com a Higfield, onde você pode ter e
+[00:34:31] recriar não só processos como esse, mas
+[00:34:33] vídeos mais realistas com o Cloud Opus
+[00:34:36] 5.
+[00:34:38] todo esse efeito, esse controle visual e
+[00:34:40] você chegando a resultado com esses um
+[00:34:42] plano do Cloud Code, o plano Pro e uma
+[00:34:44] conta da Rickfield, você consegue criar
+[00:34:46] muitos vídeos. Aqui nesse processo
+[00:34:48] inteiro, durante todo o vídeo, eu gastei
+[00:34:50] menos de 40% da minha sessão diária e
+[00:34:53] sem créditos apenas no plano da
+[00:34:56] Higsfield. E na minha leitura, o que
+[00:34:58] muda aqui é a sua capacidade de
+[00:35:01] controle, de utilizar um modelo que já é
+[00:35:03] muito bom, muito robusto, e você poder
+[00:35:05] criar vídeo com código também, um
+[00:35:07] processo usando skills gratuitas e tendo
+[00:35:10] o maior controle também do seu plano. No
+[00:35:12] último vídeo que eu gravei mostrando
+[00:35:13] aqui a Higfield, muitas pessoas
+[00:35:15] perguntaram quanto que fica esse
+[00:35:16] processo e eu vi que tem também a forma
+[00:35:18] de você fazer com a API. Eu quero gravar
+[00:35:20] um vídeo aqui também mostrando como que
+[00:35:22] funciona. Tem um desconto também muito
+[00:35:24] interessante em relação ao uso aqui do
+[00:35:26] plano que eu tenho. E você pode ter o
+[00:35:28] controle e usar das duas formas. E na
+[00:35:31] hora de você mandar o prompt, você pode
+[00:35:32] inclusive estipular o quanto que você
+[00:35:34] quer gastar ali. Se você tem, por
+[00:35:36] exemplo, uma meta, você precisa criar 20
+[00:35:38] vídeos por semana, você pode definir
+[00:35:41] quanto que você quer gastar para cada
+[00:35:42] vídeo e ter uma edição também mais
+[00:35:44] equilibrada, porque quanto mais
+[00:35:46] inserção, quanto mais elementos você
+[00:35:48] cria, mais créditos você vai acabar
+[00:35:51] gastando. Então, dá para ter esse
+[00:35:52] controle também inicial antes de você
+[00:35:54] mandar cada requisição. E na medida que
+[00:35:56] você vai usando, e eu tô usando aqui já
+[00:35:58] quase dois meses, você vai também
+[00:36:00] entendendo como que você consegue ter
+[00:36:01] esse controle maior. Mas eu já usei com
+[00:36:04] Astra, já usei com Oppul 5.1, já usei
+[00:36:07] com Oppul 5. Agora também já fiz outras
+[00:36:10] coisas e na minha leitura, o Oppul 5.5
+[00:36:13] aqui tem sido o campeão, o melhor modelo
+[00:36:16] para você conectar com a Rickfield ou
+[00:36:18] para criar vídeo com código puro ou
+[00:36:20] criar vídeo mais criativo nessa
+[00:36:22] qualidade de estúdio. E se fizer sentido
+[00:36:24] para você, o link da Hixfield vai estar
+[00:36:26] aqui na descrição e também no comentário
+[00:36:28] fixado. Vale a pena você entrar lá,
+[00:36:30] conhecer, ver como que isso vai
+[00:36:31] funcionar no seu fluxo, instalar também
+[00:36:33] esse repositório e começar a editar os
+[00:36:35] seus vídeos com o Cloud Code e com a
+[00:36:37] Higfield. E nós iremos nos ver no
+[00:36:39] próximo.
