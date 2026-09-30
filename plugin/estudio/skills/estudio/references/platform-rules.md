@@ -23,8 +23,8 @@ Some official pages (TikTok Creator Academy, the Instagram Help Center) render a
 ## First line
 
 - [official] Put the video's main keyword in plain pt-BR in the first line: Instagram Search and TikTok's video information match the literal words of the post. sourced: 2026-09-30 <https://about.instagram.com/blog/announcements/break-down-how-instagram-search-works>
-- [marketing] Write the first line as the hook plus the main keyword, at most about 100 characters on Instagram and TikTok, then 1 to 3 honest sentences that reuse the words people search for. sourced: 2026-09-30 <https://metricool.com/tiktok-hashtags/>
-- [marketing] The text visible before the cutoff depends on the app's screen: about 125 characters in the Instagram feed and 55 to 60 on the Reels tab, 100 to 150 on TikTok. Put the hook and the keyword before that point, and confirm the cutoff in the app. sourced: 2026-09-30 <https://www.thekeyword.co/news/tiktok-engagement-rate-benchmark-2026>
+- [marketing] Write the first line as the hook plus the main keyword, at most about 100 characters on Instagram and TikTok, then 1 to 3 honest sentences that reuse the words people search for. The length is marketing guidance that fits the official text-match above; no platform publishes it. sourced: 2026-09-30 <https://about.instagram.com/blog/announcements/break-down-how-instagram-search-works>
+- [marketing] The text visible before the cutoff depends on the app's screen: about 125 characters in the Instagram feed and 55 to 60 on the Reels tab, 100 to 150 on TikTok. Put the hook and the keyword before that point, and confirm the cutoff in the app. No platform publishes these lengths; they come from marketing guides. sourced: 2026-09-30 <https://about.instagram.com/blog/announcements/break-down-how-instagram-search-works>
 
 ## Hashtags
 
@@ -33,7 +33,7 @@ Some official pages (TikTok Creator Academy, the Instagram Help Center) render a
 - [official] YouTube shows up to three of the hashtags it considers most engaging above the video title; these are not simply the first three. sourced: 2026-09-30 <https://support.google.com/youtube/answer/6390658?hl=en>
 - [official] Instagram's head, Adam Mosseri, has said hashtags do not improve reach but help search (2022, 2024, 2025), so a few specific hashtags are enough. Reported by the press. sourced: 2026-09-30 <https://www.digitalinformationworld.com/2025/02/adam-mosseri-declares-hashtags-useless.html>
 - [study] A Metricool study of 24.36 million Instagram posts from 375,118 accounts (January to February 2025 against 2026, published 2026-06-16) found posts with at least one hashtag had 31.70% fewer views and 33.89% fewer interactions than average. Correlational, so it does not prove hashtags hurt. sourced: 2026-09-30 <https://metricool.com/press-release-instagram-study-2026/>
-- [marketing] Use 3 to 5 relevant hashtags on TikTok, broad and niche together; TikTok sets no hashtag-count cap of its own. sourced: 2026-09-30 <https://metricool.com/tiktok-hashtags/>
+- [marketing] Use 3 to 6 relevant hashtags on TikTok, broad and niche together (the Social media keeps to 3 to 5); TikTok sets no hashtag-count cap of its own. sourced: 2026-09-30 <https://metricool.com/tiktok-hashtags/>
 - [marketing] The TikTok caption limit is 4,000 characters (it was 2,200). sourced: 2026-09-30 <https://typecount.com/blog/tiktok-caption-character-limit>
 - [marketing] Above the Instagram cap, the post is reportedly blocked or the extra hashtags dropped, with caption and comment hashtags counted together. Unverified. sourced: 2026-09-30 <https://creatorlanehq.com/blog/instagram-5-hashtag-limit-2026>
 
@@ -45,14 +45,14 @@ Some official pages (TikTok Creator Academy, the Instagram Help Center) render a
 ## YouTube Shorts title and description
 
 - [official] The Shorts description holds up to 5,000 characters and helps search. The 100-character title limit is not stated on this page; it comes from marketing guides, so confirm it in YouTube Studio. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
-- [marketing] Write the Shorts title as a human hook plus the keyword, at most 100 characters, with the hook in the first ~40 characters (the part visible in the feed) and no hashtags in the title. sourced: 2026-09-30 <https://www.searchenginejournal.com/youtube-explains-how-shorts-algorithm-works/494953/>
-- [marketing] Put 2 to 3 relevant hashtags and one sentence of context in the Shorts description; `#shorts` is optional. sourced: 2026-09-30 <https://www.socialmediatoday.com/news/youtube-advice-for-shorts-creators-hashtags-algorithm/691835/>
+- [marketing] Write the Shorts title as a human hook plus the keyword, at most 100 characters, with the hook in the first ~40 characters (the part visible in the feed) and no hashtags in the title. No YouTube page states this; it comes from marketing guides. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
+- [official] Put 2 to 3 relevant hashtags and one sentence of context in the Shorts description: YouTube shows a video's hashtags above its title, taken from the description. sourced: 2026-09-30 <https://support.google.com/youtube/answer/6390658?hl=en>
 - [official] YouTube's spam policy forbids maliciously misleading titles, thumbnails and descriptions, tag stuffing in the description, and rewards in exchange for likes, views or subscribers. sourced: 2026-09-30 <https://support.google.com/youtube/answer/2801973?hl=en>
 - [marketing] Links in a Shorts description are not clickable (2023). sourced: 2026-09-30 <https://www.phonearena.com/news/youtube-shorts-blocks-clickable-links_id149677>
 
 ## Engagement bait
 
-- [official] Never ask for likes, comments, shares, tags, votes or a specific comment word ("comenta SIM", "curte se concorda", "marca 3 amigos"), never promise rewards or giveaways for engagement, and never tease a fake "part 2". Instagram's recommendation guidelines exclude "clickbait, engagement bait, or which promotes a contest or giveaway". sourced: 2026-09-30 <https://help.instagram.com/313829416281232/>
+- [official] Never ask for likes, comments, shares, tags, votes or a specific comment word ("comenta SIM", "curte se concorda", "marca 3 amigos"), and never promise rewards or giveaways for engagement. Instagram's recommendation guidelines exclude "clickbait, engagement bait, or which promotes a contest or giveaway". Read through a secondary source (the page did not render). sourced: 2026-09-30 <https://help.instagram.com/313829416281232/>
 - [official] Meta defines engagement bait as posts that explicitly request engagement (votes, shares, comments, tags, likes or other reactions). This page is scoped to Facebook. sourced: 2026-09-30 <https://transparency.meta.com/features/approach-to-ranking/content-distribution-guidelines/engagement-bait/>
 - [official] TikTok's Community Guidelines (effective 2025-09-13) make "like-for-like" promises and false incentives for gifting or following ineligible for the For You feed. Read through a mirror of the guidelines. sourced: 2026-09-30 <https://github.com/OpenTermsArchive/contrib-versions/blob/main/TikTok/Community%20Guidelines.md>
 - [study] A Metricool study found posts with a question got 36.70% more comments and comment-focused calls to action 202.78% more, about comments and not reach. Correlational. A genuine question tied to the video is fine; formulaic bait is penalised. At most one genuine question or call to action per post. sourced: 2026-09-30 <https://metricool.com/press-release-instagram-study-2026/>

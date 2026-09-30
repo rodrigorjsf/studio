@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { REFERENCIA_DE_PLATAFORMA, platformRules } from '../plugin/estudio/scripts/lib/plataforma.mjs';
+import { PLATFORM_REFERENCE, platformReferenceFile, platformRules } from '../plugin/estudio/scripts/lib/plataforma.mjs';
 
 const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -78,9 +78,9 @@ function checkPlugin(dir, expectedName, errors) {
 // file exists, each rule must carry a source label, a `sourced:` date and a URL; its links are
 // held to the self-contained rule by checkLinks like any other package markdown.
 function checkPlatformReference(dir, pluginName, errors) {
-  const file = path.join(dir, ...REFERENCIA_DE_PLATAFORMA.split('/'));
+  const file = platformReferenceFile(dir);
   if (!fs.existsSync(file)) return;
-  const where = `${pluginName}: ${REFERENCIA_DE_PLATAFORMA}`;
+  const where = `${pluginName}: ${PLATFORM_REFERENCE}`;
   const rules = platformRules(fs.readFileSync(file, 'utf8'));
   if (rules.length === 0) errors.push(`${where}: has no rule (every rule is a top-level bullet)`);
   for (const rule of rules) {

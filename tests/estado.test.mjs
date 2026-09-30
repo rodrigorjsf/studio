@@ -236,7 +236,7 @@ test('a Kit that is not valid JSON is reported as invalid, not ok', () => {
 });
 
 // The bundled platform reference (spec #39, ticket #42): `estado` says whether its newest
-// `sourced:` date is more than 6 months old. The clock is ESTUDIO_AGORA so a test can put today on
+// `sourced:` date is more than 6 months old. The clock is ESTUDIO_NOW so a test can put today on
 // either side of the line; the date itself is read from the shipped reference.
 const referenceFile = path.join(repoRoot, 'plugin', 'estudio', 'skills', 'estudio', 'references', 'platform-rules.md');
 const newestSourced = [...fs.readFileSync(referenceFile, 'utf8').matchAll(/sourced:\s*(\d{4}-\d{2}-\d{2})/g)].map((m) => m[1]).sort().at(-1);
@@ -247,7 +247,7 @@ const plusMonths = (date, months, days = 0) => {
   return d.toISOString();
 };
 function referenceOn(today) {
-  const r = spawnSync(process.execPath, [cli, 'estado', folder('valido')], { encoding: 'utf8', env: { ...process.env, ESTUDIO_AGORA: today } });
+  const r = spawnSync(process.execPath, [cli, 'estado', folder('valido')], { encoding: 'utf8', env: { ...process.env, ESTUDIO_NOW: today } });
   assert.equal(r.stderr, '', `stderr: ${r.stderr}`);
   return JSON.parse(r.stdout).referenciaDePlataforma;
 }

@@ -346,7 +346,7 @@ test('a platform reference that links out of the package is still rejected', () 
 });
 
 test('the shipped platform reference keeps the source labels the research gave its claims', () => {
-  const text = fs.readFileSync(path.join(repoRoot, 'plugin/estudio/skills/estudio/references/platform-rules.md'), 'utf8');
+  const text = fs.readFileSync(path.join(repoRoot, REFERENCE), 'utf8');
   const labelOf = (pattern) => {
     const lines = text.split('\n').filter((line) => line.startsWith('- ') && pattern.test(line));
     assert.equal(lines.length, 1, `exactly one rule matches ${pattern}`);
@@ -356,8 +356,9 @@ test('the shipped platform reference keeps the source labels the research gave i
   assert.equal(labelOf(/more than 60 hashtags/), 'official');
   assert.equal(labelOf(/Never ask for likes/), 'official');
   assert.equal(labelOf(/24\.36 million/), 'study');
-  assert.equal(labelOf(/3 to 5 relevant hashtags on TikTok/), 'marketing');
+  assert.equal(labelOf(/3 to 6 relevant hashtags on TikTok/), 'marketing');
   assert.equal(labelOf(/visible before the cutoff/i), 'marketing');
+  assert.equal(labelOf(/2 to 3 relevant hashtags and one sentence/), 'official');
 });
 
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
