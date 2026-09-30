@@ -63,6 +63,11 @@
     ],
     "overlays": false
   },
+  "plataformas": [
+    "reels",
+    "tiktok",
+    "shorts"
+  ],
   "creditos": {
     "porVideo": null,
     "porMes": null

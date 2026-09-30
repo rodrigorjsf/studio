@@ -42,7 +42,7 @@ Sort each change she asks for:
 
 - **Briefing** (business, audience, tone of voice, and any prose in `projeto.md`): the section headings are the Grilling topics listed in the [novo-projeto skill](../novo-projeto/SKILL.md).
 - **Páginas Notion** (linking, unlinking or changing the Notion pages of the Projeto): go to [Páginas Notion](#páginas-notion). They change neither the briefing nor the Kit.
-- **Kit** (anything a composition or a Crítico applies mechanically: Formato, colors, fonts, captions, motion, sound, music policy, deliverables, credit budget, do/don't lists, glossary, references, assets): [kit-schema.md](../novo-projeto/references/kit-schema.md) maps each topic to its fields. Most topics touch both: then change both.
+- **Kit** (anything a composition or a Crítico applies mechanically: Formato, colors, fonts, captions, motion, sound, music policy, deliverables, the platforms she posts on (`plataformas`), credit budget, do/don't lists, glossary, references, assets): [kit-schema.md](../novo-projeto/references/kit-schema.md) maps each topic to its fields. Most topics touch both: then change both.
 
 New files she gives you (a new logo, a font, a reference image, an end card): **copy** them into the Projeto's `kit/` folder under a **new name** (e.g. `kit/logo-2026.png`). Never overwrite or delete a file already in `kit/`: a Vídeo that keeps the old Kit still points at it.
 

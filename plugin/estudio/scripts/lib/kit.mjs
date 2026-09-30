@@ -15,6 +15,11 @@ const KIT_SCHEMA_VERSION = 1;
 const FORMATOS = ['9:16', '16:9', '1:1'];
 // no-app: she adds the music herself in Instagram/TikTok (trending audio, no copyright mute).
 const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
+// The platforms a Projeto posts on; the Social media writes a Texto do post for each of them.
+const PLATAFORMAS = ['reels', 'tiktok', 'shorts'];
+
+// The platforms of a Kit. A Kit without the field (made before it existed) posts on all three.
+export const plataformasDoKit = (kit) => [...(kit?.plataformas ?? PLATAFORMAS)];
 
 // A complete, valid Kit: what "decide você" answers when she has no preference.
 // Vertical 9:16 and music added by her in the app are the spec's defaults. It lives in the
@@ -42,9 +47,15 @@ const listOf = (check) => (v, ctx, where) => {
   return null;
 };
 const nonEmptyListOf = (check) => (v, ctx, where) => (Array.isArray(v) && v.length === 0 ? 'must list at least one' : listOf(check)(v, ctx, where));
+// A field an older Kit may lack: fine when absent, checked when present.
+const optional = (check) => Object.assign((...args) => check(...args), { optional: true });
+const noRepeats = (check) => (v, ctx, where) => (Array.isArray(v) && new Set(v).size < v.length ? 'must not repeat a value' : check(v, ctx, where));
 const shape = (fields) => (v, ctx, where) => {
   if (!isObject(v)) return 'must be an object';
-  for (const [key, check] of Object.entries(fields)) ctx.check(check, v[key], `${where}.${key}`, key in v);
+  for (const [key, check] of Object.entries(fields)) {
+    if (check.optional && !(key in v)) continue;
+    ctx.check(check, v[key], `${where}.${key}`, key in v);
+  }
   return null;
 };
 // A map whose keys she names (color names, recording setups) and whose values share a check.
@@ -89,6 +100,7 @@ const KIT_SHAPE = shape({
   som: shape({ efeitos: text }),
   musica: shape({ politica: oneOf(POLITICAS_MUSICA) }),
   entregaveis: shape({ formatos: nonEmptyListOf(oneOf(FORMATOS)), overlays: flag }),
+  plataformas: optional(noRepeats(nonEmptyListOf(oneOf(PLATAFORMAS)))),
   creditos: shape({ porVideo: budget, porMes: budget }),
   fazer: listOf(text),
   evitar: listOf(text),

@@ -69,9 +69,13 @@ Keep it light, because she is tired and short on time:
 | 15 | Entregáveis | Formato: vertical 9:16 by default, 16:9 only if she asks. Overlays for another editor. Logo, end card. | `formato`, `entregaveis`, `ativos` |
 | 16 | Orçamento de créditos | For Nível 2 (Higgsfield), how many credits per Vídeo and per month at most. `null` means "not set"; then each Nível 2 Vídeo asks. | `creditos` |
 
+### Plataformas
+
+After the catalogue, ask which apps she posts this Projeto's videos on: Instagram Reels, TikTok, YouTube Shorts, any mix. Offer the three as a multi-select, with "todas" recommended, and "decide você" meaning all three. Her answer goes into the Kit's `plataformas` (`reels`, `tiktok`, `shorts`; at least one). It has no section in `projeto.md`. The studio uses it to write the Texto do post only for those apps, and she can change it later with `/estudio:editar-projeto`.
+
 ### Páginas Notion
 
-After the catalogue, ask one more question: does she have Notion pages that explain this Projeto, such as brand notes, a content calendar or an ideas bank? Several pages are fine, and so is none. "Decide você" means none for now. Linking pages is not a section of `projeto.md`: the links go into the Projeto's `notion/` folder. Follow [notion.md](../estudio/references/notion.md) for the rules and the steps:
+After that, ask one more question: does she have Notion pages that explain this Projeto, such as brand notes, a content calendar or an ideas bank? Several pages are fine, and so is none. "Decide você" means none for now. Linking pages is not a section of `projeto.md`: the links go into the Projeto's `notion/` folder. Follow [notion.md](../estudio/references/notion.md) for the rules and the steps:
 
 - whether her Notion connector is available, and how to connect it in plain words, or skip it;
 - linking the pages with `vincular-notion`;
@@ -99,7 +103,7 @@ Then run `estado` again. If `errors` lists this Projeto's files, fix them and ru
 
 The Projeto cannot be used until she approves its Kit. Before that, no Vídeo may start in it.
 
-1. Show her a short pt-BR summary of the Kit. Use no JSON and no field names. Cover: Formato; the colors (name and hex); the fonts; the caption style; the motion and pacing; the music policy; the deliverables; the credit budget; her references, with what was taken from each; what to always do and never do. Say which answers were "decide você".
+1. Show her a short pt-BR summary of the Kit. Use no JSON and no field names. Cover: Formato; the colors (name and hex); the fonts; the caption style; the motion and pacing; the music policy; the deliverables; the platforms she posts on, named Instagram Reels, TikTok and YouTube Shorts; the credit budget; her references, with what was taken from each; what to always do and never do. Say which answers were "decide você".
 2. Ask **one** question with three options:
    - "aprovar";
    - "aprovar com pequenos ajustes": she lists them, you apply them and show only what changed;

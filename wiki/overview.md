@@ -22,4 +22,6 @@ Offline transcription (spec #29, ADR 0006): the speech model (`large-v3-turbo`, 
 
 Esteira documentation (ticket #36): the README section "Quem trabalha em cada etapa" is the single source for every actor (who calls it, what it hands back, what it does on approval and rejection), the top-down call-chain diagram and the Gates table; the wiki links to it instead of repeating it ([studio-personas](entities/studio-personas.md)).
 
+Kit `plataformas` (ticket #41, spec #39): the Kit records which of Reels, TikTok and Shorts the Projeto posts on (absent = all three), asked in the Projeto Grilling and changed by `editar-kit` ([brand-kit-per-front](concepts/brand-kit-per-front.md)).
+
 Caderno (ticket #40, ADR 0007): a two-layer [Caderno](concepts/caderno.md) of Elogios, Queixas and Soluções, `caderno.md` in the Estúdio and in each Projeto, that only the Diretor writes through the `caderno` command; `estado` reports both paths and every persona receives them. Planned next (grilling 2026-09-30, ADRs 0007–0008): sanitized issue drafts published on her approval; and a Social media persona writing the [Texto do post](concepts/post-copy.md) from bundled, dated platform rules ([research](sources/post-copy-and-hashtags-2026.md)).
