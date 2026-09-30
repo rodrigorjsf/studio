@@ -25,22 +25,22 @@ import { findVideo, readVideoRecord, updateVideoRecord } from './video.mjs';
 import { isNonNegativeNumber, isObject, parseJson, readJson } from './valores.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
-const MARGEM = 0.2;
+const OVERSPEND_MARGIN = 0.2;
 const isCredits = isNonNegativeNumber;
 // Credits are kept to the cent: quoted costs such as 1.75 per second add up without float noise.
 const toCents = (v) => Math.round(v * 100) / 100;
-const limiteDe = (estimados) => toCents(estimados * (1 + MARGEM));
+const limitFor = (estimados) => toCents(estimados * (1 + OVERSPEND_MARGIN));
 
 // A budget's fields in video.md, and the refusal a spend gets before its Gate.
-const GERACAO = {
+const GENERATION_BUDGET = {
   estimados: 'creditosEstimados', gastos: 'creditosGastos', aprovadoEm: 'creditosAprovadosEm', paradoEm: 'creditosParadosEm',
   semAprovacao: 'no-credit-approval',
 };
-const HIGGSEDIT_CREDITOS = {
+const HIGGSEDIT_BUDGET = {
   estimados: 'higgseditCreditosEstimados', gastos: 'higgseditCreditosGastos', aprovadoEm: 'higgseditAprovadoEm', paradoEm: 'higgseditParadoEm',
   semAprovacao: 'no-higgsedit-approval',
 };
-const outro = (budget) => (budget === GERACAO ? HIGGSEDIT_CREDITOS : GERACAO);
+const otherBudget = (budget) => (budget === GENERATION_BUDGET ? HIGGSEDIT_BUDGET : GENERATION_BUDGET);
 const creditsOr0 = (v) => (isCredits(v) ? v : 0);
 // What a budget holds of the Kit's: the larger of its estimate and what it spent.
 const usedBy = (record, budget) => Math.max(creditsOr0(record[budget.estimados]), creditsOr0(record[budget.gastos]));
@@ -83,7 +83,7 @@ function approvedThisMonth(videosDir, self, month) {
       } catch {
         return sum;
       }
-      return sum + [GERACAO, HIGGSEDIT_CREDITOS].filter((b) => approvedIn(data, b, month)).reduce((s, b) => s + usedBy(data, b), 0);
+      return sum + [GENERATION_BUDGET, HIGGSEDIT_BUDGET].filter((b) => approvedIn(data, b, month)).reduce((s, b) => s + usedBy(data, b), 0);
     }, 0);
 }
 
@@ -104,13 +104,13 @@ function approve(found, budget, creditosEstimados, saldo) {
   if (saldo < creditosEstimados - gastos) return refuse('insufficient-balance', { saldo, creditosEstimados, creditosGastos: gastos });
   const orcamento = { porVideo: kit?.creditos?.porVideo ?? null, porMes: kit?.creditos?.porMes ?? null };
   const month = new Date().toISOString().slice(0, 7);
-  const doVideo = usedBy(record, outro(budget));
+  const otherBudgetUsed = usedBy(record, otherBudget(budget));
   const doMes = orcamento.porMes === null
     ? 0
-    : approvedThisMonth(path.join(dir, '..'), path.basename(dir), month) + (approvedIn(record, outro(budget), month) ? doVideo : 0);
-  if ((orcamento.porVideo !== null && doVideo + creditosEstimados > orcamento.porVideo)
+    : approvedThisMonth(path.join(dir, '..'), path.basename(dir), month) + (approvedIn(record, otherBudget(budget), month) ? otherBudgetUsed : 0);
+  if ((orcamento.porVideo !== null && otherBudgetUsed + creditosEstimados > orcamento.porVideo)
     || (orcamento.porMes !== null && doMes + creditosEstimados > orcamento.porMes)) {
-    return refuse('over-budget', { creditosEstimados, orcamento, aprovadosNoVideo: doVideo, aprovadosNoMes: doMes });
+    return refuse('over-budget', { creditosEstimados, orcamento, aprovadosNoVideo: otherBudgetUsed, aprovadosNoMes: doMes });
   }
 
   const { data, message } = updateVideoRecord(dir, (current) => {
@@ -121,7 +121,7 @@ function approve(found, budget, creditosEstimados, saldo) {
     // the one the other budget's stop holds open.
     if (current[budget.paradoEm]) {
       delete current[budget.paradoEm];
-      if (!current[outro(budget).paradoEm]) current.gate = null;
+      if (!current[otherBudget(budget).paradoEm]) current.gate = null;
     }
     current.gates = (current.gates ?? 0) + 1;
   });
@@ -131,7 +131,7 @@ function approve(found, budget, creditosEstimados, saldo) {
     projeto,
     video,
     creditosEstimados,
-    limite: limiteDe(creditosEstimados),
+    limite: limitFor(creditosEstimados),
     creditosGastos: data[budget.gastos],
     saldo,
     gates: data.gates,
@@ -152,7 +152,7 @@ export function aprovarCreditos(folder, projetoNome, videoNome, inputText) {
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { approved: false, ...found.refusal };
   const plano = readJson(path.join(found.dir, PLANO));
-  return approve(found, GERACAO, input.creditosEstimados ?? plano?.creditosEstimados, input.saldo);
+  return approve(found, GENERATION_BUDGET, input.creditosEstimados ?? plano?.creditosEstimados, input.saldo);
 }
 
 // The part of the Vídeo Higgsedit montages: all of it, or one stretch of her Master in seconds.
@@ -178,7 +178,7 @@ export function aprovarHiggsedit(folder, projetoNome, videoNome, inputText) {
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { approved: false, ...found.refusal };
   const pedido = input.pedido.trim();
-  const out = approve(found, HIGGSEDIT_CREDITOS, input.creditosEstimados, input.saldo);
+  const out = approve(found, HIGGSEDIT_BUDGET, input.creditosEstimados, input.saldo);
   if (!out.approved) return out;
   const file = path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/'));
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -207,7 +207,7 @@ function spend(found, budget, { arquivo, creditos, saldo }, { pasta, registro, e
   if (ledger.some((item) => item.arquivo === file)) return refuse('duplicate-file', { arquivo: file });
   const gastos = creditsOr0(record[budget.gastos]);
   const estimados = record[budget.estimados];
-  const limite = limiteDe(estimados);
+  const limite = limitFor(estimados);
   if (gastos + creditos > limite + 1e-9) {
     const { data, message } = updateVideoRecord(dir, (current) => {
       current.gate = 'aberto';
@@ -270,7 +270,7 @@ export function gastarCreditos(folder, projetoNome, videoNome, inputText) {
   if (invalid) return { authorized: false, reason: 'invalid-input', message: invalid };
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { authorized: false, ...found.refusal };
-  return spend(found, GERACAO, input, {
+  return spend(found, GENERATION_BUDGET, input, {
     pasta: GERADOS,
     registro: GERADOS_REGISTRO,
     entry: { modelo: input.modelo, prompt: input.prompt },
@@ -291,5 +291,5 @@ export function gastarHiggsedit(folder, projetoNome, videoNome, inputText) {
   if (found.refusal) return { authorized: false, ...found.refusal };
   // Each run keeps the stretch of the request it was paid for, so every file keeps its place.
   const trecho = readJson(path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/')))?.at(-1)?.trecho ?? null;
-  return spend(found, HIGGSEDIT_CREDITOS, input, { pasta: HIGGSEDIT, registro: HIGGSEDIT_REGISTRO, entry: { trecho } });
+  return spend(found, HIGGSEDIT_BUDGET, input, { pasta: HIGGSEDIT, registro: HIGGSEDIT_REGISTRO, entry: { trecho } });
 }
