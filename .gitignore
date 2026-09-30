@@ -3,8 +3,6 @@ node_modules/
 *.log
 tmp/
 .env
-edicoes/*
-!edicoes/.gitkeep
 projetos/*
 !projetos/LEIA-ME.md
 !projetos/000. exemplo/
