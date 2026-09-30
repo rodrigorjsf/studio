@@ -8,7 +8,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = (...parts) => fs.readFileSync(path.join(repoRoot, ...parts), 'utf8');
+// Normalize CRLF: a checkout under core.autocrlf=true yields CRLF, which breaks the '\n## ' anchors.
+const read = (...parts) => fs.readFileSync(path.join(repoRoot, ...parts), 'utf8').replace(/\r\n/g, '\n');
 
 const readme = read('README.md');
 const SECTION_HEADING = '## Quem trabalha em cada etapa';
