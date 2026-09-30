@@ -77,9 +77,17 @@ The **Artista generativo** (the `artista-generativo` agent) generates them befor
 Images first, in batch, then animate them into clips (sound off). The results are downloaded into the Vídeo's `gerados/` folder. The Motion designer shows them in the edit with `<Gerado>` from the template's `src/_shared/edicao.tsx` (a clip is always muted: her original audio stays the only sound).
 
 ### Higgsedit, only on request
-Higgsedit, Higgsfield's own cloud editor, is **not** used to assemble the edit. When she explicitly asks for an effect only Higgsedit has, it is a scope change with its own cost approval before anything runs.
+Higgsedit, Higgsfield's own cloud editor, is **not** used to assemble the edit, and the studio never proposes it. When she **explicitly asks** for an effect only Higgsedit has, that stretch of the Vídeo (or the whole Vídeo, when that is what she asked) is montaged in Higgsedit, as a scope change with **its own cost Gate** before anything runs:
 
-*Pending: Higgsedit on request arrives in ticket #16.*
+- **Her Gate.** The Diretor estimates the credits from the connector's quote, shows them next to her **balance**, and records her approval with her request in her words and the stretch (`{"inicio": s, "fim": s}` of her Master, or `"video-inteiro"`):
+
+  ```bash
+  "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" aprovar-higgsedit "." "<projeto>" "<nome do vídeo>" '{"pedido": "<her words>", "trecho": {"inicio": 12.4, "fim": 15.0}, "creditosEstimados": <estimate>, "saldo": <balance>}'
+  ```
+
+  It is a Gate of its own, apart from the credit Gate of the generated imagery: it refuses without her words (`no-request`), and with `insufficient-balance`, `over-budget` (the Kit's budget holds both together), `plano-not-approved`, `not-nivel-2`. Autonomia never approves it.
+- **Each paid run.** The **Montador Higgsedit** (the `montador-higgsedit` agent) clears every run with `gastar-higgsedit` (the file in `higgsedit/`, the quoted cost, the balance): the same ~20% stop as the generated imagery, on its own estimate (`over-limit`; only a new `aprovar-higgsedit` lifts it). The results go into the Vídeo's `higgsedit/` folder; `pedidos.json` keeps each request she approved and `higgsedit.json` each paid run.
+- **The same Críticos and rules.** Her Master stays one continuous layer with her audio once; triggers come from word timing; her face stays free. A stretch is placed over her Master in the Remotion edit with `<Gerado>` (muted); the whole Vídeo's render goes into the version folder. Either way the version passes the QC técnico (`qc`), the other Críticos and her review, and the Entrega's `entregar`, like any version.
 
 ## 4. Reference models and costs
 
@@ -155,3 +163,4 @@ Generate the images directly in 9:16 (do not crop from 16:9). Keep the main subj
 - [ ] every generation cleared by `gastar-creditos`; stopped at `over-limit`
 - [ ] images and clips without text, saved in `gerados/`, redone when not legible
 - [ ] the edit assembled in Remotion with `<Gerado>`, then reviewed and delivered as in Nível 1
+- [ ] Higgsedit only on her explicit request, after `aprovar-higgsedit`, every run cleared by `gastar-higgsedit`, its result through the same QC and Críticos

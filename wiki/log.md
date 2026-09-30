@@ -67,3 +67,6 @@ Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
 
 ## [2026-09-30] update | Brand and platform Críticos with the internal loop built: `qc-interno`, cap of three turns, cost counters (ticket #13)
 Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, entities/studio-personas.md, overview.md.
+
+## [2026-09-30] update | Higgsedit on request built: its own cost Gate, `gastar-higgsedit`, Montador Higgsedit (ticket #16)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, entities/studio-personas.md, overview.md.

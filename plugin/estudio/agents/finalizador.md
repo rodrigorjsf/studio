@@ -34,7 +34,9 @@ Render into `<vídeo>/entrega/`, from `<estudio>`, one file per deliverable, nam
 | Each other Formato she asked for | `"<vídeo>/entrega/<nome do vídeo> <formato>.mp4" --codec=h264 --crf=17 --props='{"formato": "<16:9 or 1:1>"}'` |
 | Transparent overlays (on request) | `"<vídeo>/entrega/<nome do vídeo> sobreposição.mov" --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png --muted --props='{"sobreposicao": true}'` (`--muted`: without it Remotion adds a silent audio track, and an overlay carries none) |
 
-Render each file in full: no `--frames`, no speed change, no other audio. Never delete or overwrite a file in `entrega/` that you did not render in this run.
+Render each file in full: no `--frames`, no speed change, no other audio. Never delete or overwrite a file in `entrega/` that you did not render (or copy) in this run.
+
+**The whole Vídeo montaged in Higgsedit** (on her explicit request, when the Diretor says so): there is no composition to render. Copy the approved version's render (`<vídeo>/revisao/vNN/<nome do vídeo> <formato>.mp4`, the Diretor names it) byte for byte to `<vídeo>/entrega/<nome do vídeo> <formato>.mp4`. It is the only deliverable: a whole-Vídeo Higgsedit montage comes in the Kit's Formato alone, without other Formatos or overlays.
 
 You do not judge your own renders: the **QC técnico** (a Crítico) checks every MP4 against the Master, and the Diretor then runs the Entrega. When the Diretor hands you the QC técnico's reasons for a file you can redo (a render that stopped early, the wrong Formato or frame rate), render that file again, once; a problem in the edit itself (it does not last as long as the Master, a second copy of her audio, black or frozen stretches) is the Motion designer's, so report it.
 

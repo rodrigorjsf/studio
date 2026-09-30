@@ -19,7 +19,7 @@ const isIgnorable = (name) => name.startsWith('.') || IGNORABLE.has(name);
 // The Esteira's Status values, in order: whose turn each one is, and whether the Vídeo is
 // finished (delivered or archived). Briefing and Revisão are the Criadora's turn by nature;
 // in any other Status a Vídeo waits for her only while its document says `gate: aberto`
-// (the Diretor opened a Gate — Plano, Quadros de estilo, credits — and awaits her decision).
+// (the Diretor opened a Gate — Plano, Quadros de estilo, credits, Higgsedit — and awaits her decision).
 const STATUSES = new Map([
   ['Briefing', { waitsForCriadora: true, finished: false }],
   ['Planejamento', { waitsForCriadora: false, finished: false }],
@@ -50,6 +50,10 @@ const VIDEO_RECORD = [
   ['creditosGastos', credits, 'must be a number of credits, 0 or more'],
   ['creditosAprovadosEm', isoDate, 'must be a date (ISO)'],
   ['creditosParadosEm', isoDate, 'must be a date (ISO)'],
+  ['higgseditCreditosEstimados', credits, 'must be a number of credits, 0 or more'],
+  ['higgseditCreditosGastos', credits, 'must be a number of credits, 0 or more'],
+  ['higgseditAprovadoEm', isoDate, 'must be a date (ISO)'],
+  ['higgseditParadoEm', isoDate, 'must be a date (ISO)'],
   ['iniciadoEm', isoDate, 'must be a date (ISO)'],
   ['entregueEm', isoDate, 'must be a date (ISO)'],
 ];

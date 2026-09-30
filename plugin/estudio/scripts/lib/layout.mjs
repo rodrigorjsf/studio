@@ -42,6 +42,10 @@
 //   projetos/<projeto>/videos/<vídeo>/gerados/             Nível 2: the images and clips generated on
 //                                    Higgsfield (no text in them), and gerados.json, every generation
 //                                    `gastar-creditos` authorized: file, model, quoted credits, prompt
+//   projetos/<projeto>/videos/<vídeo>/higgsedit/           Nível 2, only on her explicit request: what
+//                                    Higgsedit montaged (a part of the Vídeo or all of it), pedidos.json
+//                                    (each request `aprovar-higgsedit` approved: her words, the part, the
+//                                    estimate) and higgsedit.json (each paid run `gastar-higgsedit` authorized)
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder is left to later stages and never rejected here.
@@ -78,3 +82,6 @@ export const NOTION_PAGINAS = 'notion/paginas.json';
 export const NOTION_RESUMO = 'notion/resumo.md';
 export const GERADOS = 'gerados';
 export const GERADOS_REGISTRO = 'gerados/gerados.json';
+export const HIGGSEDIT = 'higgsedit';
+export const HIGGSEDIT_PEDIDOS = 'higgsedit/pedidos.json';
+export const HIGGSEDIT_REGISTRO = 'higgsedit/higgsedit.json';

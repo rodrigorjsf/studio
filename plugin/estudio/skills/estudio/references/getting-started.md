@@ -76,6 +76,7 @@ studio/
 │     ├─ frames/       (generated) frames sampled from the video
 │     ├─ transcricao/  (generated) text with the timing of each word
 │     ├─ gerados/      (Nível 2) images and clips generated on Higgsfield
+│     ├─ higgsedit/    (Nível 2, only if you ask) what Higgsedit montaged
 │     └─ plano.md      (generated) the edit plan you approve
 │
 ├─ edicoes/            ← the finished video COMES OUT HERE
