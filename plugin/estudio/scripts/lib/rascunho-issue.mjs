@@ -9,12 +9,12 @@
 //   {"acao": "link", "id": <n>}           → `link`, `titulo` and `corpo` of a saved draft
 //   {"acao": "decidir", "id": <n>, "decisao": "publicado" | "link-entregue" | "recusado", "url": "<issue URL>"}
 //                                         → records her decision, once; `url` only with "publicado"
-// A draft with no decision is pending: `estado` lists it (`rascunhosDeIssue`). Anything the command
+// A draft with no decision is pending: `estado` lists it (`rascunhosPendentes`). Anything the command
 // does not accept is refused with a stable `reason` and no file changes.
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc, subfolders } from './estado.mjs';
-import { parseFrontmatter, replaceFrontmatter, writeDocument } from './frontmatter.mjs';
+import { documentBody, parseFrontmatter, replaceFrontmatter, writeDocument } from './frontmatter.mjs';
 import { ISSUES, MARKER, PROJETOS, VIDEOS } from './layout.mjs';
 import { isObject, parseJson } from './valores.mjs';
 
@@ -43,12 +43,12 @@ export function readRascunhos(folder) {
   const problems = [];
   for (const { id, file } of draftFiles(path.join(folder, ISSUES))) {
     try {
-      const text = fs.readFileSync(file, 'utf8').replace(/^﻿/, '');
+      const text = fs.readFileSync(file, 'utf8');
       const data = parseFrontmatter(text);
+      if (data.id !== id) throw new Error(`id ${JSON.stringify(data.id ?? null)} does not match the number ${id} in the file name`);
       if (!TIPOS.includes(data.tipo) || typeof data.titulo !== 'string' || data.titulo === '') throw new Error('needs a tipo (bug or evolucao) and a titulo');
       if (data.decisao != null && !DECISOES.includes(data.decisao)) throw new Error(`decisao must be one of: ${DECISOES.join(', ')}`);
-      const lines = text.split(/\r?\n/);
-      const corpo = lines.slice(lines.indexOf('---', 1) + 1).join('\n').trim();
+      const corpo = documentBody(text).trim();
       rascunhos.push({ id, tipo: data.tipo, titulo: data.titulo, decisao: data.decisao ?? null, arquivo: file, corpo });
     } catch (err) {
       problems.push({ file, message: err.message });
@@ -78,6 +78,8 @@ function ownedNames(folder) {
   const projetos = subfolders(path.join(folder, PROJETOS));
   return [
     { tipo: 'caminho', valor: folder },
+    // The same Estúdio reached through a symlink (or a Mac's `/private/…`) has another spelling of its path.
+    ...(fs.realpathSync(folder) === folder ? [] : [{ tipo: 'caminho', valor: fs.realpathSync(folder) }]),
     ...projetos.map((projeto) => ({ tipo: 'projeto', valor: projeto })),
     ...projetos.flatMap((projeto) => subfolders(path.join(folder, PROJETOS, projeto, VIDEOS)).map((video) => ({ tipo: 'video', valor: video }))),
   ];
@@ -135,8 +137,8 @@ export function rascunhoIssue(folder, inputText) {
   const { input, problem } = readInput(inputText);
   if (problem) return refused('invalid-input', { message: problem });
   if (!fs.existsSync(path.join(folder, MARKER))) return refused('not-estudio');
-  if (input.acao === 'salvar') return salvar(folder, input);
   if (!ACOES.includes(input.acao)) return refused('invalid-input', { message: `acao must be one of: ${ACOES.join(', ')}` });
+  if (input.acao === 'salvar') return salvar(folder, input);
   const draft = readRascunhos(folder).rascunhos.find((d) => d.id === input.id);
   if (!draft) return refused('unknown-draft', { id: input.id ?? null });
   if (input.acao === 'link') {

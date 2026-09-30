@@ -64,8 +64,13 @@ export function writeDocument(data, body) {
   return `---\n${block.join('\n')}\n---\n${body}`;
 }
 
+// The text after the frontmatter block of the document `text`.
+export function documentBody(text) {
+  const lines = text.replace(/^﻿/, '').split(/\r?\n/);
+  return lines.slice(lines.indexOf('---', 1) + 1).join('\n');
+}
+
 // The document `text` with its frontmatter block replaced by `data`; the body is kept as is.
 export function replaceFrontmatter(text, data) {
-  const lines = text.replace(/^﻿/, '').split(/\r?\n/);
-  return writeDocument(data, lines.slice(lines.indexOf('---', 1) + 1).join('\n'));
+  return writeDocument(data, documentBody(text));
 }

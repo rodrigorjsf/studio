@@ -281,3 +281,24 @@ test('the answer says whether the pre-filled link is short enough to open reliab
   assert.equal(long.linkCabe, false);
   assert.equal(rascunho(dir, { acao: 'link', id: long.id }).out.linkCabe, false);
 });
+
+test('the Estúdio path is refused whichever way the folder is reached: the real path, through a symlink', () => {
+  const dir = estudio();
+  const link = `${dir} atalho`;
+  fs.symlinkSync(dir, link);
+  const before = snapshot(dir);
+  const out = rascunho(link, { ...BUG, corpo: `O erro apareceu em ${fs.realpathSync(dir)}/projetos.` }).out;
+  assert.equal(out.written, false);
+  assert.equal(out.reason, 'private-content');
+  assert.deepEqual(snapshot(dir), before);
+  fs.unlinkSync(link);
+});
+
+test('a draft file whose frontmatter id disagrees with its file name is reported as an error', () => {
+  const dir = estudio();
+  const { arquivo } = rascunho(dir, BUG).out;
+  fs.writeFileSync(arquivo, read(arquivo).replace(/^id: 1$/m, 'id: 9'));
+  const { errors } = run('estado', dir).out;
+  assert.equal(errors.length, 1);
+  assert.equal(errors[0].file, `issues/${path.basename(arquivo)}`);
+});
