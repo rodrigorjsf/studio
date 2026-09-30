@@ -158,3 +158,10 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 - `README.md` is the Criadora-facing hub (pt-BR): what the plugin is, the Esteira diagram, the two Níveis, the marketplace install in the Desktop Code tab on Mac and Windows, credits. The maintainer guide is `docs/developer-guide.md`.
 - The upstream API-key script moved to `docs/archive/hf_api.py` (reference only, ADR 0002).
 - Not done here (see the #18 handoff): the root `CLAUDE.md` still holds the upstream director persona, and the upstream `edicoes/`, `guias/`, `estilos/`, `src/`, `projetos/`, `tools/transcrever.py`, `scripts/instalar.mjs` and `remotion.config.ts` still sit at the repo root.
+
+## Built: repo root cleaned of upstream leftovers (ticket #30)
+
+- The root `CLAUDE.md` is now a short maintainer guide (pt-BR conversation, English artifacts) pointing at `docs/developer-guide.md`, `CONTEXT.md`, `docs/adr/` and `README.md`; the director persona lives only in `plugin/estudio/skills/estudio/`.
+- The upstream root `guias/`, `estilos/`, `src/`, `tools/`, `scripts/instalar.mjs` and `remotion.config.ts` are deleted; the plugin under `plugin/estudio/` holds the only copy. `package.json` drops the `instalar`, `studio` and `compositions` scripts, `tsconfig.json` and `scripts/check-split-layouts.mjs` cover only `plugin/estudio/template/src/`.
+- `tests/plugin-structure.test.mjs` fails if the persona heading, `npm run instalar`, `hf_api`, `HF_KEY` or `edicoes` return to the root `CLAUDE.md`, or if an upstream root folder is tracked again.
+- Still at the root: `projetos/` (the sample project). This closes the "Not done here" note of ticket #18 above.

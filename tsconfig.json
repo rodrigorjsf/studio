@@ -12,7 +12,6 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/**/*.ts", "src/**/*.tsx", "remotion.config.ts",
     "plugin/estudio/template/src/**/*.ts", "plugin/estudio/template/src/**/*.tsx", "plugin/estudio/template/remotion.config.ts"
   ]
 }

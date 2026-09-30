@@ -249,6 +249,57 @@ for (const [label, text] of [
   });
 }
 
+// The repo root is a maintainer guide, not the upstream studio (spec #29, ticket #30): the root
+// CLAUDE.md no longer loads the director persona, and the upstream folders and installer the
+// persona drove are gone. The plugin under plugin/estudio/ holds the only copy of each file.
+const UPSTREAM_ROOT_PATHS = ['guias', 'estilos', 'src', 'tools', 'scripts/instalar.mjs'];
+const UPSTREAM_ROOT_NPM_SCRIPTS = ['instalar', 'studio', 'compositions'];
+
+// What is wrong with a root CLAUDE.md, as a list of reasons (empty = it is a maintainer guide).
+function rootClaudeMdProblems(text) {
+  const problems = [];
+  const firstLine = text.split('\n', 1)[0];
+  if (/^#\s.*diretor de v[ií]deo/i.test(firstLine)) problems.push(`opens with the director persona heading ("${firstLine}")`);
+  for (const mention of ['npm run instalar', 'hf_api', 'HF_KEY', 'edicoes']) {
+    if (text.includes(mention)) problems.push(`mentions "${mention}"`);
+  }
+  return problems;
+}
+
+test('the root CLAUDE.md is a maintainer guide, not the upstream director persona', () => {
+  const text = fs.readFileSync(path.join(repoRoot, 'CLAUDE.md'), 'utf8');
+  assert.deepEqual(rootClaudeMdProblems(text), []);
+  for (const section of ['## Agent skills', '## LLM wiki', '## Applied Learning']) {
+    assert.ok(text.includes(section), `the root CLAUDE.md keeps its "${section}" section`);
+  }
+});
+
+for (const [label, text] of [
+  ['the director persona heading', '# Studio: você é o diretor de vídeo\n\nBody\n'],
+  ['the upstream install ritual', '# Maintainer guide\n\nRun `npm run instalar`.\n'],
+  ['the Higgsfield API-key script', '# Maintainer guide\n\nSee tools/hf_api.py.\n'],
+  ['the Higgsfield API-key variable', '# Maintainer guide\n\nSet HF_KEY first.\n'],
+  ['the upstream output folder', '# Maintainer guide\n\nDeliverables go to edicoes/.\n'],
+]) {
+  test(`a root CLAUDE.md that carries ${label} is flagged`, () => {
+    assert.notDeepEqual(rootClaudeMdProblems(text), []);
+  });
+}
+
+test('no upstream folder or installer script is tracked at the repo root', () => {
+  const tracked = spawnSync('git', ['ls-files', '--', ...UPSTREAM_ROOT_PATHS], { cwd: repoRoot, encoding: 'utf8' });
+  assert.equal(tracked.status, 0, tracked.stderr);
+  assert.equal(tracked.stdout.trim(), '');
+});
+
+test('the root package.json drops the upstream scripts and the root tsconfig no longer includes root src/', () => {
+  const scripts = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).scripts;
+  for (const name of UPSTREAM_ROOT_NPM_SCRIPTS) assert.equal(scripts[name], undefined, `npm script "${name}" is gone`);
+  assert.ok(scripts.typecheck && scripts.test, 'typecheck and test stay');
+  const include = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tsconfig.json'), 'utf8')).include;
+  assert.deepEqual(include.filter((pattern) => pattern.startsWith('src/') || pattern === 'remotion.config.ts'), []);
+});
+
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
 const hasClaude = spawnSync('claude', ['--version'], { encoding: 'utf8' }).status === 0;
 // Notion is read-only and reached only through her own connector (ticket #20): the package

@@ -44,10 +44,6 @@ flowchart TB
   `plugin/estudio/scripts/lib/layout.mjs`.
 - `docs/archive/hf_api.py` is the upstream Higgsfield Cloud API-key script, kept for reference only.
   ADR 0002 dropped that path; nothing runs it and the package may not name it.
-- **Known leftover (see #25):** the root `CLAUDE.md` still loads the upstream director persona,
-  and the upstream root folders it drives (`guias/`, `estilos/`, `src/`, `tools/`,
-  `scripts/instalar.mjs`) are still tracked. The plugin uses none of them; edit the copies under
-  `plugin/estudio/`, never the root ones.
 
 ## Commands
 

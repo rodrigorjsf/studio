@@ -106,3 +106,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Spec #29 review round 1: overview covers #31–#33 and #35; model download resumes and shows progress; ESTUDIO_MODEL_MANIFEST; mirror script drops --dir
 Pages: overview.md, concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Repo root cleaned of upstream leftovers: maintainer CLAUDE.md, upstream folders deleted (ticket #30)
+Pages: overview.md, index.md, concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.

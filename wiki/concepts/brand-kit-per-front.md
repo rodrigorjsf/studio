@@ -36,7 +36,7 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 - Formato: `formato: null` renders the Kit's Formato (9:16 by default, 1080×1920); `"16:9"` (1920×1080) or `"1:1"` is a variant on request, same composition.
 - Brand pieces in `plugin/estudio/template/src/_shared/marca.tsx`: fonts (family, weight, optional font file under `kit/`), the entrance motion (`movimento.entradaMs`) and the caption style (`legendas`: grouping, highlight, position, case). `PreviaDoKit` ("Prévia do Kit") draws a Kit on one frame and is the worked example.
 - The default Kit has one source, `plugin/estudio/template/src/_shared/kit-padrao.json`, read by both `novo-projeto` (`lib/kit.mjs`) and the template (Prévia without a Projeto).
-- The gallery examples in `src/estilos/` keep their own palettes: they show a style, not a Projeto's brand.
+- The gallery examples in `plugin/estudio/template/src/estilos/` keep their own palettes: they show a style, not a Projeto's brand.
 - Proof (Seam 2): `tests/template.test.mjs` scaffolds an Estúdio, renders stills from two fixture Kits and checks frame size and background color.
 
 ## Built: Kit learnings after each Vídeo (ticket #17)

@@ -97,7 +97,6 @@ test('no package file, project setting or installer step depends on the external
   const files = [
     ...textFiles(pluginRoot).filter((f) => path.basename(f) !== 'THIRD_PARTY.md'),
     path.join(repoRoot, '.claude', 'settings.json'),
-    path.join(repoRoot, 'scripts', 'instalar.mjs'),
   ];
   const hits = [];
   for (const file of files) {
