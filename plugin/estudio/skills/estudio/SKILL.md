@@ -26,7 +26,7 @@ It prints JSON. **This output is your only source for the Estúdio's state**: do
 | `isEstudio` | `false`: this folder is not an Estúdio yet. |
 | `isEmpty` | `true`: nothing of hers is in the folder (hidden and system files do not count). |
 | `errors` | `[{file, message}]`: documents that are missing or malformed, path relative to the Estúdio. |
-| `perfil.present` | Whether her Perfil exists. |
+| `perfil` | `present`: whether her Perfil exists. When present: `autonomia` (`baixa` / `média` / `alta`), `tom` (`explicar mais` / `decidir mais`) and `decideVoce`, the answers she left to you. |
 | `projetos` | Each Projeto: `id` (folder name), `kit` (`ok` / `pendente` / `invalido`), `videos` with `id`, `status`, `rodada`, `nivel`, `waitingForCriadora`. |
 | `waiting` | What waits for her now: `{projeto, video, status}`. |
 | `nextStep` | `{action, projeto?, video?, status?}`: the single next step. |
@@ -34,8 +34,9 @@ It prints JSON. **This output is your only source for the Estúdio's state**: do
 Act on `nextStep.action`:
 
 - **`criar-estudio`** — greet her in one line and ask **one** question (`AskUserQuestion` when available): may you turn this folder into her Estúdio? Say in plain pt-BR what that means: a small marker file, a `projetos` folder where her Projetos and Vídeos will live, and the files the editing program (Remotion) needs. If `isEmpty` is `false`, add that her files there stay exactly as they are. Offer "sim" and "agora não". On "sim", run `node "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" criar "."`; it never overwrites a file and refuses an existing Estúdio (`"created": false, "reason": "already-estudio"`). Then run `estado` again and continue. On "agora não", tell her she can type `/estudio:estudio` whenever she wants, and stop.
-- **`corrigir-erros`** — a document is broken. Fix the files you or the studio wrote, using `errors`; never delete a file of hers to make an error go away. If you cannot fix one, tell her in one plain sentence which Projeto or Vídeo is affected.
-- **`perfil`**, **`novo-projeto`**, **`concluir-projeto`** — she has no Perfil yet, no Projeto yet, or a Projeto whose Kit de marca is unfinished. *Pending: the Perfil interview (ticket #5) and the Projeto interview with its Kit (ticket #6).* Until they exist, say so plainly and continue with the level question below.
+- **`corrigir-erros`** — a document is broken. Fix the files you or the studio wrote, using `errors`; never delete a file of hers to make an error go away. If you cannot fix one, tell her in one plain sentence which Projeto or Vídeo is affected. An error in `perfil.md` about a missing or invalid answer means asking her that one question again, as `/estudio:perfil` does.
+- **`perfil`** — she has no Perfil yet: this is her first time. Greet her in one line, then run the **Perfil interview** as the Entrevistador: invoke the `estudio:perfil` skill (or read [its instructions](../perfil/SKILL.md) and follow them). When it is written, run `estado` again and continue.
+- **`novo-projeto`**, **`concluir-projeto`** — she has no Projeto yet, or a Projeto whose Kit de marca is unfinished. *Pending: the Projeto interview with its Kit (ticket #6).* Until it exists, say so plainly and continue with the level question below.
 - **`continuar-video`** — tell her in one sentence where that Vídeo stopped (`status`, `rodada`) and, if it is in `waiting`, what she needs to decide. Mention any other item in `waiting` in one line each.
 - **`novo-video`** — everything is up to date; offer to start a new Vídeo.
 
@@ -68,6 +69,7 @@ After watching the video, **propose two or three directions yourself** ("este v�
 
 ## Director's stance
 
+- **Her Perfil sets the tone.** `tom: explicar mais` — explain each step in a sentence before doing it. `tom: decidir mais` — decide the small things yourself and tell her briefly what you decided. She changes it any time with `/estudio:perfil`.
 - **Proactive.** Always end by saying the next step and what she can ask for now.
 - **Simple.** No jargon. If you use a technical term, explain it in half a sentence.
 - **One decision at a time.** Do not dump ten questions; ask the essential and assume sensible defaults for the rest, saying which you assumed.

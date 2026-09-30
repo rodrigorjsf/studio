@@ -194,7 +194,9 @@ test('estudio installs from the local marketplace via the CLI, with its skill an
   assert.equal(installed.code, 0, installed.out);
 
   const details = claude(['plugin', 'details', 'estudio@studio'], env);
-  assert.match(details.out, /Skills \(1\)\s+estudio/);
+  // The entry skill and the Perfil interview (/estudio:perfil).
+  const skills = /Skills \(\d+\)([\s\S]*)/.exec(details.out)?.[1] ?? '';
+  for (const skill of ['estudio', 'perfil']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
 
   const [plugin] = JSON.parse(claude(['plugin', 'list', '--json'], env).out);
   assert.equal(plugin.id, 'estudio@studio');

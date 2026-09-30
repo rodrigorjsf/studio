@@ -13,4 +13,4 @@ Current synthesis ([research report](sources/estudio-profissional-de-video-repor
 
 Design settled in the 2026-09-29 grilling ([record](sources/grilling-estudio-plugin-2026-09-29.md), [settled design](analyses/estudio-plugin-decisions.md)): plugin `estudio`, Perfil → Projetos → Vídeos, 12 personas with pinned model/effort, both Níveis with Remotion montage, optional Pré-corte, no-admin installer. Glossary in [CONTEXT.md](../CONTEXT.md); decisions in ADRs 0001–0005.
 
-Built so far: the plugin skeleton and marketplace (ticket #2) and the Estúdio folder with the `estado`/`criar` CLI (ticket #3, see [plugin-architecture](concepts/plugin-architecture.md)).
+Built so far: the plugin skeleton and marketplace (ticket #2), the Estúdio folder with the `estado`/`criar` CLI (ticket #3) and the Perfil interview with Autonomia, `/estudio:perfil` (ticket #5); see [plugin-architecture](concepts/plugin-architecture.md).
