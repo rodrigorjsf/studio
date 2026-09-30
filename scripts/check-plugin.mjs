@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // WHAT  Structure check for the marketplace at a repo root and every local plugin it lists.
 // WHY   Seam 3 of the Estúdio spec: a valid manifest, pinned personas, Críticos without
-//       editing tools, and a package free of development material and within platform limits.
+//       editing tools, a package free of development material and within platform limits, and
+//       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
+//       holding a Notion tool).
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
 //       Prints {"ok":bool,"plugins":[names],"errors":[messages]} and exits 1 when not ok.
@@ -58,6 +60,32 @@ function checkPlugin(dir, expectedName, errors) {
   }
   checkPersonas(dir, expectedName, errors);
   checkPackageContents(dir, expectedName, errors);
+  checkNotionServers(dir, manifest, expectedName, errors);
+}
+
+// Notion is read-only (spec #1, ticket #20): the Diretor reads the pages she linked, through her
+// own Notion connector, with its page reader and nothing else. Any other Notion tool named in the
+// package would write, move, comment on or search her workspace.
+const NOTION_READ_TOOLS = new Set(['notion-fetch']);
+const NOTION_TOOL = /(?<![\w-])notion-[a-z]+(?:-[a-z]+)*/gi;
+const TEXT_FILE = /\.(md|mjs|js|cjs|json|sh|ps1|py|ts|tsx)$/i;
+
+function checkNotionTools(file, rel, pluginName, errors) {
+  const names = new Set([...fs.readFileSync(file, 'utf8').matchAll(NOTION_TOOL)].map(([name]) => name.toLowerCase()));
+  for (const name of [...names].filter((n) => !NOTION_READ_TOOLS.has(n))) {
+    errors.push(`${pluginName}: ${rel} uses Notion tool "${name}" (Notion is read-only: only notion-fetch)`);
+  }
+}
+
+// The plugin declares no Notion server: Notion comes only from her own connector.
+function checkNotionServers(dir, manifest, pluginName, errors) {
+  const declared = [];
+  const mcpFile = path.join(dir, '.mcp.json');
+  if (fs.existsSync(mcpFile)) declared.push(['.mcp.json', fs.readFileSync(mcpFile, 'utf8')]);
+  if (manifest.mcpServers) declared.push(['plugin.json mcpServers', JSON.stringify(manifest.mcpServers)]);
+  for (const [where, text] of declared.filter(([, t]) => /notion/i.test(t))) {
+    errors.push(`${pluginName}: ${where} declares a Notion server (Notion is reached only through her own connector)`);
+  }
 }
 
 // Development material stays outside the package (ADR 0005). Matched by path relative
@@ -90,6 +118,7 @@ function checkPackageContents(dir, pluginName, errors) {
         files += 1;
         bytes += fs.statSync(full).size;
         if (entry.name.endsWith('.md')) markdown.push(full);
+        if (TEXT_FILE.test(entry.name)) checkNotionTools(full, relPath, pluginName, errors);
       }
     }
   };
@@ -171,14 +200,19 @@ function checkPersonas(dir, pluginName, errors) {
     if (fields.model && !fields.model.startsWith('claude-')) {
       errors.push(`${where}: "model" must be a full model ID (claude-…), got "${fields.model}"`);
     }
+    // An agent without `tools` inherits every tool: editing ones, and her Notion connector.
+    const tools = (fields.tools ?? '').split(',').map((t) => t.trim()).filter(Boolean);
     if (CRITICOS.has(fields.name || path.basename(file, '.md'))) {
-      const tools = (fields.tools ?? '').split(',').map((t) => t.trim()).filter(Boolean);
-      // An agent without `tools` inherits every tool, editing ones included.
       if (tools.length === 0) errors.push(`${where}: Crítico must declare a "tools" allowlist`);
       for (const tool of tools.filter((t) => EDITING_TOOLS.has(t))) {
         errors.push(`${where}: Crítico must not have editing tool "${tool}"`);
       }
+    } else if (tools.length === 0) {
+      errors.push(`${where}: persona must declare a "tools" allowlist (without one it inherits every tool, her Notion connector included)`);
     }
+    // Only the Diretor and the Entrevistador, on the main thread, read Notion; personas read
+    // only the Resumo Notion.
+    for (const tool of tools.filter((t) => /notion/i.test(t))) errors.push(`${where}: persona must not hold Notion tool "${tool}"`);
   }
 }
 

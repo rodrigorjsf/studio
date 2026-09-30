@@ -12,9 +12,12 @@
 //       face on every frame (`zona-do-rosto`), when the Diretor checks whether a recording looks
 //       untrimmed (`pausas`), when the Criadora approved the cuts of a Pré-corte (`precorte`), when
 //       the Plano and its Quadros de estilo are checked (`plano`) and when she approves them at
-//       their Gate (`aprovar-plano`); when the Motion designer builds a version of the edit
-//       (`nova-versao`), her review of it opens (`abrir-revisao`) and she decides on it
-//       (`decidir-revisao`); and when the Finalizador has rendered the Entrega (`entregar`).
+//       their Gate (`aprovar-plano`); when she links Páginas Notion to a Projeto or Vídeo
+//       (`vincular-notion`), the Diretor records the Resumo Notion it read from them
+//       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
+//       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
+//       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); and when the Finalizador
+//       has rendered the Entrega (`entregar`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
@@ -26,6 +29,9 @@
 //       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" plano "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-plano "<folder>" "<projeto>" "<vídeo>" "<plano|quadros|plano-e-quadros>"
+//       node "<plugin root>/scripts/estudio.mjs" vincular-notion "<folder>" "<projeto>" '<json>'
+//       node "<plugin root>/scripts/estudio.mjs" resumo-notion "<folder>" "<projeto>" '<json>'
+//       node "<plugin root>/scripts/estudio.mjs" conferir-notion "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" pausas "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
 //       node "<plugin root>/scripts/estudio.mjs" precorte "<folder>" "<projeto>" "<vídeo>" '<json>' "<ffmpeg>" "<ffprobe>"
 //       node "<plugin root>/scripts/estudio.mjs" nova-versao "<folder>" "<projeto>" "<vídeo>"
@@ -40,6 +46,7 @@ import { criar } from './lib/criar.mjs';
 import { entregar } from './lib/entrega.mjs';
 import { estado } from './lib/estado.mjs';
 import { atualizarKitVideo, editarKit } from './lib/editar.mjs';
+import { conferirNotion, resumoNotion, vincularNotion } from './lib/notion.mjs';
 import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 import { aprovarPlano, plano } from './lib/plano.mjs';
 import { pausas, precorte } from './lib/precorte.mjs';
@@ -59,6 +66,9 @@ const COMMANDS = {
   'zona-do-rosto': { run: zonaDoRosto, args: ['"<projeto>"', '"<vídeo>"'] },
   plano: { run: plano, args: ['"<projeto>"', '"<vídeo>"'] },
   'aprovar-plano': { run: aprovarPlano, args: ['"<projeto>"', '"<vídeo>"', '"<etapa>"'] },
+  'vincular-notion': { run: vincularNotion, args: ['"<projeto>"', "'<json>'"] },
+  'resumo-notion': { run: resumoNotion, args: ['"<projeto>"', "'<json>'"] },
+  'conferir-notion': { run: conferirNotion, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   pausas: { run: pausas, args: ['"<projeto>"', '"<vídeo>"', '"<ffprobe>"'] },
   precorte: { run: precorte, args: ['"<projeto>"', '"<vídeo>"', "'<json>'", '"<ffmpeg>"', '"<ffprobe>"'] },
   'nova-versao': { run: novaVersao, args: ['"<projeto>"', '"<vídeo>"'] },

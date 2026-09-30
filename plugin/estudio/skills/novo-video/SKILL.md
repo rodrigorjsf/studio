@@ -73,7 +73,13 @@ For this step you play the **Entrevistador**, the persona that runs every Grilli
 
 Ask them in **one turn** (`AskUserQuestion` when available, otherwise text): a few concrete options each, your recommendation first, and **"decide você"** (use the recommendation). When she answers everything in one paragraph, take what it settles and do not ask again. Count every question you put to her.
 
-*Pending: the question about a Notion page for this Vídeo arrives in ticket #20.*
+In the same turn, ask one more question: is there a **Página Notion** for this Vídeo, with a script, talking points or links? "Decide você" means none. When she gives one, follow [notion.md](../estudio/references/notion.md):
+
+- check her Notion connector, and explain how to connect it in plain words, or skip;
+- link the page to this Vídeo with `vincular-notion` and `"video": "<nome do vídeo>"`;
+- write the Vídeo's dated Resumo Notion and show it to her.
+
+When the Resumo differs from the Kit, ask "só neste vídeo" or "atualizar o Kit". Notion never blocks the Vídeo.
 
 Then:
 
@@ -84,7 +90,7 @@ Then:
    "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" registrar-video "." "<projeto>" "<nome do vídeo>" '{"nivel": 1, "somar": {"perguntas": 5}}'
    ```
 
-   `nivel` is 1 or 2; `somar.perguntas` is how many questions she was asked in this skill (the Projeto question and the name count too, when you asked them). `recorded: false` names what to fix.
+   `nivel` is 1 or 2; `somar.perguntas` is how many questions she was asked in this skill (the Projeto question, the name and the Notion questions count too, when you asked them). `recorded: false` names what to fix.
 
 ## 5. The Prints that would help
 

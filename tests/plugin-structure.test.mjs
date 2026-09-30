@@ -64,7 +64,7 @@ function assertRejected(root, fragment) {
 
 test('a minimal valid fixture package passes', () => {
   const { code, verdict } = check(fixture({
-    'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium' }),
+    'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read, Write' }),
   }));
   assert.deepEqual(verdict.errors, []);
   assert.equal(code, 0);
@@ -167,6 +167,57 @@ test('a link to a missing heading anchor is rejected, an existing one passes', (
 
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
 const hasClaude = spawnSync('claude', ['--version'], { encoding: 'utf8' }).status === 0;
+// Notion is read-only and reached only through her own connector (ticket #20): the package
+// names no Notion tool but the page reader, declares no Notion server, and no persona holds a
+// Notion tool (subagents read only the Resumo Notion).
+for (const [label, tool] of [
+  ['writes a page', 'notion-update-page'],
+  ['creates pages', 'notion-create-pages'],
+  ['moves pages', 'notion-move-pages'],
+  ['comments', 'notion-create-comment'],
+  ['searches her workspace', 'notion-search'],
+]) {
+  test(`a package whose instructions use a Notion tool that ${label} is rejected`, () => {
+    assertRejected(
+      fixture({ 'plugin/estudio/skills/estudio/SKILL.md': `---\nname: estudio\ndescription: Entry.\n---\nCall \`${tool}\` now.\n` }),
+      `Notion tool "${tool}"`,
+    );
+  });
+}
+
+test('a package that reads a linked page with notion-fetch passes', () => {
+  const { code, verdict } = check(fixture({
+    'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\n---\nRead the linked page with `notion-fetch`; run `vincular-notion`.\n',
+  }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+test('a persona holding a Notion tool is rejected: subagents read only the Resumo Notion', () => {
+  assertRejected(
+    fixture({
+      'plugin/estudio/agents/roteirista-estrategista.md': persona({
+        name: 'roteirista-estrategista', model: 'claude-opus-5-5', effort: 'medium', tools: 'Read, mcp__claude_ai_Notion__notion-fetch',
+      }),
+    }),
+    'roteirista-estrategista.md: persona must not hold Notion tool',
+  );
+});
+
+test('a persona without a tools allowlist is rejected: it would inherit her Notion connector', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium' }) }),
+    'motion-designer.md: persona must declare a "tools" allowlist',
+  );
+});
+
+test('a package that declares its own Notion server is rejected: Notion is her connector', () => {
+  assertRejected(fixture({ 'plugin/estudio/.mcp.json': JSON.stringify({ mcpServers: { notion: { type: 'http', url: 'https://mcp.notion.com/mcp' } } }) }), 'Notion server');
+  assertRejected(fixture({
+    'plugin/estudio/.claude-plugin/plugin.json': JSON.stringify({ name: 'estudio', version: '0.1.0', mcpServers: { docs: { command: 'npx', args: ['@notionhq/notion-mcp-server'] } } }),
+  }), 'Notion server');
+});
+
 const needsClaude = hasClaude ? {} : { skip: 'claude CLI not on PATH' };
 
 function claude(args, env = process.env) {

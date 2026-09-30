@@ -67,7 +67,15 @@ Keep it light, because she is tired and short on time:
 | 15 | Entregáveis | Formato: vertical 9:16 by default, 16:9 only if she asks. Overlays for another editor. Logo, end card. | `formato`, `entregaveis`, `ativos` |
 | 16 | Orçamento de créditos | For Nível 2 (Higgsfield), how many credits per Vídeo and per month at most. `null` means "not set"; then each Nível 2 Vídeo asks. | `creditos` |
 
-*Pending: the question about linking Notion pages to the Projeto arrives in ticket #20.*
+### Páginas Notion
+
+After the catalogue, ask one more question: does she have Notion pages that explain this Projeto, such as brand notes, a content calendar or an ideas bank? Several pages are fine, and so is none. "Decide você" means none for now. Linking pages is not a section of `projeto.md`: the links go into the Projeto's `notion/` folder. Follow [notion.md](../estudio/references/notion.md) for the rules and the steps:
+
+- whether her Notion connector is available, and how to connect it in plain words, or skip it;
+- linking the pages with `vincular-notion`;
+- writing the dated Resumo Notion and showing it to her.
+
+Notion never blocks the Projeto. Without the connector, record the links and go on. The Kit does not exist yet, so nothing conflicts: use what the Resumo says to suggest answers to the Grilling questions, and name the page you took each suggestion from. She decides every answer, and only her answers go into the Kit.
 
 ### Reference images
 
@@ -109,3 +117,4 @@ Tell her in one sentence that the Projeto is ready and what it holds. Then give 
 - Never delete, move or overwrite a file of hers. Copy what she gives you into `kit/`.
 - Paths and names always go in quotes.
 - Never write keys, tokens or passwords into the briefing or the Kit.
+- Notion is read-only: read only the pages she linked, and never write anything there ([notion.md](../estudio/references/notion.md)).

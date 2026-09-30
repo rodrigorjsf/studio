@@ -55,3 +55,6 @@ Pages: concepts/plugin-architecture.md, concepts/picture-lock.md, overview.md.
 
 ## [2026-09-30] update | Build, review Rodadas and Entrega built (ticket #11)
 Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
+
+## [2026-09-30] update | Read-only Notion context built: Página Notion links, Resumo Notion, change check (ticket #20)
+Pages: concepts/notion-context.md, overview.md.
