@@ -181,6 +181,12 @@ test('a Shorts title of 101 characters is refused; exactly 100 passes', () => {
   assert.deepEqual(check(dir).out.problemas, []);
 });
 
+test('a title wrapped in bold is measured without the asterisks', () => {
+  const dir = estudio();
+  escrever(dir, TODAS.replace('**Título:** Marketing de conteúdo sem enrolação em 30 segundos', `**Título: ${TITULO_CEM}**`));
+  assert.deepEqual(check(dir).out.problemas, []);
+});
+
 test('a Shorts title with a hashtag in it is refused, however short', () => {
   const dir = estudio();
   escrever(dir, TODAS.replace('Marketing de conteúdo sem enrolação em 30 segundos', 'Planejar sem enrolação #planejamento'));
@@ -212,6 +218,19 @@ test('every generic filler hashtag is refused, in any case and on any platform',
     assert.match(out.problemas[0], /tiktok/);
     assert.match(out.problemas[0], new RegExp(filler.toLowerCase()));
   }
+});
+
+test('a filler tag glued to another hashtag or to a word is still found and counted', () => {
+  const dir = estudio();
+  for (const colado of ['#planejamento#fyp', 'planejamento#viral']) {
+    escrever(dir, TODAS.replace('#marketingdeconteudo #planejamento\n\n## Shorts', `${colado}\n\n## Shorts`));
+    const { out } = check(dir);
+    assert.equal(out.pronto, false, colado);
+    assert.match(out.problemas.join(' | '), /tiktok/);
+  }
+  // Two glued hashtags count as two: six of them on Instagram break the 5-hashtag cap.
+  escrever(dir, TODAS.replace('#marketingdeconteudo #planejamento #empreendedorismo', '#a#b#c#d#e#f'));
+  assert.match(check(dir).out.problemas.join(' | '), /reels.*6/);
 });
 
 test('a hashtag that only starts like a filler is accepted', () => {
@@ -248,14 +267,21 @@ test('an Estúdio without the file, an unknown Projeto or Vídeo is refused, cha
   assert.equal(run('texto-do-post', dir, PROJETO, 'Outro').out.reason, 'unknown-video');
 });
 
-test('a Kit that cannot be read is refused rather than guessed', () => {
+test('a Kit that cannot be read, or whose platform list is unusable, is refused rather than guessed', () => {
   const dir = estudio();
   escrever(dir, TODAS);
-  fs.writeFileSync(projetoKit(dir), 'não é json');
+  const kit = fs.readFileSync(projetoKit(dir), 'utf8');
 
-  const { out } = check(dir);
-  assert.equal(out.checked, false);
-  assert.equal(out.reason, 'invalid-kit');
+  fs.writeFileSync(projetoKit(dir), 'não é json');
+  assert.deepEqual(check(dir).out, { checked: false, reason: 'invalid-kit', projeto: PROJETO, video: VIDEO });
+
+  for (const plataformas of [[], ['facebook'], ['reels', 'youtube'], 'reels', null, { reels: true }]) {
+    fs.writeFileSync(projetoKit(dir), kit);
+    comPlataformas(projetoKit(dir), plataformas);
+    const { out } = check(dir);
+    assert.equal(out.checked, false, JSON.stringify(plataformas));
+    assert.equal(out.reason, 'invalid-kit', JSON.stringify(plataformas));
+  }
 });
 
 test('checking the text leaves it untouched', () => {

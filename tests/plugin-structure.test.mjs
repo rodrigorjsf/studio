@@ -105,8 +105,6 @@ test('a skill on a model alias instead of a pinned model ID is rejected', () => 
   );
 });
 
-// Every persona declares its display color in the task list and transcript (ticket #18); the
-// eight values are the only ones Claude Code accepts.
 // The Social media (ticket #44) follows the rules every persona follows: a pinned model and effort,
 // a tools allowlist and a display color.
 test('the Social media persona, pinned to Sonnet 5.5 at medium effort with a color, passes', () => {
@@ -125,6 +123,8 @@ test('the Social media persona without a pinned model, effort or color is reject
   }
 });
 
+// Every persona declares its display color in the task list and transcript (ticket #18); the
+// eight values are the only ones Claude Code accepts.
 test('a persona without a color is rejected', () => {
   assertRejected(
     fixture({ 'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read' }) }),

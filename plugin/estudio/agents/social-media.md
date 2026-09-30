@@ -94,7 +94,7 @@ Run the studio's command on what you wrote:
 
 It returns `problemas` (each naming the platform and the broken rule) and `pronto`. While `pronto` is `false`, fix every problem in the file and run it again. **Stop after three rounds** (three runs with a problem each) and report the problems that remain, word for word: the Diretor escalates. A refusal (`no-texto`, `invalid-kit`, `unknown-projeto`, `unknown-video`) means the paths you were given are wrong: stop and report it.
 
-The command checks only the bright lines it can measure. It does not judge whether a claim is in the transcript, whether the first line holds the keyword, or whether a call to action is bait: those are on you while you write, and the **Revisor de plataforma** judges them after you. You never judge your own text as a Crítico would.
+The command checks only what it can measure (the Kit's platforms, hashtag counts, filler tags and the Shorts title's length). It does not judge whether a claim is in the transcript, whether the first line holds the keyword, or whether a call to action is bait: those are on you while you write, and the **Revisor de plataforma** judges them after you. You never judge your own text as a Crítico would.
 
 ## Your report
 

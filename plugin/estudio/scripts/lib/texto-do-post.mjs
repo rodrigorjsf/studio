@@ -1,8 +1,9 @@
 // `texto-do-post`: the mechanical check of a Vídeo's Texto do post, the words the Criadora pastes
 // into each app (`entrega/texto-do-post.md`, written by the Social media). It enforces only the
 // bright-line rules the platforms publish, so the Social media fixes what it reports before any
-// Crítico sees the text; judging honesty, engagement bait and the keyword stays with the Revisor de
-// plataforma.
+// Crítico sees the text. It enforces only what can be measured: the Kit's platforms, hashtag counts,
+// the Shorts title's length and the filler tags (the official bright lines and the title length the
+// ticket sets); judging honesty, engagement bait and the keyword stays with the Revisor de plataforma.
 //
 // The file is pt-BR markdown with one `## ` section per platform of the Vídeo's Kit
 // (`plataformas`: reels, tiktok, shorts), each headed by the platform's name:
@@ -24,35 +25,33 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
-import { plataformasDoKit } from './kit.mjs';
+import { PLATAFORMAS, plataformasDoKit } from './kit.mjs';
 import { ENTREGA, KIT, TEXTO_DO_POST, VIDEO_KIT } from './layout.mjs';
 import { findVideo } from './video.mjs';
 import { isObject, readJson } from './valores.mjs';
 
-// The heading of each platform's section, by the names the Criadora may read: a heading is
-// matched on its letters and digits alone, in lower case.
-const HEADINGS = {
-  reels: ['reels', 'instagram', 'instagramreels'],
-  tiktok: ['tiktok'],
-  shorts: ['shorts', 'youtube', 'youtubeshorts'],
+// Each platform of the Kit: the heading the Social media writes and the names a heading may carry
+// (matched on its letters and digits alone, in lower case). One row per platform of `PLATAFORMAS`.
+const PLATFORMS = {
+  reels: { heading: 'Reels', names: ['reels', 'instagram', 'instagramreels'] },
+  tiktok: { heading: 'TikTok', names: ['tiktok'] },
+  shorts: { heading: 'Shorts', names: ['shorts', 'youtube', 'youtubeshorts'] },
 };
-// The heading the Social media writes for each platform.
-const TITLES = { reels: 'Reels', tiktok: 'TikTok', shorts: 'Shorts' };
 
 const INSTAGRAM_MAX_HASHTAGS = 5; // since 2025-12-18, platform-rules.md
-const MAX_HASHTAGS = 60; // YouTube ignores every hashtag past this, on any platform we write for
+const MAX_HASHTAGS = 60; // YouTube ignores every hashtag past this; the ticket applies it to every platform
 const SHORTS_TITLE_MAX = 100;
 // Generic filler tags no platform says help (platform-rules.md, "Forbidden filler hashtags").
 const FILLER_HASHTAGS = new Set(['fyp', 'fypage', 'foryou', 'foryoupage', 'viral', 'explore', 'explorepage', 'reels', 'trending']);
 
-// A hashtag: `#` then letters, digits and underscores, with at least one letter, not glued to a
-// word before it ("a#b" and "&#39;" are not hashtags).
-const HASHTAG = /(?<![\p{L}\p{N}_&])#([\p{L}\p{N}_]*\p{L}[\p{L}\p{N}_]*)/gu;
+// A hashtag: `#` then letters, digits and underscores, with at least one letter. Two glued
+// together ("#a#fyp") are two; an HTML entity ("&#39;") is none.
+const HASHTAG = /(?<!&)#([\p{L}\p{N}_]*\p{L}[\p{L}\p{N}_]*)/gu;
 const TITLE_LINE = /^\s*\*{0,2}T[íi]tulo\*{0,2}\s*:\s*\*{0,2}\s*(.*?)\s*$/iu;
 
 const hashtagsOf = (text) => [...text.matchAll(HASHTAG)].map((m) => m[1].toLowerCase());
 const slugOf = (heading) => heading.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-const platformOf = (heading) => Object.keys(HEADINGS).find((p) => HEADINGS[p].includes(slugOf(heading))) ?? null;
+const platformOf = (heading) => PLATAFORMAS.find((p) => PLATFORMS[p].names.includes(slugOf(heading))) ?? null;
 
 // The `## ` sections of the text: [{heading, lines}], in order. Text before the first section (the
 // file's own `# ` title) belongs to none.
@@ -76,7 +75,7 @@ function sectionProblems(platform, lines) {
   let title = null;
   for (const line of lines) {
     const match = platform === 'shorts' && title === null ? TITLE_LINE.exec(line) : null;
-    if (match) title = match[1];
+    if (match) title = match[1].replace(/\*+$/, '').trim(); // a title wrapped in bold loses its closing **
     else body.push(line);
   }
 
@@ -109,7 +108,12 @@ export function textoDoPost(folder, projetoNome, videoNome) {
   // The Vídeo follows its own Kit copy when it has one, else the Projeto's.
   const ownKit = path.join(dir, VIDEO_KIT);
   const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
-  if (!isObject(kit)) return { checked: false, reason: 'invalid-kit', projeto, video };
+  // A Kit whose platform list is not a non-empty list of the platforms the studio writes for is the
+  // Kit's to fix (`estado` reports it too).
+  const listed = isObject(kit) ? kit.plataformas : null;
+  if (!isObject(kit) || (listed !== undefined && (!Array.isArray(listed) || listed.length === 0 || !listed.every((p) => PLATAFORMAS.includes(p))))) {
+    return { checked: false, reason: 'invalid-kit', projeto, video };
+  }
   const plataformas = plataformasDoKit(kit);
 
   const problemas = [];
@@ -128,7 +132,7 @@ export function textoDoPost(folder, projetoNome, videoNome) {
     }
   }
   for (const platform of plataformas.filter((p) => !seen.has(p))) {
-    problemas.push(`${platform}: has no section ("## ${TITLES[platform]}"), the Kit posts there`);
+    problemas.push(`${platform}: has no section ("## ${PLATFORMS[platform].heading}"), the Kit posts there`);
   }
   return { checked: true, projeto, video, plataformas, problemas, pronto: problemas.length === 0 };
 }
