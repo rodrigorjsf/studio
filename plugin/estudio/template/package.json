@@ -6,7 +6,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "compositions": "remotion compositions src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && node scripts/guard.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.451",

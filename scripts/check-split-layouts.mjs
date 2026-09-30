@@ -1,40 +1,17 @@
-import fs from 'node:fs';
+// WHAT  The split-layout rule over the Remotion template this repo ships.
+// WHY   The rule has one source: the guard inside the template (`scripts/guard.mjs`), which every
+//       Estúdio runs from its own `npm run typecheck`. This wrapper runs the same rule on
+//       plugin/estudio/template/src for the repo's typecheck.
+// HOW   node scripts/check-split-layouts.mjs   (exits 1 on a hand-made split)
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { checkSplitLayouts } from '../plugin/estudio/template/scripts/guard.mjs';
 
-// The Remotion template scaffolded into every Estúdio.
-const sourceRoots = [path.resolve('plugin/estudio/template/src')];
-const allowed = new Set(['_shared/synchronized-split.tsx']);
+const srcRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'plugin', 'estudio', 'template', 'src');
+const violations = checkSplitLayouts(srcRoot);
 
-const collect = (directory) =>
-  fs.readdirSync(directory, {withFileTypes: true}).flatMap((entry) => {
-    const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) return collect(absolute);
-    return entry.isFile() && /\.(ts|tsx)$/.test(entry.name) ? [absolute] : [];
-  });
-
-const violations = [];
-const files = sourceRoots.flatMap((sourceRoot) => collect(sourceRoot).map((absolute) => ({sourceRoot, absolute})));
-for (const {sourceRoot, absolute} of files) {
-  const relative = path.relative(sourceRoot, absolute).replaceAll('\\', '/');
-  if (allowed.has(relative)) continue;
-  const source = fs.readFileSync(absolute, 'utf8');
-  const buildsCameraGeometryManually =
-    /cameraLeft\s*=\s*interpolate/.test(source) &&
-    /cameraWidth\s*=\s*interpolate/.test(source) &&
-    /(splitOut|windowProgress)/.test(source);
-  if (
-    buildsCameraGeometryManually &&
-    !source.includes('getSynchronizedSplitState')
-  ) {
-    violations.push(path.relative(process.cwd(), absolute).replaceAll('\\', '/'));
-  }
+for (const { file, line, reason } of violations) {
+  console.error(`plugin/estudio/template/src/${file}:${line}: ${reason}`);
 }
-
-if (violations.length > 0) {
-  console.error('Novos splits manuais não são permitidos. Use plugin/estudio/template/src/_shared/synchronized-split.tsx:');
-  for (const file of violations) console.error(`- ${file}`);
-  process.exit(1);
-}
-
-console.log('Verificação de splits: ok.');
-
+if (violations.length > 0) process.exit(1);
+console.log('split layouts: ok');

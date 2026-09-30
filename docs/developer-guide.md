@@ -52,7 +52,7 @@ Each `npm` script body also runs directly with `node`, for machines where `npm` 
 | What | Command |
 |---|---|
 | Full test suite | `node --test "tests/**/*.test.mjs"` (`npm test`; add `--test-concurrency=1` when the render tests contend) |
-| Typecheck (TypeScript + split-layout guard) | `tsc --noEmit -p tsconfig.json && node scripts/check-split-layouts.mjs` (`npm run typecheck`) |
+| Typecheck (TypeScript + split-layout guard) | `tsc --noEmit -p tsconfig.json && node scripts/check-split-layouts.mjs` (`npm run typecheck`); the split rule lives in the template's own guard, `plugin/estudio/template/scripts/guard.mjs`, which every Estúdio's `npm run typecheck` also runs (plus the brand-value check on `src/videos/`) |
 | Plugin structure check | `node scripts/check-plugin.mjs .` |
 | Validate with Claude Code | `claude plugin validate --strict --json .` and `… plugin/estudio` |
 | Mirror the speech model on the GitHub Release (maintainer; publishing is outward, see the script header) | `sh scripts/espelhar-modelo.sh [--dry-run]` |
