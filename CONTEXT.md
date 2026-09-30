@@ -26,6 +26,10 @@ _Avoid_: interviewer bot, onboarding wizard
 A persona that approves or rejects another persona's output and never edits it; there are three — QC técnico, Guardião da marca, Revisor de plataforma.
 _Avoid_: reviewer (when the Criadora's review is meant), checker
 
+**Social media**:
+The persona that writes a Vídeo's Texto do post after it is approved, for the platforms the Projeto posts on.
+_Avoid_: copywriter, redator, marketing
+
 **Autor**:
 The persona that produced the artifact a Crítico judges. A Crítico is never the Autor of what it judges.
 _Avoid_: maker, creator
@@ -51,6 +55,22 @@ _Avoid_: front, frente, brand, channel, client
 **Kit de marca**:
 The Projeto's persisted visual and sonic identity: colors, fonts, caption style, motion style, default Formato, music policy, credit budget and assets. Loaded before every Plano.
 _Avoid_: brand kit (in chat), style guide, template
+
+**Caderno**:
+What the studio has learned about working with the Criadora, kept in two layers: the Estúdio's (about her and her computer) and each Projeto's (about that domain). It has three sections — Elogios, Queixas, Soluções — and guides how the personas behave; it never changes the Kit de marca. When a new Elogio or Queixa contradicts one already written, the Criadora chooses which stays.
+_Avoid_: memória, aprendizados (those are Kit learnings), feedback log, lessons
+
+**Elogio**:
+A Caderno entry recording something the Criadora liked about how the studio worked, to keep doing it.
+_Avoid_: positive feedback, praise
+
+**Queixa**:
+A Caderno entry recording something the Criadora disliked about how the studio worked, to stop doing it.
+_Avoid_: negative feedback, crítica (collides with Crítico), complaint
+
+**Solução**:
+A Caderno entry recording a problem a persona hit during the Esteira and how it was solved, so no later Vídeo suffers it again.
+_Avoid_: workaround, fix, aprendizado
 
 **Vídeo**:
 One editing job inside a Projeto, from its short briefing to its Entrega, with its own Status, Rodadas and cost record.
@@ -140,6 +160,14 @@ _Avoid_: tier, plan, mode
 The finished file handed to the Criadora, in the requested Formato, inside the Vídeo's folder.
 _Avoid_: export, output, render (for the delivered file)
 
+**Texto do post**:
+The suggested words the Criadora pastes into each app when she posts a Vídeo — the first line, the text, the hashtags and, for Shorts, the title — delivered beside the Entrega without an approval Gate, judged by the Revisor de plataforma before she sees it, and available on request for a Vídeo already Entregue or Arquivado.
+_Avoid_: legenda (that is the burned-in caption), caption, descrição (alone), copy
+
+**Rascunho de issue**:
+A report the Diretor writes, stripped of the Criadora's words, names and paths, proposing a fix or an improvement to the studio itself; it leaves her computer only when she approves it.
+_Avoid_: bug report, ticket, feedback
+
 **Preparação**:
 The one-time download, after the Criadora agrees, of everything editing needs on her computer, including the speech model; afterwards, editing never reaches the network for tools or models.
 _Avoid_: setup, install (for the whole step), onboarding
@@ -151,4 +179,5 @@ _Avoid_: setup, install (for the whole step), onboarding
 - The **Diretor** runs every **Gate**; every other **Persona** works between Gates and never asks the **Criadora** anything.
 - Every artifact passes a **Crítico** that is not its **Autor** before it reaches the **Criadora**.
 - A **Vídeo**'s briefing **Grilling** only asks what its **Projeto**'s **Kit de marca** does not already answer.
+- An **Estúdio** has one **Caderno** and each **Projeto** has one more; any **Persona** may originate an entry, and only the **Diretor** writes it down.
 - A **Projeto** or **Vídeo** may link any number of **Páginas Notion**; the **Diretor** turns them into a **Resumo Notion**; the **Kit de marca** wins when they disagree.

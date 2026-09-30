@@ -19,8 +19,9 @@ import path from 'node:path';
 import { isFinished, nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import {
-  GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
+  GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, PLANO, VIDEO_DOC,
 } from './layout.mjs';
+import { kitOfVideo } from './kit.mjs';
 import { findVideo, readVideoRecord, updateVideoRecord } from './video.mjs';
 import { isNonNegativeNumber, isObject, parseJson, readJson } from './valores.mjs';
 
@@ -65,8 +66,7 @@ function creditVideo(folder, projetoNome, videoNome) {
   const { projeto, video, dir } = found;
   const { record, refusal } = readVideoRecord(found);
   if (refusal) return { refusal };
-  const ownKit = path.join(dir, VIDEO_KIT);
-  const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
+  const kit = kitOfVideo(dir);
   const status = typeof record.status === 'string' ? nfc(record.status) : null;
   return { projeto, video, dir, record, kit, status };
 }

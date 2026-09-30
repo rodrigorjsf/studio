@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { arquivar } from './lib/arquivar.mjs';
 import { aprovarAutomatico } from './lib/autonomia.mjs';
+import { caderno } from './lib/caderno.mjs';
 import { criar } from './lib/criar.mjs';
 import {
   aprovarCreditos, aprovarHiggsedit, gastarCreditos, gastarHiggsedit,
@@ -28,7 +29,10 @@ import { aprovarPlano, plano } from './lib/plano.mjs';
 import { pausas, precorte } from './lib/precorte.mjs';
 import { qc } from './lib/qc.mjs';
 import { qcInterno } from './lib/qc-interno.mjs';
+import { revisarTexto } from './lib/revisar-texto.mjs';
+import { rascunhoIssue } from './lib/rascunho-issue.mjs';
 import { abrirRevisao, decidirRevisao, novaVersao } from './lib/revisao.mjs';
+import { textoDoPost } from './lib/texto-do-post.mjs';
 import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
 // Each subcommand with the arguments it takes after the Estúdio folder.
@@ -54,6 +58,10 @@ const COMMANDS = {
   'abrir-revisao': { run: abrirRevisao, args: ['"<projeto>"', '"<vídeo>"'] },
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
+  caderno: { run: caderno, args: ["'<json>'"] },
+  'rascunho-issue': { run: rascunhoIssue, args: ["'<json>'"] },
+  'texto-do-post': { run: textoDoPost, args: ['"<projeto>"', '"<vídeo>"'] },
+  'revisar-texto': { run: revisarTexto, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   arquivar: { run: arquivar, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },

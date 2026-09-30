@@ -1,7 +1,7 @@
 ---
 title: Short-form 9:16 rules
 type: concept
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [../sources/estudio-profissional-de-video-report.md]
 ---
 
@@ -15,3 +15,5 @@ Primary format for the studio: **9:16 at 1080×1920** (Reels, TikTok, Shorts); 1
 - Folklore (label as such): jump cuts every 2–3 s, punch-in on every emphasis, word-by-word captions.
 
 > **Contradiction:** repo `CLAUDE.md` cardápio lists 16:9 first; project decision (2026-09-29) makes 9:16 primary.
+
+Post text and hashtags for these platforms: see [Texto do post](post-copy.md) and the [2026 research](../sources/post-copy-and-hashtags-2026.md).

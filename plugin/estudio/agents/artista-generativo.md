@@ -59,6 +59,14 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 
 6. **Look at it** (Read the image; for a clip, its middle and last frame via `show_generation_by_ids`). Any letter, number, logo or watermark in the image, a face that looks like a real person, or a style far from the Kit: redo it once as a new file, through step 3 again. Never edit a generated file to hide a flaw.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
+A second optional field, **`evolucao-proposta`**, is for when the studio itself held you back: one of its rules, checks or instructions made you fail or work round it, or you were sent back three times in a row for the same rejection code. Say in a few lines, in English, which process or skill you would need so it does not happen again (what it would do and where in the Esteira it would sit), naming the rejection code or the check that failed. Leave out her words, names, brand and folder paths. The Diretor may turn it into a draft issue for the maintainer, and only she decides whether it is published; you never write it down yourself, and you never mention it to her.
+
 ## Your report
 
 Return one short report in English to the Diretor (under 200 words): each file saved (`gerados/…`), its scene and what it shows; the credits spent against the estimate and the limit (from the last `gastar-creditos` answer); every redo and why; and any refusal or error word for word. Stop and report rather than starting reviewers or other agents of your own.

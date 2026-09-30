@@ -8,8 +8,10 @@ import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readNotion } from './notion.mjs';
 import { readPerfil } from './perfil.mjs';
+import { platformReferenceState } from './plataforma.mjs';
+import { readRascunhos } from './rascunho-issue.mjs';
 import {
-  APROVACOES_AUTOMATICAS, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
+  APROVACOES_AUTOMATICAS, CADERNO, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
 import { isIsoDate, isNonNegativeNumber } from './valores.mjs';
 
@@ -124,6 +126,10 @@ export const versionNumber = (name) => Number(VERSION.exec(name)[1]);
 export const versionName = (n) => `v${String(n).padStart(2, '0')}`;
 // The file holding her decision on the version `name` (absent while her review is pending).
 export const decisionFile = (videoDir, name) => path.join(videoDir, REVISAO, name, DECISAO);
+
+// Where a Caderno lives in `dir` (the Estúdio folder or a Projeto's) and whether it has been
+// written yet; the Diretor hands the path to every persona, which reads it when it exists.
+const cadernoOf = (dir) => ({ caminho: path.join(dir, CADERNO), existe: fs.existsSync(path.join(dir, CADERNO)) });
 
 export function estado(folder) {
   const isEmpty = fs.readdirSync(folder).filter((name) => !isIgnorable(name)).length === 0;
@@ -266,7 +272,9 @@ export function estado(folder) {
       if (numbers) measured.push(numbers);
       return video;
     });
-    return { id: nfc(name), briefing: briefingState, kit, notion: notion(dir), videos, metricas: metrics(measured) };
+    return {
+      id: nfc(name), briefing: briefingState, kit, caderno: cadernoOf(dir), notion: notion(dir), videos, metricas: metrics(measured),
+    };
   });
 
   const waiting = projetos.flatMap((projeto) => projeto.videos
@@ -278,8 +286,18 @@ export function estado(folder) {
     .filter((video) => video.status === 'Entregue')
     .map((video) => ({ projeto: projeto.id, video: video.id })));
 
+  // The Rascunhos de issue with no decision yet: the close of a Vídeo offers them to her (never a Gate Autonomia approves).
+  const drafts = readRascunhos(folder);
+  drafts.problems.forEach((p) => fail(p.file, p.message));
+  const rascunhosPendentes = drafts.rascunhos
+    .filter((d) => d.decisao === null)
+    .map(({ id, tipo, titulo, arquivo }) => ({ id, tipo, titulo, arquivo }));
+
   return {
-    folder, isEstudio, isEmpty, errors, perfil, projetos, waiting, aprendizadosPendentes, nextStep: nextStep({ errors, perfil, projetos, waiting }),
+    folder, isEstudio, isEmpty, errors, perfil, caderno: cadernoOf(folder), projetos, waiting, aprendizadosPendentes, rascunhosPendentes,
+    // The bundled platform reference of the Texto do post: `desatualizada` once its newest `sourced:` date is over 6 months old.
+    referenciaDePlataforma: platformReferenceState(),
+    nextStep: nextStep({ errors, perfil, projetos, waiting }),
   };
 }
 

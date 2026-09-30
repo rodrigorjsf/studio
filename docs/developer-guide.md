@@ -63,7 +63,7 @@ are missing; the skip count is not a failure.
 
 ## Test seams (spec #1, Testing Decisions)
 
-1. **The deterministic CLI** (`plugin/estudio/scripts/estudio.mjs`: `estado`, `qc`, `precorte` and
+1. **The deterministic CLI** (`plugin/estudio/scripts/estudio.mjs`: `estado`, `qc`, `precorte`, `caderno`, `rascunho-issue`, `texto-do-post`, `revisar-texto` and
    the Gate commands), driven with fixture Estúdio folders and synthetic ffmpeg clips.
 2. **The Remotion template**: typecheck plus still renders that prove the Kit reaches the frame.
 3. **The plugin structure**: `scripts/check-plugin.mjs`, covered by `tests/plugin-structure.test.mjs`.
@@ -79,7 +79,7 @@ files, exit codes), never on prompt wording.
   ingest and Pré-corte, purple Plano and Quadros de estilo, blue the Remotion build, orange the two
   personas that spend Higgsfield credits, green render and Entrega, and one warm color per Crítico
   (red QC técnico, yellow Guardião da marca, pink Revisor de plataforma), because the three run side
-  by side.
+  by side. The package must ship the Social media (`agents/social-media.md`).
 - **Skills** (`plugin/estudio/skills/*/SKILL.md`) pin the same way: `model: claude-opus-5-5` and
   `effort: medium`, the spec's setting for the Diretor and the Entrevistador on the main thread.
 - **Críticos** (`qc-tecnico`, `guardiao-da-marca`, `revisor-de-plataforma`) hold no editing tool.
@@ -93,7 +93,28 @@ files, exit codes), never on prompt wording.
 - **Preparação host list**: every literal https host in `scripts/instalar.sh`, `scripts/instalar.ps1`
   and the `vendor.json` file URLs is in `plugin/estudio/hosts.json`, and no Hugging Face host is.
   The Diretor hands that list to the Criadora when a download is blocked by her cloud workspace.
+- **Platform reference provenance**: the file must exist, and every rule of `skills/estudio/references/platform-rules.md`
+  (a top-level bullet) carries a source label (`[official]`, `[study]` or `[marketing]`), a
+  `sourced: YYYY-MM-DD` date and an https URL, and the file links nothing outside the package.
 - Size cap: 5,000 files and 200 MB.
+
+## Quarterly refresh of the platform reference
+
+The Social media follows the rules in `plugin/estudio/skills/estudio/references/platform-rules.md`
+(ADR 0008): bundled, dated, never researched live. Nothing updates it, so refresh it every quarter.
+`estudio.mjs estado` reports `referenciaDePlataforma.desatualizada: true` once the file's newest
+`sourced:` date is more than 6 months old, so the warning to the Criadora appears before the rules
+drift too far, but the refresh itself is yours.
+
+1. Re-check each rule against its URL. Start with the values that move: Instagram's hashtag cap (5),
+   YouTube's hashtag threshold (60), TikTok's caption limit (4,000), TikTok's Community Guidelines,
+   and the filler-tag list.
+2. Change the text of a rule that moved and move its `sourced:` date to the day you re-checked it.
+   Leave the date of a rule you did not re-check. Keep each rule's label: a claim is `[official]`
+   only when the platform or a named executive said it; counts and lengths from blogs stay
+   `[marketing]`.
+3. Run `node scripts/check-plugin.mjs .` (it rejects a rule missing its label, date or URL) and the
+   full test suite, then bump the plugin version and push.
 
 ## Language
 

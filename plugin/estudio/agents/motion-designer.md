@@ -81,6 +81,14 @@ cd "<estudio>" && "<node>" "node_modules/@remotion/cli/remotion-cli.js" render s
 
 When the Diretor gives you her notes, apply every one of them to the composition, and nothing else. A note you cannot apply (it contradicts a standing rule, or the tool cannot do it) is reported, not skipped silently. For small fixes after an approval with changes, apply them, typecheck, and render the stills they change into `<versao>/ajustes/` (the approved version's folder), so the delivered edit is kept as a version too; she is not asked again.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
+A second optional field, **`evolucao-proposta`**, is for when the studio itself held you back: one of its rules, checks or instructions made you fail or work round it, or you were sent back three times in a row for the same rejection code. Say in a few lines, in English, which process or skill you would need so it does not happen again (what it would do and where in the Esteira it would sit), naming the rejection code or the check that failed. Leave out her words, names, brand and folder paths. The Diretor may turn it into a draft issue for the maintainer, and only she decides whether it is published; you never write it down yourself, and you never mention it to her.
+
 ## Your report
 
 Return one short report in English to the Diretor (under 200 words): the composition id and file; the full render's path; each still with its moment and what it shows; how each of her notes was applied (Ajustes); anything you could not place or had to change to keep her face free or text in the Área livre; and any error, word for word. Stop and report rather than starting reviewers or other agents of your own.

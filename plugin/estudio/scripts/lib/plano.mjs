@@ -33,7 +33,8 @@ import path from 'node:path';
 import { nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { boxProblem } from './ingest.mjs';
-import { KIT, PALAVRAS, PLANO, PRINTS, VIDEO_DOC, VIDEO_KIT, ZONA_DO_ROSTO } from './layout.mjs';
+import { kitOfVideo } from './kit.mjs';
+import { PALAVRAS, PLANO, PRINTS, VIDEO_DOC, ZONA_DO_ROSTO } from './layout.mjs';
 import { notionLevels } from './notion.mjs';
 import { findVideo, kitGaps, registrarVideo } from './video.mjs';
 import { readJson } from './valores.mjs';
@@ -177,8 +178,7 @@ export function plano(folder, projetoNome, videoNome) {
   if (!Array.isArray(palavras) || !isNumber(zona?.duracao)) return { checked: false, reason: 'ingest-incomplete', projeto, video };
 
   // The Vídeo follows its own Kit (its Kit snapshot) when it has one, else the Projeto's.
-  const ownKit = path.join(dir, VIDEO_KIT);
-  const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
+  const kit = kitOfVideo(dir);
   // Without its Kit, the Formato (Área livre) and the Gate shape are unknown: fail closed.
   if (kit === null || typeof kit !== 'object' || Array.isArray(kit)) return { checked: false, reason: 'invalid-kit', projeto, video };
   const printsDir = path.join(dir, PRINTS);

@@ -19,6 +19,18 @@ export function parseJson(text) {
   }
 }
 
+// Text parsed as a JSON object: { value }, or { problem } saying why not; `shape` says what the
+// object must hold, for the message when the JSON is not an object.
+export function parseJsonObject(text, shape) {
+  const { value, problem } = parseJson(text);
+  if (problem) return { problem };
+  if (!isObject(value)) return { problem: `must be a JSON object with ${shape}` };
+  return { value };
+}
+
+// Text on one line: every run of whitespace, line breaks included, becomes one space.
+export const oneLine = (text) => text.replace(/\s+/g, ' ').trim();
+
 // A JSON file's content; undefined when it is missing or not valid JSON.
 export function readJson(file) {
   try {

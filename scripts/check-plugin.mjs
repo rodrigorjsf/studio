@@ -6,13 +6,15 @@
 //       holding a Notion tool), no trace of the Higgsfield API-key path, a valid display color on
 //       every persona, a pinned model and effort on every skill, only the spec's slash commands in her menu, and no upstream leftover (the forked repo's paths, install ritual, ticket
 //       markers), and every host the installers or vendor.json reach in hosts.json (no Hugging
-//       Face host in it).
+//       Face host in it), and every rule of the bundled platform reference carrying its source
+//       label, `sourced:` date and URL.
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
 //       Prints {"ok":bool,"plugins":[names],"errors":[messages]} and exits 1 when not ok.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PLATFORM_REFERENCE, platformReferenceFile, platformRules } from '../plugin/estudio/scripts/lib/plataforma.mjs';
 
 const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -66,8 +68,27 @@ function checkPlugin(dir, expectedName, errors) {
   checkPersonas(dir, expectedName, errors);
   checkSkills(dir, expectedName, errors);
   checkPackageContents(dir, expectedName, errors);
+  checkPlatformReference(dir, expectedName, errors);
   checkNotionServers(dir, manifest, expectedName, errors);
   checkPreparacaoHosts(dir, expectedName, errors);
+}
+
+// The bundled platform reference of the Texto do post (spec #39, ADR 0008): every rule keeps its
+// provenance, so the quarterly refresh can tell what is official from what is marketing. The file
+// is required, and each rule must carry a source label, a `sourced:` date and a URL; its links are
+// held to the self-contained rule by checkLinks like any other package markdown.
+function checkPlatformReference(dir, pluginName, errors) {
+  const file = platformReferenceFile(dir);
+  const where = `${pluginName}: ${PLATFORM_REFERENCE}`;
+  if (!fs.existsSync(file)) {
+    errors.push(`${where} is missing (the Social media writes the Texto do post from it)`);
+    return;
+  }
+  const rules = platformRules(fs.readFileSync(file, 'utf8'));
+  if (rules.length === 0) errors.push(`${where}: has no rule (every rule is a top-level bullet)`);
+  for (const rule of rules) {
+    for (const problem of rule.problems) errors.push(`${where}: rule "${rule.text.slice(0, 60)}" ${problem}`);
+  }
 }
 
 // Notion is read-only (spec #1, ticket #20): the Diretor reads the pages she linked, through her
@@ -294,8 +315,14 @@ function checkSkills(dir, pluginName, errors) {
   }
 }
 
+// Personas the package must ship: the Social media writes every Texto do post (spec #39).
+const REQUIRED_PERSONAS = ['social-media.md'];
+
 function checkPersonas(dir, pluginName, errors) {
   const agentsDir = path.join(dir, 'agents');
+  for (const file of REQUIRED_PERSONAS.filter((f) => !fs.existsSync(path.join(agentsDir, f)))) {
+    errors.push(`${pluginName}: agents/${file} is missing (a required persona)`);
+  }
   if (!fs.existsSync(agentsDir)) return;
   for (const file of fs.readdirSync(agentsDir).filter((f) => f.endsWith('.md'))) {
     const fields = frontmatter(fs.readFileSync(path.join(agentsDir, file), 'utf8'));

@@ -112,3 +112,27 @@ Pages: overview.md, index.md, concepts/plugin-architecture.md, concepts/brand-ki
 
 ## [2026-09-30] update | Template helpers in English with deprecated aliases (ticket #34)
 Pages: concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.
+
+## [2026-09-30] ingest | Post copy and hashtags research; Caderno and Social media grilling
+Pages: sources/post-copy-and-hashtags-2026.md, sources/grilling-caderno-and-social-media-2026-09-30.md, concepts/caderno.md, concepts/post-copy.md, concepts/short-form-9x16.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Caderno built: `caderno` command, `estado` paths, Diretor skills and persona prompts (ticket #40)
+Pages: concepts/caderno.md, concepts/plugin-architecture.md, overview.md, index.md.
+
+## [2026-09-30] update | Kit de marca records the Projeto's plataformas (ticket #41)
+Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-30] update | Rascunhos de issue with the Criadora's consent Gate: `rascunho-issue` command, `estado` pending drafts, `evolucao-proposta` in every persona prompt, README Gates table (ticket #43)
+Pages: concepts/caderno.md, concepts/approval-gate.md, overview.md, index.md.
+
+## [2026-09-30] update | Social media persona and the `texto-do-post` check: the Texto do post beside the Finalizador (ticket #44)
+Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Revisor de plataforma judges the Texto do post in a three-turn loop; Texto do post on request for Entregue and Arquivado Vídeos (ticket #45)
+Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Review round 1 of spec #39: persona Caderno proposals written on arrival with a one-line notice; structure check requires the Social media and the platform reference
+Pages: concepts/caderno.md. Evidence: `plugin/estudio/skills/estudio/references/caderno.md`, `scripts/check-plugin.mjs`.
+
+## [2026-09-30] update | Review round 1 of spec #39: the Texto do post loop is recorded by `revisar-texto` (turns on disk, cap and repeated code counted)
+Pages: concepts/post-copy.md. Evidence: `plugin/estudio/scripts/lib/revisar-texto.mjs`, `plugin/estudio/skills/edicao/SKILL.md`.

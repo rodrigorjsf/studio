@@ -26,8 +26,8 @@ function folder(fixtureName, leaf = 'Meu Estúdio de Vídeos') {
   return dir;
 }
 
-function run(command, dir) {
-  const r = spawnSync(process.execPath, [cli, command, dir], { encoding: 'utf8' });
+function run(command, dir, ...rest) {
+  const r = spawnSync(process.execPath, [cli, command, dir, ...rest], { encoding: 'utf8' });
   assert.equal(r.stderr, '', `stderr: ${r.stderr}`);
   return { code: r.status, out: JSON.parse(r.stdout) };
 }
@@ -103,7 +103,10 @@ test('hidden and system files do not make a folder non-empty', () => {
 });
 
 test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criadora and the next step', () => {
-  const { code, out } = run('estado', folder('valido'));
+  const dir = folder('valido');
+  const { code, out } = run('estado', dir);
+  // No Caderno written yet, in any layer; the paths are covered by the Caderno test below.
+  const semCaderno = (id) => ({ caminho: path.join(dir, 'projetos', id, 'caderno.md'), existe: false });
   assert.equal(code, 0);
   assert.equal(out.isEstudio, true);
   assert.deepEqual(out.errors, []);
@@ -118,7 +121,7 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
   };
   assert.deepEqual(out.projetos, [
     {
-      id: 'Minha Empresa', briefing: 'completo', kit: 'ok', notion: semNotion,
+      id: 'Minha Empresa', briefing: 'completo', kit: 'ok', caderno: semCaderno('Minha Empresa'), notion: semNotion,
       videos: [
         { id: 'Dica rápida', status: 'Construção', rodada: null, nivel: 1, ...pre, waitingForCriadora: false },
         { id: 'Lançamento', status: 'Revisão', rodada: 2, nivel: 1, ...pre, waitingForCriadora: true },
@@ -126,7 +129,7 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
       metricas: semMetricas,
     },
     {
-      id: 'Pessoal', briefing: 'completo', kit: 'ok', notion: semNotion,
+      id: 'Pessoal', briefing: 'completo', kit: 'ok', caderno: semCaderno('Pessoal'), notion: semNotion,
       videos: [{ id: 'Receita antiga', status: 'Arquivado', rodada: 1, nivel: 2, ...pre, waitingForCriadora: false }],
       metricas: semMetricas,
     },
@@ -233,4 +236,51 @@ test('a Kit that is not valid JSON is reported as invalid, not ok', () => {
   const { out } = run('estado', folder('malformado'));
   assert.equal(out.projetos.find((p) => p.id === 'Empresa').kit, 'invalido');
   assert.equal(out.projetos.find((p) => p.id === 'Sem briefing').kit, 'ok');
+});
+
+test('estado reports the path of the Estúdio\'s Caderno and of each Projeto\'s, written or not yet', () => {
+  const dir = folder('valido');
+  const first = run('estado', dir).out;
+  assert.deepEqual(first.caderno, { caminho: path.join(dir, 'caderno.md'), existe: false });
+  assert.ok(first.projetos.length > 0);
+  for (const projeto of first.projetos) {
+    assert.deepEqual(projeto.caderno, { caminho: path.join(dir, 'projetos', projeto.id, 'caderno.md'), existe: false });
+  }
+
+  const [{ id }] = first.projetos;
+  const entry = (camada) => JSON.stringify({ acao: 'anexar', camada, secao: 'queixas', texto: 'Zoom rápido demais.', persona: 'diretor', projeto: id });
+  assert.equal(run('caderno', dir, entry('estudio')).out.written, true);
+  assert.equal(run('caderno', dir, entry('projeto')).out.written, true);
+  const written = run('estado', dir).out;
+  assert.equal(written.caderno.existe, true);
+  assert.equal(written.projetos.find((p) => p.id === id).caderno.existe, true);
+  assert.deepEqual(written.errors, []);
+});
+
+// The bundled platform reference (spec #39, ticket #42): `estado` says whether its newest
+// `sourced:` date is more than 6 months old. The clock is ESTUDIO_NOW so a test can put today on
+// either side of the line; the date itself is read from the shipped reference.
+const referenceFile = path.join(repoRoot, 'plugin', 'estudio', 'skills', 'estudio', 'references', 'platform-rules.md');
+const newestSourced = [...fs.readFileSync(referenceFile, 'utf8').matchAll(/sourced:\s*(\d{4}-\d{2}-\d{2})/g)].map((m) => m[1]).sort().at(-1);
+const plusMonths = (date, months, days = 0) => {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString();
+};
+function referenceOn(today) {
+  const r = spawnSync(process.execPath, [cli, 'estado', folder('valido')], { encoding: 'utf8', env: { ...process.env, ESTUDIO_NOW: today } });
+  assert.equal(r.stderr, '', `stderr: ${r.stderr}`);
+  return JSON.parse(r.stdout).referenciaDePlataforma;
+}
+
+test('estado reports the platform reference as current before its newest date is 6 months old', () => {
+  assert.match(newestSourced, /^\d{4}-\d{2}-\d{2}$/);
+  assert.deepEqual(referenceOn(plusMonths(newestSourced, 0)), { presente: true, maisRecente: newestSourced, desatualizada: false });
+  assert.equal(referenceOn(plusMonths(newestSourced, 6)).desatualizada, false, 'exactly 6 months is not more than 6 months');
+});
+
+test('estado reports the platform reference as stale once its newest date is more than 6 months old', () => {
+  assert.deepEqual(referenceOn(plusMonths(newestSourced, 6, 1)), { presente: true, maisRecente: newestSourced, desatualizada: true });
+  assert.equal(referenceOn(plusMonths(newestSourced, 24)).desatualizada, true);
 });

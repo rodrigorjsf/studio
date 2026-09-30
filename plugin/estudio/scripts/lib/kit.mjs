@@ -8,13 +8,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { KIT_ASSETS } from './layout.mjs';
-import { isIsoDate, isObject } from './valores.mjs';
+import { KIT, KIT_ASSETS, VIDEO_KIT } from './layout.mjs';
+import { isIsoDate, isObject, readJson } from './valores.mjs';
 
 const KIT_SCHEMA_VERSION = 1;
 const FORMATOS = ['9:16', '16:9', '1:1'];
 // no-app: she adds the music herself in Instagram/TikTok (trending audio, no copyright mute).
 const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
+// The platforms a Projeto posts on; the Social media writes a Texto do post for each of them.
+export const PLATAFORMAS = ['reels', 'tiktok', 'shorts'];
+
+// The platforms of a Kit. A Kit without the field (made before it existed) posts on all three.
+export const plataformasDoKit = (kit) => [...(kit?.plataformas ?? PLATAFORMAS)];
 
 // A complete, valid Kit: what "decide você" answers when she has no preference.
 // Vertical 9:16 and music added by her in the app are the spec's defaults. It lives in the
@@ -42,9 +47,15 @@ const listOf = (check) => (v, ctx, where) => {
   return null;
 };
 const nonEmptyListOf = (check) => (v, ctx, where) => (Array.isArray(v) && v.length === 0 ? 'must list at least one' : listOf(check)(v, ctx, where));
+// A field an older Kit may lack: fine when absent, checked when present.
+const optional = (check) => Object.assign((...args) => check(...args), { optional: true });
+const noRepeats = (check) => (v, ctx, where) => (Array.isArray(v) && new Set(v).size < v.length ? 'must not repeat a value' : check(v, ctx, where));
 const shape = (fields) => (v, ctx, where) => {
   if (!isObject(v)) return 'must be an object';
-  for (const [key, check] of Object.entries(fields)) ctx.check(check, v[key], `${where}.${key}`, key in v);
+  for (const [key, check] of Object.entries(fields)) {
+    if (check.optional && !(key in v)) continue;
+    ctx.check(check, v[key], `${where}.${key}`, key in v);
+  }
   return null;
 };
 // A map whose keys she names (color names, recording setups) and whose values share a check.
@@ -66,6 +77,19 @@ const asset = (v, ctx) => {
 const fraction = (v) => (typeof v === 'number' && v >= 0 && v <= 1 ? null : 'must be a fraction of the frame, from 0 to 1');
 const faceZone = shape({ x: fraction, y: fraction, largura: fraction, altura: fraction });
 const font = shape({ familia: text, peso: weight, arquivo: orNull(asset) });
+
+const PLATAFORMAS_CHECK = optional(noRepeats(nonEmptyListOf(oneOf(PLATAFORMAS))));
+
+// Whether a Kit's `plataformas` is usable, by the same rule the Kit validation applies: absent
+// (all three), or a non-empty list of known platforms without repeats.
+export function plataformasValidas(kit) {
+  if (!isObject(kit)) return false;
+  if (!('plataformas' in kit)) return true;
+  let ok = true;
+  const ctx = { problem: () => { ok = false; }, check(checker, value, where) { if (checker(value, this, where)) ok = false; } };
+  ctx.check(PLATAFORMAS_CHECK, kit.plataformas, '.plataformas');
+  return ok;
+}
 
 const KIT_SHAPE = shape({
   schemaVersion: (v) => (v === KIT_SCHEMA_VERSION ? null : `must be ${KIT_SCHEMA_VERSION}`),
@@ -89,6 +113,7 @@ const KIT_SHAPE = shape({
   som: shape({ efeitos: text }),
   musica: shape({ politica: oneOf(POLITICAS_MUSICA) }),
   entregaveis: shape({ formatos: nonEmptyListOf(oneOf(FORMATOS)), overlays: flag }),
+  plataformas: PLATAFORMAS_CHECK,
   creditos: shape({ porVideo: budget, porMes: budget }),
   fazer: listOf(text),
   evitar: listOf(text),
@@ -117,4 +142,11 @@ export function validateKit(kit, projetoDir) {
     problems.push(`formato ${JSON.stringify(kit.formato)} must be listed in entregaveis.formatos`);
   }
   return problems;
+}
+
+// The Kit a Vídeo follows, given its folder (`projetos/<p>/videos/<v>`): its own Kit snapshot when
+// it has one, else its Projeto's. Undefined when the file is missing or not JSON.
+export function kitOfVideo(videoDir) {
+  const own = path.join(videoDir, VIDEO_KIT);
+  return readJson(fs.existsSync(own) ? own : path.join(videoDir, '..', '..', KIT));
 }

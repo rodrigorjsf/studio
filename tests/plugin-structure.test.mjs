@@ -39,6 +39,11 @@ function fixture(files = {}) {
     }),
     'plugin/estudio/.claude-plugin/plugin.json': JSON.stringify({ name: 'estudio', version: '0.1.0' }),
     'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: claude-opus-5-5\neffort: medium\n---\nBody\n',
+    // Required by the check: the Social media persona and the bundled platform reference.
+    'plugin/estudio/agents/social-media.md':
+      '---\nname: social-media\nmodel: claude-sonnet-5-5\neffort: medium\ntools: Bash, Read, Write\ncolor: cyan\ndescription: A persona.\n---\nBody\n',
+    'plugin/estudio/skills/estudio/references/platform-rules.md':
+      '# Platform rules\n\n## YouTube\n\n- [official] YouTube ignores every hashtag past 60. sourced: 2026-09-30 <https://support.google.com/youtube/answer/6390658>\n',
   };
   for (const [rel, content] of Object.entries({ ...base, ...files })) {
     if (content === null) continue;
@@ -103,6 +108,35 @@ test('a skill on a model alias instead of a pinned model ID is rejected', () => 
     fixture({ 'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: opus\neffort: medium\n---\nBody\n' }),
     'skills/estudio/SKILL.md: "model" must be a full model ID',
   );
+});
+
+// The Social media (ticket #44) follows the rules every persona follows: a pinned model and effort,
+// a tools allowlist and a display color.
+test('the Social media persona, pinned to Sonnet 5.5 at medium effort with a color, passes', () => {
+  const { code, verdict } = check(fixture({
+    'plugin/estudio/agents/social-media.md': persona({ name: 'social-media', model: 'claude-sonnet-5-5', effort: 'medium', tools: 'Bash, Read, Write', color: 'cyan' }),
+  }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+test('a package without the Social media persona is rejected', () => {
+  assertRejected(fixture({ 'plugin/estudio/agents/social-media.md': null }), 'agents/social-media.md is missing');
+});
+
+test('a package without the bundled platform reference is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/skills/estudio/references/platform-rules.md': null }),
+    'skills/estudio/references/platform-rules.md is missing',
+  );
+});
+
+test('the Social media persona without a pinned model, effort or color is rejected', () => {
+  const pinned = { name: 'social-media', model: 'claude-sonnet-5-5', effort: 'medium', tools: 'Bash, Read, Write', color: 'cyan' };
+  for (const [missing, fragment] of [['model', 'missing "model"'], ['effort', 'missing "effort"'], ['color', 'missing "color"']]) {
+    const { [missing]: _removed, ...fields } = pinned;
+    assertRejected(fixture({ 'plugin/estudio/agents/social-media.md': persona(fields) }), `social-media.md: ${fragment}`);
+  }
 });
 
 // Every persona declares its display color in the task list and transcript (ticket #18); the
@@ -300,6 +334,71 @@ test('the root package.json drops the upstream scripts and the root tsconfig no 
   assert.deepEqual(include.filter((pattern) => pattern.startsWith('src/') || pattern === 'remotion.config.ts'), []);
 });
 
+// The bundled platform reference (spec #39, ticket #42, ADR 0008): every rule in it carries its
+// source label (official, study or marketing), a `sourced:` date and a platform URL, so the
+// maintainer can refresh it quarterly and see what is official and what is marketing.
+const REFERENCE = 'plugin/estudio/skills/estudio/references/platform-rules.md';
+const rule = (label = '[official]', sourced = 'sourced: 2026-09-30', url = '<https://support.google.com/youtube/answer/6390658>') =>
+  `- ${[label, 'YouTube ignores every hashtag past 60.', sourced, url].filter(Boolean).join(' ')}\n`;
+const reference = (...rules) => `# Platform rules\n\nEach rule is a bullet.\n\n## YouTube\n\n${rules.join('')}`;
+
+test('a platform reference whose every rule has its label, date and URL passes', () => {
+  const { code, verdict } = check(fixture({
+    [REFERENCE]: reference(rule(), rule('[study]'), rule('[marketing]')),
+  }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+for (const [label, bad, fragment] of [
+  ['its source label', rule(''), 'lacks its source label'],
+  ['a known source label', rule('[rumour]'), 'lacks its source label'],
+  ['its sourced: date', rule('[official]', ''), 'lacks its sourced: date'],
+  ['a real sourced: date', rule('[official]', 'sourced: 2026-13-45'), 'lacks its sourced: date'],
+  ['its URL', rule('[official]', 'sourced: 2026-09-30', ''), 'lacks its URL'],
+  ['an https URL', rule('[official]', 'sourced: 2026-09-30', 'support.google.com/youtube'), 'lacks its URL'],
+]) {
+  test(`a platform rule without ${label} is rejected`, () => {
+    assertRejected(fixture({ [REFERENCE]: reference(rule(), bad) }), fragment);
+  });
+}
+
+test('a platform reference with no rule at all is rejected', () => {
+  assertRejected(fixture({ [REFERENCE]: '# Platform rules\n\nNothing here.\n' }), 'has no rule');
+});
+
+test('a bullet inside a code fence is not a rule', () => {
+  const { verdict } = check(fixture({ [REFERENCE]: `${reference(rule())}\n\`\`\`\n- an example bullet with nothing\n\`\`\`\n` }));
+  assert.deepEqual(verdict.errors, []);
+});
+
+test('a platform reference that links out of the package is still rejected', () => {
+  assertRejected(
+    fixture({ [REFERENCE]: `${reference(rule())}\nSee [the research](../../../../../raw/research/findings.md).\n` }),
+    'link leaves the package',
+  );
+});
+
+test('the shipped platform reference keeps the source labels the research gave its claims', () => {
+  const text = fs.readFileSync(path.join(repoRoot, REFERENCE), 'utf8').replace(/\r\n/g, '\n');
+  const labelOf = (pattern) => {
+    const lines = text.split('\n').filter((line) => line.startsWith('- ') && pattern.test(line));
+    assert.equal(lines.length, 1, `exactly one rule matches ${pattern}`);
+    return /\[(official|study|marketing)\]/.exec(lines[0])?.[1];
+  };
+  assert.equal(labelOf(/Instagram allows at most 5 hashtags/), 'official');
+  assert.equal(labelOf(/more than 60 hashtags/), 'official');
+  assert.equal(labelOf(/Never ask for likes/), 'official');
+  assert.equal(labelOf(/24\.36 million/), 'study');
+  assert.equal(labelOf(/3 to 6 relevant hashtags on TikTok/), 'marketing');
+  assert.equal(labelOf(/visible before the cutoff/i), 'marketing');
+  assert.equal(labelOf(/2 to 3 relevant hashtags and one sentence/), 'official');
+  // YouTube Help states the 100-character title limit, so the texto-do-post check may reject on it;
+  // the ~40-character hook is marketing guidance only.
+  assert.equal(labelOf(/titles have a character limit of 100 characters/), 'official');
+  assert.equal(labelOf(/hook in the first ~40 characters/), 'marketing');
+});
+
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
 const hasClaude = spawnSync('claude', ['--version'], { encoding: 'utf8' }).status === 0;
 // Notion is read-only and reached only through her own connector (ticket #20): the package
@@ -388,7 +487,7 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
   // Críticos: QC técnico, Guardião da marca and Revisor de plataforma.
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
   for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano', 'edicao']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
-  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador', 'qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma', 'artista-generativo', 'montador-higgsedit']) {
+  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador', 'qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma', 'artista-generativo', 'montador-higgsedit', 'social-media']) {
     assert.match(details.out, new RegExp(`Agents \\(\\d+\\)[\\s\\S]*${agent}`), details.out);
   }
 
