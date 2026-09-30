@@ -231,7 +231,11 @@ function InstallModel {
     $destination = Join-Path $ModelDir $file.name
     Remove-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue
     if (-not $started -or (Sha256Of $partial) -ne $file.sha256) {
-      if (-not (FetchModelFile $file.url $partial)) { Fail "baixar o arquivo $($file.name) do modelo de fala" }
+      if (-not (FetchModelFile $file.url $partial)) {
+        $arrived = (Test-Path -LiteralPath $partial -PathType Leaf) -and (Get-Item -LiteralPath $partial).Length -gt 0
+        if (-not $arrived) { Remove-Item -LiteralPath $partialRoot -Recurse -Force -ErrorAction SilentlyContinue } # nothing to continue
+        Fail "baixar o arquivo $($file.name) do modelo de fala"
+      }
     }
     if ((Sha256Of $partial) -ne $file.sha256) {
       Remove-Item -LiteralPath $partialRoot -Recurse -Force -ErrorAction SilentlyContinue # only this file was waiting there

@@ -59,7 +59,12 @@ case "$(uname -m)" in
 esac
 
 TMP="$DATA_DIR/tmp"
-trap 'rm -rf "$TMP"' EXIT
+# A download runs in the background (so progress can be printed) and a background job ignores
+# Ctrl-C: stop it with the script, or it would keep writing into a file the next run continues.
+CURL_PID=
+stop_download() { if [ -n "$CURL_PID" ]; then kill "$CURL_PID" 2>/dev/null; fi; }
+trap 'stop_download; rm -rf "$TMP"' EXIT
+trap 'exit 1' INT TERM HUP
 PROGRESS_SECONDS=${ESTUDIO_PROGRESS_SECONDS:-15}
 
 fail() {
@@ -152,23 +157,22 @@ install_python() {
 fetch_model_file() {
   command -v curl >/dev/null 2>&1 || return 1
   name=${2##*/}
-  rm -f "$2.done"
-  (
-    code=$(curl -fL --retry 3 --silent --show-error -C - -w '%{http_code}' -o "$2" "$1")
-    echo "$? $code" > "$2.done"
-  ) &
+  curl -fL --retry 3 --silent --show-error -C - -w '%{http_code}' -o "$2" "$1" > "$2.code" &
+  CURL_PID=$!
   ticks=0 # fifths of a second (GNU, macOS and busybox sleep all take fractions)
-  while [ ! -f "$2.done" ]; do
+  while kill -0 "$CURL_PID" 2>/dev/null; do
     sleep 0.2 2>/dev/null || sleep 1
     ticks=$((ticks + 1))
-    if [ "$ticks" -ge $((PROGRESS_SECONDS * 5)) ] && [ ! -f "$2.done" ]; then
+    if [ "$ticks" -ge $((PROGRESS_SECONDS * 5)) ] && kill -0 "$CURL_PID" 2>/dev/null; then
       echo "    $name: $(megabytes_of "$2") MB baixados até agora…"
       ticks=0
     fi
   done
-  wait
-  read -r status code < "$2.done"
-  rm -f "$2.done"
+  wait "$CURL_PID"
+  status=$?
+  CURL_PID=
+  code=$(cat "$2.code" 2>/dev/null)
+  rm -f "$2.code"
   [ "$status" = 0 ] && return 0
   if [ -z "$3" ] && { [ "$status" = 33 ] || [ "$code" = 416 ]; }; then
     rm -f "$2"
@@ -213,7 +217,10 @@ END
     fi
     rm -f "$MODEL_DIR/$name"
     if [ ! -s "$partial" ] || [ "$(sha256_of "$partial")" != "$sha" ]; then
-      fetch_model_file "$url" "$partial" || fail "baixar o arquivo $name do modelo de fala"
+      if ! fetch_model_file "$url" "$partial"; then
+        [ -s "$partial" ] || rm -rf "$DATA_DIR/partial" # nothing arrived: nothing to continue
+        fail "baixar o arquivo $name do modelo de fala"
+      fi
     fi
     if [ "$(sha256_of "$partial")" != "$sha" ]; then
       rm -rf "$DATA_DIR/partial" # only this file was waiting there

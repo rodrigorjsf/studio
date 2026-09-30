@@ -390,6 +390,29 @@ test('while a model file downloads, a plain progress line keeps coming so the Cr
   assert.match(r.out, /Modelo de fala: pronto\./);
 });
 
+test('stopping the Preparação in the middle of a model download also stops the download, so the next run continues a file nobody else is writing', () => {
+  const m = freshMachine();
+  const fixture = modelFixture(m.root);
+  slowCurl(m.bin, fixture.upstream, { pauseSeconds: 3 });
+  const kept = path.join(m.data, ...PARTIAL_FOLDER, 'model.bin');
+  // Stop the installer 1 s in (curl has written half and is pausing), then look at the kept file
+  // right away and again after curl's pause would have ended.
+  const script = `"$0" "$1" modelo "$2" "$3" & pid=$!
+/bin/sleep 1; kill -TERM "$pid"; wait "$pid"
+/usr/bin/wc -c < "$4"; /bin/sleep 3; /usr/bin/wc -c < "$4"`;
+  const r = spawnSync(SH, ['-c', script, SH, instalar, m.data, m.estudio, kept], { encoding: 'utf8', env: { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest } });
+  const [right, later] = r.stdout.trim().split('\n').slice(-2).map(Number);
+  assert.ok(right > 0, `${r.stdout}${r.stderr}`);
+  assert.equal(later, right, 'nothing keeps writing into the kept file after the Preparação stopped');
+});
+
+test('a model download that cannot start leaves nothing waiting for a next run', () => {
+  const m = freshMachine(); // no curl on PATH
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: modelFixture(m.root).manifest });
+  assert.equal(r.code, 1);
+  assert.equal(fs.existsSync(path.join(m.data, 'partial')), false);
+});
+
 test('a model download that cannot start fails plainly and leaves no model behind', () => {
   const m = freshMachine(); // no curl on PATH
   const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: modelFixture(m.root).manifest });
