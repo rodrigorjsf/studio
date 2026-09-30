@@ -77,6 +77,13 @@ test('only the learnings she approved reach the Kit; the Vídeo is archived with
   assert.deepEqual(run('estado', dir).out.errors, []);
 });
 
+test('estado lists a delivered Vídeo until its Kit learnings are answered, whatever else is in progress', () => {
+  const dir = estudio();
+  assert.deepEqual(run('estado', dir).out.aprendizadosPendentes, [{ projeto: PROJETO, video: VIDEO }]);
+  run('arquivar', dir, PROJETO, VIDEO, '{"aprendizados": []}');
+  assert.deepEqual(run('estado', dir).out.aprendizadosPendentes, []);
+});
+
 test('the other Vídeos and the archived one keep the Kit they started with', () => {
   const dir = estudio();
   const kitAntes = fs.readFileSync(path.join(projetoDir(dir), 'kit.json'), 'utf8');

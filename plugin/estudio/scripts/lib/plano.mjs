@@ -237,7 +237,7 @@ export function plano(folder, projetoNome, videoNome) {
 // `plano-e-quadros` at the single Gate (the Kit defines the style), or `plano` then `quadros`
 // at two Gates. Each approval closes the Gate and counts it; once both are stamped the Vídeo
 // moves to Construção. A Plano that breaks a rule, or the wrong Gate, is refused unchanged.
-const ETAPAS = ['plano', 'quadros', 'plano-e-quadros'];
+export const ETAPAS = ['plano', 'quadros', 'plano-e-quadros'];
 
 export function aprovarPlano(folder, projetoNome, videoNome, etapa) {
   if (!ETAPAS.includes(etapa)) return { approved: false, reason: 'invalid-etapa', message: `etapa must be one of: ${ETAPAS.join(', ')}` };

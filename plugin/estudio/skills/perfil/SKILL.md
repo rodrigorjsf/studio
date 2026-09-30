@@ -38,8 +38,8 @@ Seven questions, each with a frontmatter key (the key the document and `estado` 
 Explain the Autonomia options to her in plain words:
 
 - **baixa** — eu paro e te pergunto em toda aprovação.
-- **média** (recomendada) — o que o Kit de marca do projeto já responde, eu decido e deixo registrado; o resto (plano, custo, revisão antes do vídeo final) eu te pergunto.
-- **alta** — eu decido quase tudo e deixo registrado; paro só para você ver o vídeo antes do final.
+- **média** (recomendada) — o que o Kit de marca do projeto já responde, eu não te pergunto de novo; as aprovações (plano, custo, revisão antes do vídeo final) continuam com você.
+- **alta** — eu aprovo o plano e o visual por você, sempre te contando e deixando registrado; paro para você ver o vídeo antes do final.
 
 Whatever the Autonomia, **spending Higgsfield credits always waits for her approval**, and so do the Pré-corte, the Kit de marca and what it learns after each Vídeo — say so if she picks alta. When the studio approves something on her behalf, it always tells her and keeps a record.
 
@@ -100,7 +100,7 @@ Grava no fim de semana e edita à noite, depois do consultório. Tem uns 10 minu
 ## Como o estúdio conversa comigo
 - Nível técnico: iniciante.
 - Tom: explicar mais.
-- Autonomia: média — o que o Kit de marca já responde, o Diretor decide e registra; plano, custo e revisão antes do vídeo final passam por mim.
+- Autonomia: média — o que o Kit de marca já responde, o Diretor não pergunta de novo; plano, custo e revisão antes do vídeo final passam por mim.
 
 ## Decisões assumidas
 - Tom: "explicar mais" — escolhido pelo Diretor ("decide você").

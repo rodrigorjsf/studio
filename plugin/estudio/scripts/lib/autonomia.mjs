@@ -13,28 +13,14 @@
 // changes her video), the Kit de marca and its learnings (her identity), and her review.
 import fs from 'node:fs';
 import path from 'node:path';
-import { estado } from './estado.mjs';
+import { estado, readAutomaticApprovals } from './estado.mjs';
 import { APROVACOES_AUTOMATICAS } from './layout.mjs';
-import { aprovarPlano } from './plano.mjs';
+import { aprovarPlano, ETAPAS } from './plano.mjs';
 import { findVideo, registrarVideo } from './video.mjs';
 
-const AUTOMATIC = { baixa: [], média: [], alta: ['plano', 'quadros', 'plano-e-quadros'] };
+const AUTOMATIC = { baixa: [], média: [], alta: ETAPAS };
 const NEVER_AUTOMATIC = ['creditos', 'higgsedit', 'precorte', 'kit', 'revisao', 'aprendizados'];
 const GATES = new Set([...Object.values(AUTOMATIC).flat(), ...NEVER_AUTOMATIC]);
-
-// The automatic approvals already recorded in the Vídeo folder `dir`: {aprovacoes} (none yet: [])
-// or {problem} when the record is damaged, so a new entry never erases the old ones.
-export function readAutomaticApprovals(dir) {
-  const file = path.join(dir, APROVACOES_AUTOMATICAS);
-  if (!fs.existsSync(file)) return { aprovacoes: [] };
-  try {
-    const { aprovacoes } = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (Array.isArray(aprovacoes)) return { aprovacoes };
-  } catch {
-    // reported below
-  }
-  return { problem: `${APROVACOES_AUTOMATICAS} is not a list of automatic approvals` };
-}
 
 export function aprovarAutomatico(folder, projetoNome, videoNome, gate) {
   if (!GATES.has(gate)) return { approved: false, reason: 'invalid-gate', message: `gate must be one of: ${[...GATES].join(', ')}` };

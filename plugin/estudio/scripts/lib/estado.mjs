@@ -83,6 +83,20 @@ function metrics(measured) {
   return { videos: porVideo.length, medias: Object.fromEntries(keys.map((key) => [key, average(key)])), porVideo };
 }
 
+// The automatic approvals already recorded in the Vídeo folder `dir`: {aprovacoes} (none yet: [])
+// or {problem} when the record is damaged, so a new entry never erases the old ones.
+export function readAutomaticApprovals(dir) {
+  const file = path.join(dir, APROVACOES_AUTOMATICAS);
+  if (!fs.existsSync(file)) return { aprovacoes: [] };
+  try {
+    const { aprovacoes } = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (Array.isArray(aprovacoes)) return { aprovacoes };
+  } catch {
+    // reported below
+  }
+  return { problem: `${APROVACOES_AUTOMATICAS} is not a list of automatic approvals` };
+}
+
 // Delivered or archived: the Vídeo's work is done.
 export const isFinished = (status) => STATUSES.get(status)?.finished === true;
 
@@ -217,10 +231,9 @@ export function estado(folder) {
         video.versao = { nome: latest, decisao: DECISIONS.includes(decided?.decisao) ? decided.decisao : null };
       }
       // The Gates the Diretor approved on her behalf (`aprovar-automatico`), so he can always tell her.
-      const automaticFile = videoFile(APROVACOES_AUTOMATICAS);
-      const automatic = fs.existsSync(automaticFile) ? readJson(automaticFile) : null;
-      if (automatic !== null && !Array.isArray(automatic?.aprovacoes)) fail(automaticFile, 'aprovacoes must be a list of automatic approvals');
-      else if (automatic !== null) video.aprovacoesAutomaticas = automatic.aprovacoes;
+      const automatic = readAutomaticApprovals(path.join(dir, VIDEOS, videoName));
+      if (automatic.problem) fail(videoFile(APROVACOES_AUTOMATICAS), automatic.problem);
+      else video.aprovacoesAutomaticas = automatic.aprovacoes;
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
       const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;
@@ -261,7 +274,14 @@ export function estado(folder) {
     .filter((video) => video.waitingForCriadora)
     .map((video) => ({ projeto: projeto.id, video: video.id, status: video.status })));
 
-  return { folder, isEstudio, isEmpty, errors, perfil, projetos, waiting, nextStep: nextStep({ errors, perfil, projetos, waiting }) };
+  // Delivered Vídeos whose Kit learnings she has not answered yet (`arquivar` archives them).
+  const aprendizadosPendentes = projetos.flatMap((projeto) => projeto.videos
+    .filter((video) => video.status === 'Entregue')
+    .map((video) => ({ projeto: projeto.id, video: video.id })));
+
+  return {
+    folder, isEstudio, isEmpty, errors, perfil, projetos, waiting, aprendizadosPendentes, nextStep: nextStep({ errors, perfil, projetos, waiting }),
+  };
 }
 
 // One next step, in the order the Esteira needs them: a broken document first, then the
