@@ -63,7 +63,7 @@ are missing; the skip count is not a failure.
 
 ## Test seams (spec #1, Testing Decisions)
 
-1. **The deterministic CLI** (`plugin/estudio/scripts/estudio.mjs`: `estado`, `qc`, `precorte`, `caderno` and
+1. **The deterministic CLI** (`plugin/estudio/scripts/estudio.mjs`: `estado`, `qc`, `precorte`, `caderno`, `rascunho-issue` and
    the Gate commands), driven with fixture Estúdio folders and synthetic ffmpeg clips.
 2. **The Remotion template**: typecheck plus still renders that prove the Kit reaches the frame.
 3. **The plugin structure**: `scripts/check-plugin.mjs`, covered by `tests/plugin-structure.test.mjs`.

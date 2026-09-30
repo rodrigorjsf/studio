@@ -121,3 +121,6 @@ Pages: concepts/caderno.md, concepts/plugin-architecture.md, overview.md, index.
 
 ## [2026-09-30] update | Kit de marca records the Projeto's plataformas (ticket #41)
 Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-30] update | Rascunhos de issue with the Criadora's consent Gate: `rascunho-issue` command, `estado` pending drafts, `evolucao-proposta` in every persona prompt, README Gates table (ticket #43)
+Pages: concepts/caderno.md, concepts/approval-gate.md, overview.md, index.md.

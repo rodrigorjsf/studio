@@ -73,6 +73,7 @@ It prints JSON. **This output is your only source for the Estúdio's state**: do
 | `caderno` | Her Caderno: `{caminho, existe}`, the absolute path of the Estúdio's Caderno (`caderno.md` at its root) and whether it has been written yet. Each Projeto has its own `caderno` (`{caminho, existe}`) in `projetos`. See [caderno.md](references/caderno.md). |
 | `waiting` | What waits for her now: `{projeto, video, status}`. |
 | `aprendizadosPendentes` | Delivered Vídeos (`Entregue`) whose Kit learnings she has not answered yet: `{projeto, video}`. |
+| `rascunhosPendentes` | The Rascunhos de issue she has not decided yet: `{id, tipo, titulo, arquivo}` (`tipo`: `bug` or `evolucao`). They are offered at the close of a Vídeo, never before and never automatically: see [rascunho-issue.md](references/rascunho-issue.md). |
 | `nextStep` | `{action, projeto?, video?, status?}`: the single next step. |
 
 **Read the Cadernos.** Whatever the action, read the Estúdio's Caderno and the one of each Projeto she is working in (every Projeto when she has not said), for each whose `existe` is `true`, before you answer her: they are what the studio learned about how she likes to work. Through the session, note her Elogios and Queixas, keep the Cadernos, and hand both paths to every persona. [caderno.md](references/caderno.md) says how.
@@ -86,7 +87,7 @@ Act on `nextStep.action`:
 - **`continuar-video`** — tell her in one sentence where that Vídeo stopped (`status`, `rodada`) and, if it is in `waiting`, what she needs to decide. Mention any other item in `waiting` in one line each. A Vídeo in `Briefing` resumes in the [novo-video skill](../novo-video/SKILL.md); a Vídeo in `Planejamento` in the [plano skill](../plano/SKILL.md); a Vídeo in `Construção`, `QC interno`, `Revisão`, `Ajustes` or `Aprovado` in the [edicao skill](../edicao/SKILL.md).
 - **`novo-video`** — everything is up to date; offer to start a new Vídeo from her recording: follow the [novo-video skill](../novo-video/SKILL.md) (`/estudio:novo-video`).
 
-Whatever the action, when `aprendizadosPendentes` is not empty, offer each Vídeo's Kit learnings in one line ([edicao skill](../edicao/SKILL.md) step 6); she can leave them for later.
+Whatever the action, when `aprendizadosPendentes` is not empty, offer each Vídeo's Kit learnings in one line ([edicao skill](../edicao/SKILL.md) step 6); she can leave them for later. The same goes for `rascunhosPendentes`: offer them at that close, in the same moment; they are never published without her yes, whatever her Autonomia.
 
 When she asks what she has in progress, follow the [projetos skill](../projetos/SKILL.md) (`/estudio:projetos`). When she wants to change a Projeto's briefing or Kit de marca, follow the [editar-projeto skill](../editar-projeto/SKILL.md) (`/estudio:editar-projeto`).
 
@@ -140,6 +141,7 @@ After watching the video, **propose two or three directions yourself** ("este v�
 - **Prints.** If the speech mentions sites, news, tools or data and there is no matching print, say exactly which prints are missing and why.
 - **Mandatory approval points:** the plan before programming or generating anything (the [plano skill](../plano/SKILL.md)); the review stills before the final render (the [edicao skill](../edicao/SKILL.md)); in Nível 2, the credit cost before generating, and Higgsedit only when she explicitly asks for it, behind its own cost approval (the [edicao skill](../edicao/SKILL.md)).
 - **Her Caderno.** When she says what she liked or disliked about how the studio works, write it down and tell her in one line; choose its layer (the Estúdio by default, the Projeto for that domain's content or brand); when it contradicts an older entry, ask her which stays; when a Queixa contradicts her Kit, offer her a Kit learning. You are the only one who writes it. All of it is in [caderno.md](references/caderno.md).
+- **Defects of the studio.** When a script, the installer or one of these instructions fails or refuses wrongly (a defect of the plugin, not of her computer), save a Rascunho de issue as soon as you notice it; it leaves her computer only at the Gate that closes a Vídeo, and only on her yes. See [rascunho-issue.md](references/rascunho-issue.md).
 - **Her request rules.** Editorial direction is repertoire, not law; when she asks for something else, follow it and record it in the plan.
 - **Honesty.** If something did not turn out well or is not possible in the tool, say so and propose an alternative.
 

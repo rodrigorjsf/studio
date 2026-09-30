@@ -9,6 +9,7 @@ import { validateKit } from './kit.mjs';
 import { readNotion } from './notion.mjs';
 import { readPerfil } from './perfil.mjs';
 import { platformReferenceState } from './plataforma.mjs';
+import { readRascunhos } from './rascunho-issue.mjs';
 import {
   APROVACOES_AUTOMATICAS, CADERNO, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
@@ -285,8 +286,15 @@ export function estado(folder) {
     .filter((video) => video.status === 'Entregue')
     .map((video) => ({ projeto: projeto.id, video: video.id })));
 
+  // The Rascunhos de issue with no decision yet: the close of a Vídeo offers them to her (never a Gate Autonomia approves).
+  const drafts = readRascunhos(folder);
+  drafts.problems.forEach((p) => fail(p.file, p.message));
+  const rascunhosPendentes = drafts.rascunhos
+    .filter((d) => d.decisao === null)
+    .map(({ id, tipo, titulo, arquivo }) => ({ id, tipo, titulo, arquivo }));
+
   return {
-    folder, isEstudio, isEmpty, errors, perfil, caderno: cadernoOf(folder), projetos, waiting, aprendizadosPendentes,
+    folder, isEstudio, isEmpty, errors, perfil, caderno: cadernoOf(folder), projetos, waiting, aprendizadosPendentes, rascunhosPendentes,
     // The bundled platform reference of the Texto do post: `desatualizada` once its newest `sourced:` date is over 6 months old.
     referenciaDePlataforma: platformReferenceState(),
     nextStep: nextStep({ errors, perfil, projetos, waiting }),
