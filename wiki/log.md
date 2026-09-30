@@ -103,3 +103,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Preparação and check script identifiers in English (#35)
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Spec #29 review round 1: overview covers #31–#33 and #35; model download resumes and shows progress; ESTUDIO_MODEL_MANIFEST; mirror script drops --dir
+Pages: overview.md, concepts/plugin-architecture.md.
