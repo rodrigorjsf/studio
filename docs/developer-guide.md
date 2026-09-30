@@ -93,7 +93,28 @@ files, exit codes), never on prompt wording.
 - **Preparação host list**: every literal https host in `scripts/instalar.sh`, `scripts/instalar.ps1`
   and the `vendor.json` file URLs is in `plugin/estudio/hosts.json`, and no Hugging Face host is.
   The Diretor hands that list to the Criadora when a download is blocked by her cloud workspace.
+- **Platform reference provenance**: every rule of `skills/estudio/references/platform-rules.md`
+  (a top-level bullet) carries a source label (`[official]`, `[study]` or `[marketing]`), a
+  `sourced: YYYY-MM-DD` date and an https URL, and the file links nothing outside the package.
 - Size cap: 5,000 files and 200 MB.
+
+## Quarterly refresh of the platform reference
+
+The Social media follows the rules in `plugin/estudio/skills/estudio/references/platform-rules.md`
+(ADR 0008): bundled, dated, never researched live. Nothing updates it, so refresh it every quarter.
+`estudio.mjs estado` reports `referenciaDePlataforma.desatualizada: true` once the file's newest
+`sourced:` date is more than 6 months old, so the warning to the Criadora appears before the rules
+drift too far, but the refresh itself is yours.
+
+1. Re-check each rule against its URL. Start with the values that move: Instagram's hashtag cap (5),
+   YouTube's hashtag threshold (60), TikTok's caption limit (4,000), TikTok's Community Guidelines,
+   and the filler-tag list.
+2. Change the text of a rule that moved and move its `sourced:` date to the day you re-checked it.
+   Leave the date of a rule you did not re-check. Keep each rule's label: a claim is `[official]`
+   only when the platform or a named executive said it; counts and lengths from blogs stay
+   `[marketing]`.
+3. Run `node scripts/check-plugin.mjs .` (it rejects a rule missing its label, date or URL) and the
+   full test suite, then bump the plugin version and push.
 
 ## Language
 

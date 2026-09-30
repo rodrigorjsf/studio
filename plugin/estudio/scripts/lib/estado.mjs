@@ -8,6 +8,7 @@ import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readNotion } from './notion.mjs';
 import { readPerfil } from './perfil.mjs';
+import { platformReferenceState } from './plataforma.mjs';
 import {
   APROVACOES_AUTOMATICAS, CADERNO, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
@@ -285,7 +286,10 @@ export function estado(folder) {
     .map((video) => ({ projeto: projeto.id, video: video.id })));
 
   return {
-    folder, isEstudio, isEmpty, errors, perfil, caderno: cadernoOf(folder), projetos, waiting, aprendizadosPendentes, nextStep: nextStep({ errors, perfil, projetos, waiting }),
+    folder, isEstudio, isEmpty, errors, perfil, caderno: cadernoOf(folder), projetos, waiting, aprendizadosPendentes,
+    // The bundled platform reference of the Texto do post: `desatualizada` once its newest `sourced:` date is over 6 months old.
+    referenciaDePlataforma: platformReferenceState(),
+    nextStep: nextStep({ errors, perfil, projetos, waiting }),
   };
 }
 
