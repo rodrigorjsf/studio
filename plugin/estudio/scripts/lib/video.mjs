@@ -46,6 +46,9 @@ function videoDocument(nome, original, iniciadoEm) {
     perguntas: 0,
     gates: 0,
     aprovacoesAutomaticas: 0,
+    turnosInternos: 0,
+    tokensInternos: 0,
+    segundosInternos: 0,
     iniciadoEm,
     entregueEm: null,
   };

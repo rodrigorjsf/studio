@@ -14,15 +14,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DECISIONS, decisionFile, nfc, versionName, versionNumber, versions } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
-import { NOTAS_MD, REVISAO, VIDEO_DOC } from './layout.mjs';
+import { NOTAS_MD, QC_INTERNO, REVISAO, VIDEO_DOC } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
 
 // The Statuses a version is built in: after the Plano (Construção), after the internal review
 // (QC interno) and after she asked for changes (Ajustes).
-const BUILDING = new Set(['Construção', 'QC interno', 'Ajustes']);
+export const BUILDING = new Set(['Construção', 'QC interno', 'Ajustes']);
 
-// The Vídeo's folder, Status and latest version, or the refusal to return.
-function locate(folder, projetoNome, videoNome) {
+// The Vídeo's folder, Status, Gate and latest version, or the refusal to return.
+export function locate(folder, projetoNome, videoNome) {
   const found = findVideo(folder, projetoNome, videoNome);
   if (found.refusal) return found;
   let record;
@@ -33,7 +33,21 @@ function locate(folder, projetoNome, videoNome) {
   }
   const latest = versions(found.dir).at(-1) ?? null;
   const pending = latest !== null && !fs.existsSync(decisionFile(found.dir, latest));
-  return { ...found, status: typeof record.status === 'string' ? nfc(record.status) : null, latest, pending };
+  return { ...found, status: typeof record.status === 'string' ? nfc(record.status) : null, gate: record.gate ?? null, latest, pending };
+}
+
+// The internal Crítico turns on the version `versao` (`qc-interno`): {turnos} (none yet: []) or
+// {problem} when the record is damaged, which must never read as a fresh start of the loop.
+export function internalTurns(dir, versao) {
+  const file = path.join(dir, REVISAO, versao, QC_INTERNO);
+  if (!fs.existsSync(file)) return { turnos: [] };
+  try {
+    const { turnos } = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (Array.isArray(turnos)) return { turnos };
+  } catch {
+    // reported below
+  }
+  return { problem: `${REVISAO}/${versao}/${QC_INTERNO} is not a list of turns` };
 }
 
 export function novaVersao(folder, projetoNome, videoNome) {
@@ -58,6 +72,11 @@ export function abrirRevisao(folder, projetoNome, videoNome) {
     .sort()
     .map((name) => `${REVISAO}/${latest}/${name}`);
   if (stills.length === 0) return { opened: false, reason: 'no-stills', projeto, video, versao: latest };
+  // Nothing reaches her before the Críticos: their last turn approved it, or escalated to her.
+  const { turnos, problem } = internalTurns(dir, latest);
+  if (problem) return { opened: false, reason: 'invalid-turns', projeto, video, message: problem };
+  const last = turnos.at(-1);
+  if (!last?.aprovado && !last?.escalado) return { opened: false, reason: 'not-reviewed', projeto, video, versao: latest };
   const rodada = versionNumber(latest);
   const { data, message } = updateVideoRecord(dir, (current) => {
     current.status = 'Revisão';

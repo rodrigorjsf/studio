@@ -36,5 +36,5 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 | Artista generativo | subagent | Sonnet 5.5 · high |
 | Finalizador | subagent | Sonnet 5.5 · high |
 | QC técnico (Crítico) | subagent (`plugin/estudio/agents/qc-tecnico.md`, built in ticket #12: runs `qc`, tools Bash/Read) | Sonnet 5.5 · high |
-| Revisor de plataforma (Crítico) | subagent | Sonnet 5.5 · high |
-| Guardião da marca (Crítico) | subagent | Sonnet 5.5 · xhigh |
+| Revisor de plataforma (Crítico) | subagent (`plugin/estudio/agents/revisor-de-plataforma.md`, built in ticket #13: Área livre, hook, caption readability; tools Bash/Read) | Sonnet 5.5 · high |
+| Guardião da marca (Crítico) | subagent (`plugin/estudio/agents/guardiao-da-marca.md`, built in ticket #13: frames against the Kit; tools Bash/Read) | Sonnet 5.5 · xhigh |

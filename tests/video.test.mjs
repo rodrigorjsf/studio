@@ -182,6 +182,7 @@ test('the Vídeo document records Status, Nível, cost and the metric counters f
   assert.equal(fields.perguntas, '0');
   assert.equal(fields.gates, '0');
   assert.equal(fields.aprovacoesAutomaticas, '0');
+  assert.deepEqual([fields.turnosInternos, fields.tokensInternos, fields.segundosInternos], ['0', '0', '0'], 'the internal Crítico loop and its cost');
   assert.ok(Date.parse(fields.iniciadoEm) >= before - 1000, `iniciadoEm is when the Vídeo started (got ${fields.iniciadoEm})`);
   assert.equal(fields.entregueEm, '');
 });
@@ -211,6 +212,17 @@ test('registrar-video records the Nível chosen per Vídeo and adds up the quest
   assert.deepEqual(state.projetos[0].videos.map((v) => [v.id, v.status, v.nivel]), [['Dica rápida', 'Planejamento', 1], ['Lançamento', 'Briefing', 2]]);
 });
 
+test('registrar-video adds up an internal Crítico loop held outside a version (the Quadros de estilo) and its cost', () => {
+  const { root, dir } = estudio();
+  run('novo-video', dir, 'Minha Empresa', 'Dica rápida', gravacao(root));
+  run('registrar-video', dir, 'Minha Empresa', 'Dica rápida', '{"somar": {"turnosInternos": 1, "tokensInternos": 18000, "segundosInternos": 40}}');
+  const { out } = run('registrar-video', dir, 'Minha Empresa', 'Dica rápida', '{"somar": {"turnosInternos": 1, "tokensInternos": 9000, "segundosInternos": 25}}');
+  assert.equal(out.recorded, true, JSON.stringify(out));
+  assert.deepEqual([out.turnosInternos, out.tokensInternos, out.segundosInternos], [2, 27000, 65]);
+  const fields = record(dir, 'Minha Empresa', 'Dica rápida');
+  assert.deepEqual([fields.turnosInternos, fields.tokensInternos, fields.segundosInternos], ['2', '27000', '65']);
+});
+
 test('registrar-video refuses what is not a valid record and changes nothing', () => {
   const { root, dir } = estudio();
   run('novo-video', dir, 'Minha Empresa', 'Dica rápida', gravacao(root));
@@ -221,7 +233,7 @@ test('registrar-video refuses what is not a valid record and changes nothing', (
     ['{"nivel": 3}', 'nivel must be 1 or 2'],
     ['{"status": "Pronto"}', 'status must be one of: Briefing, Planejamento, Construção, QC interno, Revisão, Ajustes, Aprovado, Entregue, Arquivado'],
     ['{"somar": {"perguntas": -1}}', 'somar.perguntas must be a whole number, 0 or more'],
-    ['{"somar": {"minutos": 3}}', 'somar.minutos is not a counter (perguntas, gates, aprovacoesAutomaticas)'],
+    ['{"somar": {"minutos": 3}}', 'somar.minutos is not a counter (perguntas, gates, aprovacoesAutomaticas, turnosInternos, tokensInternos, segundosInternos)'],
     ['{"original": "outro.mp4"}', 'original cannot be recorded here (nivel, status, gate, somar)'],
     ['{"gate": "fechado"}', 'gate must be "aberto" (waiting for her) or null (closed)'],
     ['nível um', 'not valid JSON'],
