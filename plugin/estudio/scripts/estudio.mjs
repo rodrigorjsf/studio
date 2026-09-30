@@ -30,6 +30,7 @@ import { pausas, precorte } from './lib/precorte.mjs';
 import { qc } from './lib/qc.mjs';
 import { qcInterno } from './lib/qc-interno.mjs';
 import { abrirRevisao, decidirRevisao, novaVersao } from './lib/revisao.mjs';
+import { textoDoPost } from './lib/texto-do-post.mjs';
 import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
 // Each subcommand with the arguments it takes after the Estúdio folder.
@@ -56,6 +57,7 @@ const COMMANDS = {
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   caderno: { run: caderno, args: ["'<json>'"] },
+  'texto-do-post': { run: textoDoPost, args: ['"<projeto>"', '"<vídeo>"'] },
   arquivar: { run: arquivar, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },

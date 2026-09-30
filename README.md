@@ -42,7 +42,7 @@ O estúdio é uma equipe. **Só o Diretor fala com você**; as outras **personas
 
 ### Quem é quem
 
-Duas personas trabalham na conversa com você (são *skills*, rodando na thread principal do Claude) e onze são agentes que o Diretor chama e que devolvem um relatório. A coluna **Nível** diz se a persona trabalha no Nível 1, no Nível 2 ou nos dois.
+Duas personas trabalham na conversa com você (são *skills*, rodando na thread principal do Claude) e doze são agentes que o Diretor chama e que devolvem um relatório. A coluna **Nível** diz se a persona trabalha no Nível 1, no Nível 2 ou nos dois.
 
 | Persona | Tipo | Etapa da Esteira | O que faz | Quem chama | O que devolve | Se aprova | Se reprova ou falha | Nível |
 |---|---|---|---|---|---|---|---|---|
@@ -57,6 +57,7 @@ Duas personas trabalham na conversa com você (são *skills*, rodando na thread 
 | **Revisor de plataforma** (Crítico) | agente `revisor-de-plataforma` | QC interno: Plano, Quadros de estilo e cada versão | confere se o texto fica na Área livre, se os primeiros segundos prendem quem assiste e se a legenda é legível no celular | o Diretor | veredito `aprovado` ou `reprovado`, com um motivo por problema | com os outros Críticos aprovando, o trabalho avança até você | os motivos voltam, palavra por palavra, ao Autor do trabalho; nunca conserta nada | 1 e 2 |
 | **QC técnico** (Crítico) | agente `qc-tecnico` | QC interno (cada versão renderizada) e antes da Entrega (cada arquivo) | mede o render contra o Master: duração, resolução, 30 quadros por segundo, uma só faixa de áudio, volume, quadros pretos e congelados | o Diretor | veredito `aprovado` ou `reprovado`, com cada checagem que falhou; o teste de flashes fica para uma pessoa | a versão segue para a sua revisão, ou os arquivos seguem para a Entrega | na versão, os motivos voltam ao Motion designer; nos arquivos da Entrega, um render refazível volta ao Finalizador e um problema na edição volta ao Motion designer | 1 e 2 |
 | **Finalizador** | agente `finalizador` | Entrega | renderiza o MP4 (vertical 9:16 por padrão) e, se você pediu, o 16:9, o quadrado e as sobreposições em MOV | o Diretor, depois que você aprova uma versão | os arquivos na pasta `entrega/` | o QC técnico aprova cada arquivo, o estúdio confere todos contra o Master e o Vídeo vira Entregue | refaz uma vez o que é dele (render que parou, Formato errado); se o problema está na edição, é do Motion designer | 1 e 2 |
+| **Social media** | agente `social-media` | Entrega, ao lado do Finalizador | escreve o **Texto do post** de cada plataforma em que o Projeto posta (Reels, TikTok, Shorts): primeira linha com a palavra-chave, um texto curto e honesto com no máximo uma pergunta de verdade, hashtags específicas dentro das regras de cada plataforma e, nos Shorts, o título; nada que você não disse no vídeo, sem pedir curtida ou comentário e sem hashtags genéricas como `#fyp` | o Diretor, junto com o Finalizador, depois que você aprova uma versão | `texto-do-post.md` na pasta `entrega/`, um relatório e, se houver, propostas para o Caderno | a checagem `texto-do-post` do estúdio confere as regras que dá para medir (as plataformas do Kit, no máximo 5 hashtags no Instagram e 60 em qualquer uma, título de Shorts com até 100 caracteres e sem hashtag, nenhuma hashtag genérica); o Diretor mostra o texto na mensagem final | corrige sozinho o que a checagem aponta e roda de novo, até 3 vezes; o arquivo não trava a Entrega, que só confere MP4 e MOV | 1 e 2 |
 | **Artista generativo** | agente `artista-generativo` | Construção, antes da primeira versão | gera as imagens e os clipes que o Plano pede na Higgsfield, sem texto dentro, cada geração liberada pelo estúdio antes de ser paga | o Diretor, só depois do Gate de créditos | os arquivos em `gerados/` e o gasto contra o estimado | o Motion designer monta a edição com eles | para quando o gasto passaria de 20% acima do aprovado (o Diretor pergunta a você) e para, relatando, quando o saldo não cobre | 2 |
 | **Montador Higgsedit** | agente `montador-higgsedit` | Construção, só a pedido | monta no Higgsedit (o editor da Higgsfield) o trecho, ou o Vídeo inteiro, que você pediu por um efeito que só ele tem | o Diretor, só depois do seu pedido e do Gate de custo do Higgsedit | o arquivo em `higgsedit/` e o gasto contra o estimado | passa pelos mesmos Críticos e pelo mesmo QC técnico de qualquer versão | para no limite de +20% e o Diretor pergunta a você; se o Higgsedit não faz o que você pediu, diz isso e propõe o mais parecido no Remotion | 2 |
 
@@ -131,6 +132,8 @@ flowchart TD
   MH -->|"o Vídeo inteiro"| QI
 
   REV -->|"aprovar ou aprovar<br/>com pequenos ajustes"| FIN["Finalizador<br/>renderiza os arquivos"]
+  REV -->|"ao mesmo tempo"| SM["Social media<br/>escreve o Texto do post"]
+  SM --> TXT(["Texto do post<br/>em entrega/ e na mensagem final"])
   FIN --> QCE{"QC técnico<br/>aprova cada arquivo?"}
   QCE -->|"render refazível"| FIN
   QCE -->|"problema na edição"| MD
@@ -144,13 +147,14 @@ flowchart TD
   classDef estudio fill:#DCEBFF,stroke:#2A6FDB,color:#111
   classDef fim fill:#D6F5DD,stroke:#2E8B57,color:#111
   class C,GP,GE,GK,GPC,GPA,GPL,GC,GO,ESC,ESC1,ESC2,ESC3,REV,GH,GL,PED ela
-  class D,SEM,PARA,PAR,ENT,BRF,ASS,EPC,NM,MO,RP,CP,DA,CQ,AUTO,NV,AG,MD,QI,MH,FIN,QCE estudio
-  class ENTR,ARQ fim
+  class D,SEM,PARA,PAR,ENT,BRF,ASS,EPC,NM,MO,RP,CP,DA,CQ,AUTO,NV,AG,MD,QI,MH,FIN,QCE,SM estudio
+  class ENTR,ARQ,TXT fim
 ```
 
 - **Loop interno dos Críticos.** Antes de você ver qualquer coisa, os Críticos julgam o trabalho. Se algum reprova, os motivos voltam ao Autor e você não é avisada. Depois de **3 reprovações seguidas** o loop desiste: o Diretor te faz uma pergunta em uma frase, com duas opções (ver assim mesmo, ou seguir uma direção sua), e uma direção sua abre três turnos novos.
 - **Autonomia.** Com a Autonomia **alta**, o Diretor aprova por você o Gate do Plano e dos Quadros, e sempre te conta e deixa registrado. Créditos, Higgsedit, Pré-corte, Kit de marca, a sua revisão da edição e os aprendizados do Kit **nunca** são aprovados automaticamente.
 - **Caderno.** O estúdio lembra como trabalhar com você. Cada Estúdio tem um **Caderno** (sobre você e o seu computador) e cada Projeto tem o seu (sobre aquela conta), cada um com três seções: **Elogios** (o que você gostou, para continuar fazendo), **Queixas** (o que você não gostou, para parar de fazer) e **Soluções** (um problema já resolvido no seu computador, para não travar de novo). É texto em português que você pode abrir: `caderno.md` na pasta do Estúdio e na pasta de cada Projeto. **Só o Diretor escreve**: quando você diz o que gostou ou não, ele anota e te conta em uma linha; quando algo novo contradiz uma anotação antiga, ele pergunta qual fica; se uma Queixa contradiz o seu Kit de marca, ele oferece um aprendizado do Kit. Toda persona recebe os dois Cadernos junto com o Kit e lê antes de trabalhar, e pode propor anotações no relatório que devolve, que o Diretor decide. O Caderno nunca muda o Kit de marca.
+- **Texto do post.** Quando você aprova a edição, o **Social media** escreve, ao mesmo tempo que o Finalizador renderiza, o texto que você cola em cada app: só para as plataformas em que o Projeto posta (`plataformas` no Kit de marca), com a primeira linha na palavra-chave do vídeo, um texto curto, hashtags específicas e, nos Shorts, o título. Ele chega no arquivo `texto-do-post.md` da pasta `entrega/` e na mensagem final, um bloco pronto para copiar por plataforma, com o lembrete de conferir cada hashtag no app (as plataformas têm uma lista de hashtags restritas que não publicam); se as regras de plataforma do estúdio tiverem mais de 6 meses, o Diretor avisa. Não tem Gate: o estúdio não chama isso de "legenda", que é a legenda queimada no vídeo.
 - **Nível 2.** O Gate de créditos vem depois do Plano e antes de qualquer geração. O Higgsedit só entra se você pedir, com um Gate de custo próprio.
 
 ### Os Gates

@@ -121,3 +121,6 @@ Pages: concepts/caderno.md, concepts/plugin-architecture.md, overview.md, index.
 
 ## [2026-09-30] update | Kit de marca records the Projeto's plataformas (ticket #41)
 Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-30] update | Social media persona and the `texto-do-post` check: the Texto do post beside the Finalizador (ticket #44)
+Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.

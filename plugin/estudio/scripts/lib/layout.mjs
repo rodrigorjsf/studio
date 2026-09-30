@@ -39,6 +39,10 @@
 //                                    qc-interno.json holds the internal Crítico turns on it (`qc-interno`)
 //   projetos/<projeto>/videos/<vídeo>/entrega/              the Entrega: the final MP4 (9:16 by default; 16:9
 //                                    or transparent MOV overlays on request), checked by `entregar`
+//   projetos/<projeto>/videos/<vídeo>/entrega/texto-do-post.md   the Texto do post the Social media writes
+//                                    beside the renders (pt-BR, one `## ` section per platform of the Kit);
+//                                    `entregar` counts only MP4 and MOV, so it never blocks the Entrega
+//                                    (`texto-do-post` checks it: texto-do-post.mjs)
 //   projetos/<projeto>/videos/<vídeo>/gerados/             Nível 2: the images and clips generated on
 //                                    Higgsfield (no text in them), and gerados.json, every generation
 //                                    `gastar-creditos` authorized: file, model, quoted credits, prompt
@@ -87,6 +91,7 @@ export const DECISAO = 'decisao.json';
 export const NOTAS_MD = 'notas.md';
 export const QC_INTERNO = 'qc-interno.json';
 export const ENTREGA = 'entrega';
+export const TEXTO_DO_POST = 'texto-do-post.md';
 export const NOTION_PAGINAS = 'notion/paginas.json';
 export const NOTION_RESUMO = 'notion/resumo.md';
 export const GERADOS = 'gerados';
