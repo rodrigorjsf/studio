@@ -19,9 +19,15 @@
 //   projetos/<projeto>/videos/<vídeo>/frames/zona-do-rosto/ face-zone frames, the sampler's amostras.json
 //                                    and medicoes.json, the face measured on each frame (see ingest.mjs)
 //   projetos/<projeto>/videos/<vídeo>/zona-do-rosto.json    the Zona do rosto `zona-do-rosto` measured
+//   projetos/<projeto>/videos/<vídeo>/master/<file>.mp4     the Master a Pré-corte wrote (`precorte`);
+//                                    without a Pré-corte the Master is the Original itself
+//   projetos/<projeto>/videos/<vídeo>/precorte/             proposta.json (the cuts the Editor de
+//                                    pré-corte proposes) and mapa.json (the segment map `precorte` applied)
+//   projetos/<projeto>/videos/<vídeo>/transcricao/original/ the Original's transcript, kept aside when a
+//                                    Pré-corte moves palavras.json onto the new Master's clock
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
-// Anything else inside a Projeto or Vídeo folder (the Master of a Pré-corte, versions,
+// Anything else inside a Projeto or Vídeo folder (versions,
 // the Entrega, and the reserved `notion/` folder for Página Notion links and Resumo Notion
 // documents) is left to later stages and never rejected here.
 export const SCHEMA_VERSION = 1;
@@ -42,3 +48,7 @@ export const FRAMES_ROSTO = 'frames/zona-do-rosto';
 export const AMOSTRAS_ROSTO = 'frames/zona-do-rosto/amostras.json';
 export const MEDICOES_ROSTO = 'frames/zona-do-rosto/medicoes.json';
 export const ZONA_DO_ROSTO = 'zona-do-rosto.json';
+export const MASTER = 'master';
+export const TRANSCRICAO = 'transcricao';
+export const TRANSCRICAO_ORIGINAL = 'transcricao/original';
+export const PRECORTE_MAPA = 'precorte/mapa.json';

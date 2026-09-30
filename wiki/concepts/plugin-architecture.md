@@ -1,7 +1,7 @@
 ---
 title: Plugin architecture
 type: concept
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [../sources/estudio-profissional-de-video-report.md, ../sources/grilling-estudio-plugin-2026-09-29.md]
 ---
 
@@ -57,3 +57,10 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 - Persona `plugin/estudio/agents/assistente-de-edicao.md` (`claude-sonnet-5-5`, effort `high`, tools Bash/Read/Write): transcribes with `plugin/estudio/scripts/transcrever.py` (faster-whisper, model cached in the plugin data folder, Kit glossary as a spelling hint), samples frames with `amostrar.py`, measures a face box on every face-zone frame (`medicoes.json`) and returns a report with the Prints that would help.
 - Zona do rosto rule (`plugin/estudio/scripts/lib/ingest.mjs`): accepted only from a face-zone sampler run over the whole clip (no gap wider than 1 s, or duration/600 past 10 min) with every frame measured; the zone is the union of the boxes plus a 0.05 margin, or `null` when no face appears.
 - `estado` reports per Vídeo `briefing` and `ingest.{transcricao, zonaDoRosto}` and validates the counters, timestamps, `palavras.json` and `zona-do-rosto.json`. The installers pin `faster-whisper==1.2.1` with `av<19` (PyAV 19 breaks every transcription). Tests: `tests/video.test.mjs`, `tests/transcrever.test.mjs`.
+
+## Built: Pré-corte (ticket #14)
+
+- Off by default (ADR 0003). `pausas` (`plugin/estudio/scripts/lib/precorte.mjs`) reads the Master's `palavras.json` and lists every silence of 1.5 s or more before the first word or between two words. `semCorte: true` (long pauses adding up to 3 s or more) makes the Diretor warn her and offer the Pré-corte as a Gate, never approved automatically (`plugin/estudio/skills/novo-video/references/pre-corte.md`, step 6 of `/estudio:novo-video`).
+- Persona `plugin/estudio/agents/editor-de-pre-corte.md` (`claude-sonnet-5-5`, effort `high`, tools Bash/Read/Write) proposes the cuts (silêncio, repetição, tropeço), always between words, in `precorte/proposta.json` with the kept segments (`manter`). The Criadora approves the list, or drops some cuts, before anything is cut.
+- `precorte` takes the approved `{"manter": [{inicio, fim}]}` plus the `ffmpeg`/`ffprobe` paths. It snaps every boundary to a frame and refuses a boundary inside a word (`cuts-a-word`). It re-encodes the kept segments (H.264 + AAC) into `master/<name>.mp4`. It moves `palavras.json` onto the new Master's clock, keeping the Original's transcript in `transcricao/original/`, and writes the segment map to `precorte/mapa.json`. Finally it points `master` in `video.md` at the new file. The Original stays byte-identical.
+- From then on the Master is locked (`locked-final-cut`): `precorte` refuses (`master-locked`) once `master` differs from `original`, or once the Status is past `Planejamento`. The Zona do rosto measured on the Original stays valid, because it is a union over a superset of the Master's frames. Tests: `tests/precorte.test.mjs` (the cut tests need `ESTUDIO_DADOS`).

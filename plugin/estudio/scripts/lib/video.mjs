@@ -105,7 +105,7 @@ function recordProblem(record) {
 
 // The Vídeo `videoNome` of the Projeto `projetoNome`, with its folder on disk (a Mac may
 // store names decomposed), or the refusal to return.
-function findVideo(folder, projetoNome, videoNome) {
+export function findVideo(folder, projetoNome, videoNome) {
   const state = estado(folder);
   const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(projetoNome));
   if (!projeto) return { refusal: { reason: 'unknown-projeto' } };

@@ -46,3 +46,6 @@ Pages: concepts/plugin-architecture.md, overview.md.
 
 ## [2026-09-29] update | New Vídeo briefing and ingest built (ticket #9)
 Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-30] update | Pré-corte built: untrimmed warning, Editor de pré-corte, `precorte` (ticket #14)
+Pages: concepts/plugin-architecture.md, concepts/picture-lock.md, overview.md.
