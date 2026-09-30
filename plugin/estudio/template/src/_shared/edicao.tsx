@@ -49,13 +49,13 @@ export const MutedMaster: React.FC<{projeto: string; video: string; master: stri
 // records it, e.g. "gerados/03_broll_ampulheta.mp4"), or a stretch Higgsedit montaged on her request,
 // from its higgsedit/ folder: an image, or a clip that is always muted, so her original audio stays
 // the edit's only sound. It fills the frame over the Master; place it inside a <Sequence>.
-const CLIPE = /\.(mp4|mov|webm)$/i;
+const CLIP_FILE = /\.(mp4|mov|webm)$/i;
 export const Gerado: React.FC<{projeto: string; video: string; arquivo: string; style?: React.CSSProperties}> = ({
   projeto, video, arquivo, style,
 }) => {
   const src = videoFile(projeto, video, arquivo);
   const estilo: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover', ...style};
-  return <AbsoluteFill>{CLIPE.test(arquivo) ? <Video src={src} muted objectFit="cover" style={estilo} /> : <Img src={src} style={estilo} />}</AbsoluteFill>;
+  return <AbsoluteFill>{CLIP_FILE.test(arquivo) ? <Video src={src} muted objectFit="cover" style={estilo} /> : <Img src={src} style={estilo} />}</AbsoluteFill>;
 };
 
 export const Edicao: React.FC<EdicaoProps & {children?: React.ReactNode}> = ({
@@ -69,14 +69,14 @@ export const Edicao: React.FC<EdicaoProps & {children?: React.ReactNode}> = ({
   </AbsoluteFill>
 );
 
-// The simplest edit: her Master with the Kit's captions. Registered as `EdicaoComLegendas`;
+// The simplest edit: her Master with the Kit's captions. Registered under the composition id `EdicaoComLegendas` (an id, not a helper name: renders and docs select it by that id);
 // a starting point, and the proof the base keeps the Master's duration and voice.
-export type PropsDaEdicaoComLegendas = EdicaoProps & {
+export type EdicaoWithCaptionsProps = EdicaoProps & {
   // The words she says, from palavras.json, as {texto: w, inicio: s}.
   legenda?: Word[];
 };
 
-export const EdicaoComLegendas: React.FC<PropsDaEdicaoComLegendas> = (props) => {
+export const EdicaoWithCaptions: React.FC<EdicaoWithCaptionsProps> = (props) => {
   const kit = props.kit ?? DEFAULT_KIT;
   useKitFonts(kit, props.projeto);
   return (
@@ -99,3 +99,7 @@ export const calcularMetadadosDaEdicao = calculateEdicaoMetadata;
 export const arquivoDoVideo = videoFile;
 /** @deprecated Use `MutedMaster`. */
 export const MasterMudo = MutedMaster;
+/** @deprecated Use `EdicaoWithCaptionsProps`. */
+export type PropsDaEdicaoComLegendas = EdicaoWithCaptionsProps;
+/** @deprecated Use `EdicaoWithCaptions`. */
+export const EdicaoComLegendas = EdicaoWithCaptions;

@@ -47,6 +47,8 @@ const RENAMED = [
   { old: 'calcularMetadadosDaEdicao', now: 'calculateEdicaoMetadata' },
   { old: 'arquivoDoVideo', now: 'videoFile' },
   { old: 'MasterMudo', now: 'MutedMaster' },
+  { old: 'PropsDaEdicaoComLegendas', now: 'EdicaoWithCaptionsProps' },
+  { old: 'CLIPE', now: 'CLIP_FILE', alias: false },
 ];
 
 const TEXT = /\.(ts|tsx|mjs|md|json|sh|ps1|py)$/;
@@ -117,4 +119,10 @@ test('a Vídeo composition written with the English names typechecks in a fresh 
 
 test('the whole scaffolded Estúdio typechecks', needs, () => {
   assert.equal(status, 0, diagnostics);
+});
+
+test('EdicaoComLegendas stays the composition id and is also a deprecated alias of EdicaoWithCaptions', () => {
+  assert.match(sharedSources, /@deprecated[^\n]*\nexport const EdicaoComLegendas = EdicaoWithCaptions;/);
+  const rootTsx = normalize(fs.readFileSync(path.join(pluginRoot, 'template', 'src', 'Root.tsx'), 'utf8'));
+  assert.match(rootTsx, /id="EdicaoComLegendas"\s+component=\{EdicaoWithCaptions\}/);
 });

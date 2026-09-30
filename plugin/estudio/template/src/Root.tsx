@@ -6,7 +6,7 @@ import {VerticalDados} from './estilos/VerticalDados';
 import {VerticalLegendas} from './estilos/VerticalLegendas';
 import {VerticalPrint} from './estilos/VerticalPrint';
 import {calculateKitMetadata, DIMENSIONS, KitProps} from './_shared/kit';
-import {calculateEdicaoMetadata, EdicaoComLegendas, EDICAO_FPS, PropsDaEdicaoComLegendas} from './_shared/edicao';
+import {calculateEdicaoMetadata, EdicaoWithCaptions, EDICAO_FPS, EdicaoWithCaptionsProps} from './_shared/edicao';
 import {PreviaDoKit} from './kit/PreviaDoKit';
 import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro, QuadroDeEstilo} from './quadro/QuadroDeEstilo';
 
@@ -59,11 +59,11 @@ export const RemotionRoot: React.FC = () => (
     <Folder name="Edicao">
       <Composition
         id="EdicaoComLegendas"
-        component={EdicaoComLegendas}
+        component={EdicaoWithCaptions}
         {...DIMENSIONS['9:16']}
         fps={EDICAO_FPS}
         durationInFrames={EDICAO_FPS}
-        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, legenda: []} satisfies PropsDaEdicaoComLegendas}
+        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, legenda: []} satisfies EdicaoWithCaptionsProps}
         calculateMetadata={calculateEdicaoMetadata}
       />
     </Folder>
