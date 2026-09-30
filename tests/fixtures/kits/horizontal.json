@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "aprovadoEm": "2026-09-29T12:00:00.000Z",
+  "formato": "16:9",
+  "cores": {
+    "primaria": "#2B1A0E",
+    "destaque": "#00C2A8",
+    "fundo": "#FF6B00",
+    "texto": "#2B1A0E"
+  },
+  "tipografia": {
+    "titulo": {
+      "familia": "Georgia",
+      "peso": 700,
+      "arquivo": null
+    },
+    "texto": {
+      "familia": "Georgia",
+      "peso": 400,
+      "arquivo": null
+    },
+    "escala": {
+      "titulo": 120,
+      "corpo": 52
+    }
+  },
+  "legendas": {
+    "ativas": true,
+    "estilo": "palavra-destacada",
+    "fonte": "titulo",
+    "tamanho": 56,
+    "cor": "#2B1A0E",
+    "destaque": null,
+    "posicao": "superior",
+    "caixaAlta": true,
+    "palavrasPorVez": 2
+  },
+  "movimento": {
+    "intensidade": "sutil",
+    "ritmo": "calmo",
+    "entradaMs": 600,
+    "transicao": "fade",
+    "recursos": []
+  },
+  "camera": {
+    "comportamento": "",
+    "enquadramento": ""
+  },
+  "zonaDoRosto": {},
+  "imagens": {
+    "prints": "inteiros, com marca-texto exatamente na frase citada",
+    "interacao": ""
+  },
+  "som": {
+    "efeitos": "sutis"
+  },
+  "musica": {
+    "politica": "no-app"
+  },
+  "entregaveis": {
+    "formatos": [
+      "16:9",
+      "9:16"
+    ],
+    "overlays": false
+  },
+  "creditos": {
+    "porVideo": null,
+    "porMes": null
+  },
+  "fazer": [],
+  "evitar": [],
+  "glossario": [],
+  "referencias": [],
+  "ativos": {
+    "logos": [],
+    "fontes": [],
+    "cartaoFinal": null,
+    "outros": []
+  }
+}

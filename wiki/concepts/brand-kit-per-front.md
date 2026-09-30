@@ -23,3 +23,12 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 - The schema is enforced in code by `plugin/estudio/scripts/lib/kit.mjs`. `estado` reports each bad field, for example `cores.destaque must be a color like "#1A2B3C"`. Asset paths must exist inside `kit/`. The field-by-field description the Entrevistador follows is `plugin/estudio/skills/novo-projeto/references/kit-schema.md`.
 - Defaults are written by `novo-projeto`: Formato `9:16` and `musica.politica: "no-app"` (she adds the music in the app).
 - Approval Gate: a valid Kit reads `aguardando-aprovacao` in `estado` until `aprovar-kit` stamps `aprovadoEm`, which refuses an invalid Kit. Only then is the Kit `ok` and the Projeto usable. Tests: `tests/projeto.test.mjs`.
+
+## Built: the Kit reaches the frame (ticket #8)
+
+- Every Vídeo composition of the Estúdio's Remotion template reads the Projeto's `kit.json` through `plugin/estudio/template/src/_shared/kit.ts`: `calcularMetadadosDoKit` loads the Kit from the public folder (`projetos/`), sets the frame size from the Formato and hands the Kit to the component as its `kit` prop.
+- Formato: `formato: null` renders the Kit's Formato (9:16 by default, 1080×1920); `"16:9"` (1920×1080) or `"1:1"` is a variant on request, same composition.
+- Brand pieces in `plugin/estudio/template/src/_shared/marca.tsx`: fonts (family, weight, optional font file under `kit/`), the entrance motion (`movimento.entradaMs`) and the caption style (`legendas`: grouping, highlight, position, case). `PrevisaoDoKit` ("Prévia do Kit") draws a Kit on one frame and is the worked example.
+- The default Kit has one source, `plugin/estudio/template/src/_shared/kit-padrao.json`, read by both `novo-projeto` (`lib/kit.mjs`) and the template (Prévia without a Projeto).
+- The gallery examples in `src/estilos/` keep their own palettes: they show a style, not a Projeto's brand.
+- Proof (Seam 2): `tests/template.test.mjs` scaffolds an Estúdio, renders stills from two fixture Kits and checks frame size and background color.
