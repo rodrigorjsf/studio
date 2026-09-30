@@ -38,6 +38,9 @@
 //                                    after an approval with small changes, ajustes/ (the stills they changed)
 //   projetos/<projeto>/videos/<vídeo>/entrega/              the Entrega: the final MP4 (9:16 by default; 16:9
 //                                    or transparent MOV overlays on request), checked by `entregar`
+//   projetos/<projeto>/videos/<vídeo>/gerados/             Nível 2: the images and clips generated on
+//                                    Higgsfield (no text in them), and gerados.json, every generation
+//                                    `gastar-creditos` authorized: file, model, quoted credits, prompt
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder is left to later stages and never rejected here.
@@ -71,3 +74,5 @@ export const NOTAS_MD = 'notas.md';
 export const ENTREGA = 'entrega';
 export const NOTION_PAGINAS = 'notion/paginas.json';
 export const NOTION_RESUMO = 'notion/resumo.md';
+export const GERADOS = 'gerados';
+export const GERADOS_REGISTRO = 'gerados/gerados.json';

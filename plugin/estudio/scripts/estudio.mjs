@@ -17,7 +17,8 @@
 //       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
 //       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
 //       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); and when the Finalizador
-//       has rendered the Entrega (`entregar`).
+//       has rendered the Entrega (`entregar`); and in Nível 2, when she approves the credit cost
+//       (`aprovar-creditos`) and before each Higgsfield generation is paid (`gastar-creditos`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
@@ -38,11 +39,14 @@
 //       node "<plugin root>/scripts/estudio.mjs" abrir-revisao "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" decidir-revisao "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" aprovar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
+//       node "<plugin root>/scripts/estudio.mjs" gastar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
 import path from 'node:path';
 import { criar } from './lib/criar.mjs';
+import { aprovarCreditos, gastarCreditos } from './lib/creditos.mjs';
 import { entregar } from './lib/entrega.mjs';
 import { estado } from './lib/estado.mjs';
 import { atualizarKitVideo, editarKit } from './lib/editar.mjs';
@@ -75,6 +79,8 @@ const COMMANDS = {
   'abrir-revisao': { run: abrirRevisao, args: ['"<projeto>"', '"<vídeo>"'] },
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffprobe>"'] },
+  'aprovar-creditos': { run: aprovarCreditos, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
+  'gastar-creditos': { run: gastarCreditos, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
 };
 
 function usageError(error) {

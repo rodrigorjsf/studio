@@ -72,6 +72,7 @@ export const RemotionRoot: React.FC = () => (
         Cada composição de Vídeo é construída sobre <Edicao> de src/_shared/edicao.tsx (o Master contínuo, com o
         áudio original uma única vez), registrada com calculateMetadata={calcularMetadadosDaEdicao} e as props
         {projeto, formato, video, master, duracao}, e usa as peças de src/_shared/marca.tsx. Nenhuma cor, fonte ou
-        estilo de legenda no código: tudo vem do Kit. */}
+        estilo de legenda no código: tudo vem do Kit. No Nível 2, as imagens e clipes gerados (pasta gerados/ do
+        Vídeo) entram com <Gerado> de src/_shared/edicao.tsx, sempre sem som. */}
   </>
 );

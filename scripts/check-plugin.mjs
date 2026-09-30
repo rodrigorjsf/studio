@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // WHAT  Structure check for the marketplace at a repo root and every local plugin it lists.
 // WHY   Seam 3 of the Estúdio spec: a valid manifest, pinned personas, Críticos without
-//       editing tools, a package free of development material and within platform limits, and
+//       editing tools, a package free of development material and within platform limits,
 //       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
-//       holding a Notion tool).
+//       holding a Notion tool), and no trace of the Higgsfield API-key path.
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
 //       Prints {"ok":bool,"plugins":[names],"errors":[messages]} and exits 1 when not ok.
@@ -77,6 +77,16 @@ function checkNotionTools(file, rel, pluginName, errors) {
   }
 }
 
+// Higgsfield is reached only through her own connector, logged in with her account (spec #1,
+// ADR 0002): there is no key to set, store or show, so the package never names the Cloud API's
+// key variables or the upstream script that read them.
+const HIGGSFIELD_KEY_PATH = /\bHF_(?:API_)?(?:KEY|SECRET)\b|\bhf_api\.py\b/;
+
+function checkHiggsfieldKeyPath(file, rel, pluginName, errors) {
+  const found = HIGGSFIELD_KEY_PATH.exec(fs.readFileSync(file, 'utf8'));
+  if (found) errors.push(`${pluginName}: ${rel} names the Higgsfield API-key path ("${found[0]}"); Higgsfield is reached only through her connector`);
+}
+
 // The plugin declares no Notion server: Notion comes only from her own connector.
 function checkNotionServers(dir, manifest, pluginName, errors) {
   const declared = [];
@@ -118,7 +128,10 @@ function checkPackageContents(dir, pluginName, errors) {
         files += 1;
         bytes += fs.statSync(full).size;
         if (entry.name.endsWith('.md')) markdown.push(full);
-        if (TEXT_FILE.test(entry.name)) checkNotionTools(full, relPath, pluginName, errors);
+        if (TEXT_FILE.test(entry.name)) {
+          checkNotionTools(full, relPath, pluginName, errors);
+          checkHiggsfieldKeyPath(full, relPath, pluginName, errors);
+        }
       }
     }
   };

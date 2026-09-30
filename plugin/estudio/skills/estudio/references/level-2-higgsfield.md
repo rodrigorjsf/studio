@@ -2,22 +2,22 @@
 
 > Translated from the upstream studio guide `4-nivel-2-higgsfield.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) holds everything a Vídeo needs; the Criadora never runs commands herself: you run them, or you tell her in one plain sentence what is missing.
 
-In Nível 2, besides assembling the edit, Claude **generates images and videos with AI** on [Higgsfield](https://higgsfield.ai): cinematic B-rolls, animated illustrations, visual metaphors, scene transformations. The final assembly runs on **Higgsedit**, Higgsfield's own editor, inside a cloud environment.
+In Nível 2, besides everything Nível 1 does, the studio **generates images and clips with AI** on [Higgsfield](https://higgsfield.ai): cinematic B-rolls, animated illustrations, visual metaphors, scene transformations. **The edit is still assembled in Remotion**, on her computer, exactly as in [Nível 1](level-1-remotion.md): Higgsfield is only a source of images and clips. One montage engine means one set of rules and one internal review for every Vídeo.
 
-**Cost:** uses **Higgsfield credits** (paid plan). Nothing is generated without the Criadora approving the plan and the estimated cost.
-**When it is worth it:** videos where generated images (B-roll, metaphors, realistic scenes) make a difference. If the video is more tutorial and prints, [Nível 1](level-1-remotion.md) solves it for free.
+**Cost:** uses **Higgsfield credits** from her own account (paid plan). Nothing is generated before she approves the Plano and its cost in credits, whatever her Autonomia.
+**When it is worth it:** videos where generated imagery (B-roll, metaphors, realistic scenes) makes a difference. If the video is more tutorial and Prints, Nível 1 solves it for free.
 
 ---
 
 ## 1. Connect Higgsfield to Claude
 
-Nível 2 uses Higgsfield only through its official connector, with her own Higgsfield login. (The upstream API-key path and its script are not part of this plugin; see the spec decision on Níveis.)
+Nível 2 uses Higgsfield only through its official connector, logged in with her own Higgsfield account. There is no key to copy, set or store: never ask her for one, and never write one to a file or show one in the conversation.
 
 ### Sign in with her Higgsfield account
 
-This is the official connector (MCP), at `https://mcp.higgsfield.ai/mcp`. Authentication is done by logging into her account; there is no key to copy.
+This is the official connector (MCP), at `https://mcp.higgsfield.ai/mcp`. Authentication is done by logging into her account.
 
 **In Claude Desktop (or claude.ai):**
 
@@ -39,64 +39,45 @@ claude mcp add --transport http --scope user higgsfield https://mcp.higgsfield.a
 
 Then, inside Claude Code, type `/mcp`, select `higgsfield` and authenticate in the browser.
 
-**How to tell it worked:** ask Claude "check my balance on Higgsfield" (in pt-BR: "consulta meu saldo na Higgsfield"). It should answer with her credits.
+**How to tell it worked:** call its `balance` tool (she can ask "consulta meu saldo na Higgsfield"). It answers with her credits.
 
 ---
 
 ## 2. What she hands over and what she gets
 
-Same as Nível 1: a video **already cut** in `video/`, **prints** in `prints/` (photos of people mentioned, news, logos, thumbnails) and her **guidance**, including a **credit budget** if she wants to cap the spend.
+Same as Nível 1: her recording as a new Vídeo, **Prints** in the Vídeo's `prints/` folder, and her guidance. The Kit de marca's **Orçamento de créditos** (`creditos.porVideo`, `creditos.porMes`) caps what any Vídeo of the Projeto may be approved for.
 
-She receives the final MP4 at `edicoes/<NNN. nome>/<nome>_final.mp4`.
+She receives the final MP4 in the Vídeo's `entrega/` folder, as in Nível 1. The generated images and clips stay in the Vídeo's `gerados/` folder, with `gerados.json` listing each one: its file, model, cost and prompt.
 
 ---
 
 ## 3. The process
 
-### 1. Organize
-Same organization as Nível 1: folder `projetos/<NNN. nome>/`, `ffprobe` on the video and `edicoes/<NNN. nome>/`.
+Everything of Nível 1 applies ([novo-video](../../novo-video/SKILL.md), [plano](../../plano/SKILL.md), [edicao](../../edicao/SKILL.md)); Nível 2 adds three things.
 
-### 2. Watch and transcribe
-Same process as Nível 1: frames with the plugin's frame sampler (overview and face zone, see [watching a video](watching-a-video.md)) into `frames/`, and per-word timing with the plugin's `scripts/transcrever.py` into `transcricao/`, both run by the [novo-video skill](../../novo-video/SKILL.md)'s ingest. In path B (API key), the montage is in Remotion: follow the [Remotion rules](remotion/index.md).
+### The Plano states the credits
+The Roteirista-estrategista writes `creditosEstimados` in the Plano: the sum of what each generated image and clip should cost (section 4), plus a redo margin. Each scene that needs generated imagery says so in its `visual`.
 
-*Pending: the plugin's no-admin installer (ticket #4) replaces this step.*
+### The credit Gate (approval point)
+At the Plano's Gate the Diretor reads her **balance** (`balance`) and shows it next to the credits the Plano expects. Her approval of the cost is recorded, with the balance just read, by:
 
-### 3. Plan (approval point)
-The `plano.md` follows the [editorial direction](editorial-direction.md) and adds:
+```bash
+"<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" aprovar-creditos "." "<projeto>" "<nome do vídeo>" '{"saldo": <balance>}'
+```
 
-- a list of assets to generate, with model and **estimated cost in credits**;
-- a redo margin;
-- total cost.
+It refuses, changing nothing: `saldo-insuficiente` (her balance does not cover the estimate), `acima-do-orcamento` (over the Kit's budget per Vídeo, or per month counting the Projeto's other Vídeos approved this month), `plano-not-approved`, `not-nivel-2`. Autonomia never approves credits for her.
 
-See a complete real plan in projetos/000. exemplo/plano.md (the example ships with the Estúdio's Remotion template).
+### The images and clips are generated
+The **Artista generativo** (the `artista-generativo` agent) generates them before the Motion designer builds. Before paying for each one it reads her balance and clears it with `gastar-creditos` (the file, the quoted cost, the balance, the model and the prompt):
 
-**No credit is spent before her approval.** If the spend goes past ~20% of the estimate, Claude stops and warns her.
+- the prompt must forbid text in the image (`no text` or `sem texto`): **generated images and clips carry no text**; every word is drawn at the montage;
+- her balance must cover it;
+- the credits spent must stay within the approved estimate plus **~20%** (`limite`). The generation that would pass it is refused (`acima-do-limite`): **the work stops**, the Vídeo waits for her (`estado` shows it), and nothing more is generated until she approves a new estimate, never below what was already spent (`aprovar-creditos` with `"creditosEstimados"`).
 
-### 4. Generate the assets
-- Check the balance (`balance`) before starting.
-- Images first, in batch (`generate_image_batch`). Build a review board and redo whatever is not legible.
-- Then animate (`generate_video_batch`, `jobs_wait`, `show_generation_by_ids`) and approve using the middle frame and the last frame.
-- Download the results into `hf/` with descriptive names (`03_broll_ampulheta.mp4`).
-- **Generated images and videos carry no text.** All text goes in at assembly.
+Images first, in batch, then animate them into clips (sound off). The results are downloaded into the Vídeo's `gerados/` folder. The Motion designer shows them in the edit with `<Gerado>` from the template's `src/_shared/edicao.tsx` (a clip is always muted: her original audio stays the only sound).
 
-### 5. Assemble in Higgsedit
-The assembly runs in Higgsfield's sandbox (`sandbox_exec`) with `higgsedit`.
-
-1. Before writing the assembly script, Claude loads `get_workflow_instructions {workflow: "video-editing"}` and the workflow references (`compose.md`, `clip-geometry.md`, `animation-contract.md`, `shot-blueprints.md`, `failure-modes.md`).
-2. The video and prints go up with `media_upload` → file upload → `media_confirm`. Generated assets already have a URL.
-3. The script is saved at `projetos/<NNN. nome>/edit.jsx`. Each `sandbox_exec` downloads the files, runs `higgsedit build` and produces the output **in the same call** (the sandbox is discarded seconds later). If the script is too large for the command, it goes up with `media_upload` and is downloaded in the sandbox.
-4. Structure: the recorded video goes at the base with `p.cut` (continuous image and audio). Framing, B-roll, text and title cards go on top with `p.compose`. The triggers are the exact seconds from `palavras.json`.
-5. Google Fonts fonts are downloaded in the sandbox and registered with `higgsedit fonts add`.
-6. Check before rendering with `higgsedit sheet` at the start, middle and end of each layout change: covered face, legibility, black border on zoom, sync.
-7. Render in the background (`background: true`) with monitoring. If it exceeds the sandbox's 15-minute limit, render in blocks (`--range`) and join with ffmpeg.
-8. Download the result to `edicoes/<NNN. nome>/<nome>_final.mp4`.
-
-If Higgsedit cannot handle something, Claude says so and proposes an alternative (ffmpeg in the sandbox, or assembling that part in Remotion).
-
-### 6. Validate and deliver
-- `ffprobe`: resolution, fps, duration equal to the recorded video's, one audio track.
-- `ffmpeg -af volumedetect` on the final and on the original: equal volumes.
-- File path, duration, resolution, codecs and **credits spent**.
+### Higgsedit, only on request
+Higgsedit, Higgsfield's own cloud editor, is **not** used to assemble the edit. When she explicitly asks for an effect only Higgsedit has, say what it is and what it costs, and treat it as a scope change with its own credit Gate (`aprovar-creditos` with the new total estimate) before anything runs.
 
 ## 4. Reference models and costs
 
@@ -167,8 +148,8 @@ Generate the images directly in 9:16 (do not crop from 16:9). Keep the main subj
 
 - [ ] frames read, face and background mapped
 - [ ] `palavras.json` generated and checked
-- [ ] her guidance reflected in the plan
-- [ ] estimated cost approved before generating
-- [ ] illustrations without text, approved on a board; animations approved by the middle and last frame
-- [ ] every layout change checked (face, legibility, border, sync)
-- [ ] final render validated (resolution, fps, duration, volume)
+- [ ] her guidance reflected in the Plano, with `creditosEstimados`
+- [ ] her balance read and the cost approved (`aprovar-creditos`) before generating
+- [ ] every generation cleared by `gastar-creditos`; stopped at `acima-do-limite`
+- [ ] images and clips without text, saved in `gerados/`, redone when not legible
+- [ ] the edit assembled in Remotion with `<Gerado>`, then reviewed and delivered as in Nível 1
