@@ -110,7 +110,7 @@ Everything below is possible in Nível 1, at no cost. The Criadora asks in her o
 | `src/videos/<nome>/` | the code of each of her videos |
 | `src/estilos/` | the gallery examples, ready to study and copy |
 | `src/_shared/` | reused technical pieces: the synchronized split screen, and the Kit de marca reader (`kit.ts`) with the brand pieces (`marca.tsx`) |
-| `src/kit/PrevisaoDoKit.tsx` | the "Prévia do Kit": her Projeto's colors, fonts and caption style on one frame |
+| `src/kit/PreviaDoKit.tsx` | the "Prévia do Kit": her Projeto's colors, fonts and caption style on one frame |
 | `projetos/` | her videos and prints (Remotion's public folder) |
 | `edicoes/` | the final rendered files |
 | `remotion.config.ts` | general render settings |

@@ -6,7 +6,7 @@ import {VerticalDados} from './estilos/VerticalDados';
 import {VerticalLegendas} from './estilos/VerticalLegendas';
 import {VerticalPrint} from './estilos/VerticalPrint';
 import {calcularMetadadosDoKit, DIMENSOES, PropsDoKit} from './_shared/kit';
-import {PrevisaoDoKit} from './kit/PrevisaoDoKit';
+import {PreviaDoKit} from './kit/PreviaDoKit';
 
 const FPS = 30;
 const SEIS_SEGUNDOS = 6 * FPS;
@@ -17,8 +17,8 @@ export const RemotionRoot: React.FC = () => (
         vazio = Kit padrão. "formato": null = o Formato do Kit (9:16 por padrão); "16:9" ou "1:1" = variante. */}
     <Folder name="Kit">
       <Composition
-        id="PrevisaoDoKit"
-        component={PrevisaoDoKit}
+        id="PreviaDoKit"
+        component={PreviaDoKit}
         {...DIMENSOES['9:16']}
         fps={FPS}
         durationInFrames={SEIS_SEGUNDOS}
@@ -38,7 +38,7 @@ export const RemotionRoot: React.FC = () => (
     </Folder>
 
     {/* Seus vídeos entram aqui: um <Folder name="projeto-slug"> por Projeto, com o código em src/videos/<slug>/.
-        Cada composição de Vídeo lê o Kit do Projeto como a PrevisaoDoKit: calculateMetadata={calcularMetadadosDoKit},
+        Cada composição de Vídeo lê o Kit do Projeto como a PreviaDoKit: calculateMetadata={calcularMetadadosDoKit},
         props {projeto, formato} e as peças de src/_shared/marca.tsx. Nenhuma cor, fonte ou estilo de legenda no código. */}
   </>
 );

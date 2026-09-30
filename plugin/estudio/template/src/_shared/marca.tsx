@@ -55,8 +55,9 @@ export type Palavra = {texto: string; inicio: number};
 // Where each caption position sits, as a fraction of the frame height.
 const POSICAO_DA_LEGENDA = {superior: {top: '14%'}, centro: {top: '50%', transform: 'translateY(-50%)'}, inferior: {bottom: '22%'}} as const;
 
-// The Projeto's caption style: groups of `palavrasPorVez` words, the word being spoken in the
-// highlight color. No word appears before it is said.
+// The Projeto's caption style: groups of `palavrasPorVez` words. With the style
+// "palavra-destacada" (the default) the word being spoken takes the highlight color; any
+// other style shows the group in one color. No word appears before it is said.
 export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, palavras}) => {
   const frame = useCurrentFrame();
   const {fps, width, height} = useVideoConfig();
@@ -68,6 +69,7 @@ export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, pa
   const atual = faladas.length - 1;
   const inicioDoGrupo = atual - (atual % legendas.palavrasPorVez);
   const grupo = faladas.slice(inicioDoGrupo);
+  const destacar = legendas.estilo === 'palavra-destacada' && legendas.destaque !== null;
   return (
     <AbsoluteFill>
       <div
@@ -84,7 +86,7 @@ export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, pa
         {grupo.map((palavra, i) => (
           <span
             key={`${palavra.inicio}-${i}`}
-            style={{color: legendas.destaque && inicioDoGrupo + i === atual ? legendas.destaque : legendas.cor}}
+            style={{color: destacar && inicioDoGrupo + i === atual ? legendas.destaque ?? legendas.cor : legendas.cor}}
           >
             {palavra.texto}
           </span>

@@ -19,7 +19,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const cli = path.join(repoRoot, 'plugin', 'estudio', 'scripts', 'estudio.mjs');
 const kitFixtures = path.join(repoRoot, 'tests', 'fixtures', 'kits');
 const remotionCli = path.join(repoRoot, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
-const COMPOSITION = 'PrevisaoDoKit';
+const COMPOSITION = 'PreviaDoKit';
 
 // The render needs the template's dependencies. They are the repo's own (same package.json
 // pins), installed by `npm ci`; without them this seam cannot run, and says so.
@@ -83,6 +83,7 @@ before(async () => {
     still('empresa', { projeto: 'Minha Empresa' }),
     still('empresa-16x9', { projeto: 'Minha Empresa', formato: '16:9' }),
     still('pessoal', { projeto: 'Canal Pessoal' }),
+    still('sem-projeto', { projeto: '' }),
   ]);
 });
 
@@ -90,7 +91,7 @@ after(() => {
   if (estudio) fs.rmSync(path.dirname(estudio), { recursive: true, force: true });
 });
 
-test('a Projeto with the default Kit renders vertical 9:16 in its own background color', needsRemotion, () => {
+test('a Projeto whose Kit keeps the default Formato renders vertical 9:16 in its own background color', needsRemotion, () => {
   const kit = JSON.parse(fs.readFileSync(path.join(kitFixtures, 'vertical.json'), 'utf8'));
   assert.equal(kit.formato, '9:16');
   assert.deepEqual(renders.empresa, { width: 1080, height: 1920, corner: kit.cores.fundo.toUpperCase() });
@@ -106,4 +107,9 @@ test('another Projeto renders from its own Kit: its Formato and its colors, noth
   assert.equal(kit.formato, '16:9');
   assert.deepEqual(renders.pessoal, { width: 1920, height: 1080, corner: kit.cores.fundo.toUpperCase() });
   assert.notEqual(renders.pessoal.corner, renders.empresa.corner);
+});
+
+test('with no Projeto chosen the preview draws the default Kit, vertical 9:16', needsRemotion, () => {
+  const kitPadrao = JSON.parse(fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'template', 'src', '_shared', 'kit-padrao.json'), 'utf8'));
+  assert.deepEqual(renders['sem-projeto'], { width: 1080, height: 1920, corner: kitPadrao.cores.fundo.toUpperCase() });
 });

@@ -15,7 +15,7 @@ const FALA: Palavra[] = ['Assim', 'ficam', 'as', 'legendas', 'do', 'seu', 'víde
   inicio: 0.2 + i * 0.3,
 }));
 
-export const PrevisaoDoKit: React.FC<PropsDoKit> = ({projeto, kit = KIT_PADRAO}) => {
+export const PreviaDoKit: React.FC<PropsDoKit> = ({projeto, kit = KIT_PADRAO}) => {
   const {width, height} = useVideoConfig();
   useFontesDoKit(kit, projeto);
   const entrada = useEntradaDoKit(kit, 0);
