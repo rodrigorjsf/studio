@@ -74,18 +74,19 @@ Record the links. Add `"video": "<nome do vídeo>"` to link to a Vídeo instead 
    - `## O que peguei de cada página`, with one bullet per page, named by its `titulo`;
    - `## Diferenças do Kit`, with each point where a page disagrees with the Kit de marca, or "Nenhuma";
    - `## O que fica de fora`, with what you left out and why, in one line (optional).
-3. Record it. `fontes` lists **every** linked page and nothing else. `subpaginasLidas` lists the pages whose sub-pages you read. Add `"video"` for a Vídeo's Resumo:
+3. Record it. `paginasLidas` lists **every** linked page and nothing else. `subpaginasLidas` lists the pages whose sub-pages you read, which must be every page with `subpaginas: true`. Add `"video"` for a Vídeo's Resumo:
 
    ```bash
-   "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" resumo-notion "." "<projeto>" '{"fontes": ["https://www.notion.so/…"], "subpaginasLidas": [], "texto": "## O que peguei de cada página\n\n- …"}'
+   "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" resumo-notion "." "<projeto>" '{"paginasLidas": ["https://www.notion.so/…"], "subpaginasLidas": [], "texto": "## O que peguei de cada página\n\n- …"}'
    ```
 
    | Result | What to do |
    |---|---|
    | `written: true` | Saved at `arquivo`, dated `geradoEm`. |
-   | `not-linked` | A source is not a linked page. Take it out: only linked pages are read. |
+   | `not-linked` | A page in `paginasLidas` is not linked. Take it out: only linked pages are read. |
    | `no-consent` | You read the sub-pages of a page without her consent. Rewrite the Resumo without them. |
-   | `missing-pages` | A linked page is missing from `fontes`. Read it, or ask her whether to unlink it. |
+   | `missing-subpages` | She allowed the sub-pages of a page, and you did not read them. Read them, and list the page in `subpaginasLidas`. |
+   | `missing-pages` | A linked page is missing from `paginasLidas`. Read it, or ask her whether to unlink it. |
    | `invalid-resumo` | Fix the JSON (`message` says why). |
 
 4. **Show it to her.** Give the date and one line per page, then the differences from the Kit. Give the file path, so she can open the whole Resumo. It is her record of what informed the Plano.
@@ -111,8 +112,8 @@ The Plano uses the Vídeo's Resumos: its Projeto's and its own. Before it is dra
    ```
 
    Map each page to its last-edited date, or to `null` when the result did not show one.
-3. `perguntarAtualizar: true` means a page changed after its Resumo (`niveis.<projeto|video>.mudaram`), or a Resumo is missing or out of date (`resumo`: `ausente` or `desatualizado`). Ask **one** question: **"atualizar o resumo"** (recommended) or **"seguir com o resumo de <data>"**. On "atualizar", write the Resumo again, show her what changed, and check the conflicts with the Kit again. Pages in `naoConferidas` are pages whose change could not be seen. Mention them in one line and offer the refresh.
-4. When the connector does not answer, say in one line that you could not check Notion, and go on with the Resumos as they are.
+3. `perguntarAtualizar: true` means a page changed after its Resumo (`niveis.<projeto|video>.mudaram`), or a Resumo is missing or out of date (`resumo`: `ausente` or `desatualizado`). Ask **one** question: **"atualizar o resumo"** (recommended) or **"seguir com o resumo de <data>"**. On "atualizar", write the Resumo again, show her what changed, and check the conflicts with the Kit again. Pages in `naoConferidas` are pages whose change could not be seen: those you mapped to `null` also set `perguntarAtualizar`, because they may have changed. Name them in the question.
+4. When the connector does not answer, leave those pages out of the JSON, say in one line that you could not check Notion, and go on with the Resumos as they are.
 
 ## For the personas
 

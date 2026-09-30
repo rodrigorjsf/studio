@@ -141,7 +141,7 @@ test('a dated Resumo Notion is written from the linked pages only, for her to re
   const dir = estudio();
   vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca' }, { url: CALENDARIO, titulo: 'Calendário', subpaginas: true }] });
   const antes = Date.now();
-  const { code, out } = resumir(dir, { fontes: [MARCA, CALENDARIO], subpaginasLidas: [CALENDARIO], texto: TEXTO });
+  const { code, out } = resumir(dir, { paginasLidas: [MARCA, CALENDARIO], subpaginasLidas: [CALENDARIO], texto: TEXTO });
   assert.equal(code, 0);
   assert.equal(out.written, true, JSON.stringify(out));
   assert.equal(out.arquivo, `projetos/${PROJETO}/notion/resumo.md`);
@@ -163,19 +163,22 @@ test('a Resumo cannot take from an unlinked page, nor from sub-pages without her
     assert.equal(out.written, false);
     assert.equal(out.reason, reason, JSON.stringify(out));
   };
-  refused({ fontes: [MARCA, CALENDARIO], texto: TEXTO }, 'not-linked');
-  refused({ fontes: [MARCA], subpaginasLidas: [MARCA], texto: TEXTO }, 'no-consent');
-  refused({ fontes: [], texto: TEXTO }, 'missing-pages');
-  refused({ fontes: [MARCA], texto: '  ' }, 'invalid-resumo');
-  refused({ fontes: [MARCA], texto: TEXTO, geradoEm: '2020-01-01' }, 'invalid-resumo');
+  refused({ paginasLidas: [MARCA, CALENDARIO], texto: TEXTO }, 'not-linked');
+  refused({ paginasLidas: [MARCA], subpaginasLidas: [MARCA], texto: TEXTO }, 'no-consent');
+  refused({ paginasLidas: [], texto: TEXTO }, 'missing-pages');
+  vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca', subpaginas: true }] });
+  refused({ paginasLidas: [MARCA], texto: TEXTO }, 'missing-subpages');
+  vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca', subpaginas: false }] });
+  refused({ paginasLidas: [MARCA], texto: '  ' }, 'invalid-resumo');
+  refused({ paginasLidas: [MARCA], texto: TEXTO, geradoEm: '2020-01-01' }, 'invalid-resumo');
   assert.equal(fs.existsSync(path.join(projetoDir(dir), 'notion', 'resumo.md')), false);
-  assert.equal(run('resumo-notion', dir, PROJETO, JSON.stringify({ video: VIDEO, fontes: [MARCA], texto: TEXTO })).out.reason, 'not-linked');
+  assert.equal(run('resumo-notion', dir, PROJETO, JSON.stringify({ video: VIDEO, paginasLidas: [MARCA], texto: TEXTO })).out.reason, 'not-linked');
 });
 
 test('a Vídeo gets its own Resumo Notion, next to its document', () => {
   const dir = estudio();
   vincular(dir, { video: VIDEO, vincular: [{ url: ROTEIRO, titulo: 'Roteiro da dica' }] });
-  const { out } = resumir(dir, { video: VIDEO, fontes: [ROTEIRO], texto: TEXTO });
+  const { out } = resumir(dir, { video: VIDEO, paginasLidas: [ROTEIRO], texto: TEXTO });
   assert.equal(out.written, true, JSON.stringify(out));
   assert.equal(out.arquivo, `projetos/${PROJETO}/videos/${VIDEO}/notion/resumo.md`);
   assert.deepEqual(videoEstado(dir).notion, { paginas: 1, resumo: 'atualizado' });
@@ -184,11 +187,14 @@ test('a Vídeo gets its own Resumo Notion, next to its document', () => {
 test('linking, unlinking or withdrawing sub-page consent after the Resumo makes it out of date', () => {
   const dir = estudio();
   vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca' }, { url: CALENDARIO, titulo: 'Calendário', subpaginas: true }] });
-  resumir(dir, { fontes: [MARCA, CALENDARIO], subpaginasLidas: [CALENDARIO], texto: TEXTO });
+  resumir(dir, { paginasLidas: [MARCA, CALENDARIO], subpaginasLidas: [CALENDARIO], texto: TEXTO });
   vincular(dir, { vincular: [{ url: CALENDARIO, titulo: 'Calendário', subpaginas: false }] });
   assert.equal(projetoEstado(dir).notion.resumo, 'desatualizado');
   vincular(dir, { vincular: [{ url: CALENDARIO, titulo: 'Calendário', subpaginas: true }] });
   assert.equal(projetoEstado(dir).notion.resumo, 'atualizado');
+  vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca', subpaginas: true }] });
+  assert.equal(projetoEstado(dir).notion.resumo, 'desatualizado', 'consent granted: its sub-pages are still to be read');
+  vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca', subpaginas: false }] });
   vincular(dir, { vincular: [{ url: ROTEIRO, titulo: 'Roteiro' }] });
   assert.equal(projetoEstado(dir).notion.resumo, 'desatualizado');
   vincular(dir, { desvincular: [ROTEIRO, MARCA] });
@@ -212,7 +218,7 @@ test('estado validates link records and Resumo documents written by hand, file b
       { url: CALENDARIO, titulo: 'Calendário', subpaginas: false, vinculadaEm: 'ontem' },
     ],
   }));
-  fs.writeFileSync(path.join(notionDir, 'resumo.md'), `---\ngeradoEm: ontem\nfontes:\n  - ${MARCA}\nsubpaginasLidas:\n  - ${CALENDARIO}\n---\nTexto\n`);
+  fs.writeFileSync(path.join(notionDir, 'resumo.md'), `---\ngeradoEm: ontem\npaginasLidas:\n  - ${MARCA}\nsubpaginasLidas:\n  - ${CALENDARIO}\n---\nTexto\n`);
   fs.writeFileSync(path.join(videoNotion, 'paginas.json'), 'não é json');
   fs.writeFileSync(path.join(videoNotion, 'resumo.md'), 'sem frontmatter');
 
@@ -224,7 +230,7 @@ test('estado validates link records and Resumo documents written by hand, file b
   assert.match(links, /pagina 3: vinculadaEm must be a date/);
   const resumo = byFile(`projetos/${PROJETO}/notion/resumo.md`);
   assert.match(resumo, /geradoEm must be the date/);
-  assert.match(resumo, /subpaginasLidas: .* is not one of its fontes/);
+  assert.match(resumo, /subpaginasLidas: .* is not one of its paginasLidas/);
   assert.match(byFile(`projetos/${PROJETO}/videos/${VIDEO}/notion/paginas.json`), /not valid JSON/);
   assert.match(byFile(`projetos/${PROJETO}/videos/${VIDEO}/notion/resumo.md`), /frontmatter/);
   assert.deepEqual(out.nextStep, { action: 'corrigir-erros' });
@@ -239,8 +245,8 @@ test('before the Plano, a page edited after its Resumo is detected and a refresh
   const dir = estudio();
   vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca' }, { url: CALENDARIO, titulo: 'Calendário' }] });
   vincular(dir, { video: VIDEO, vincular: [{ url: ROTEIRO, titulo: 'Roteiro' }] });
-  const { geradoEm } = resumir(dir, { fontes: [MARCA, CALENDARIO], texto: TEXTO }).out;
-  const doVideo = resumir(dir, { video: VIDEO, fontes: [ROTEIRO], texto: TEXTO }).out.geradoEm;
+  const { geradoEm } = resumir(dir, { paginasLidas: [MARCA, CALENDARIO], texto: TEXTO }).out;
+  const doVideo = resumir(dir, { video: VIDEO, paginasLidas: [ROTEIRO], texto: TEXTO }).out.geradoEm;
 
   let { code, out } = conferir(dir, { [MARCA]: horas(geradoEm, -48), [CALENDARIO]: horas(geradoEm, -1), [ROTEIRO]: horas(doVideo, -2) });
   assert.equal(code, 0);
@@ -254,6 +260,15 @@ test('before the Plano, a page edited after its Resumo is detected and a refresh
   assert.deepEqual(out.niveis.projeto.naoConferidas, [CALENDARIO]);
   assert.deepEqual(out.niveis.video.mudaram, [ROTEIRO]);
   assert.equal(out.perguntarAtualizar, true);
+
+  // A page read without a last-edited date may have changed: she is asked. A page not looked
+  // up at all (her connector did not answer) asks nothing: Notion never blocks the Plano.
+  ({ out } = conferir(dir, { [MARCA]: horas(geradoEm, -1), [CALENDARIO]: null, [ROTEIRO]: horas(doVideo, -1) }));
+  assert.deepEqual(out.niveis.projeto.naoConferidas, [CALENDARIO]);
+  assert.equal(out.perguntarAtualizar, true);
+  ({ out } = conferir(dir, {}));
+  assert.deepEqual(out.niveis.projeto.naoConferidas, [MARCA, CALENDARIO]);
+  assert.equal(out.perguntarAtualizar, false);
 });
 
 test('a missing or out-of-date Resumo also asks for a refresh; no linked page asks nothing', () => {
@@ -305,8 +320,8 @@ test('the Plano cites every Resumo Notion the Vídeo relies on, by its date', ()
 
   vincular(dir, { vincular: [{ url: MARCA, titulo: 'Notas de marca' }] });
   vincular(dir, { video: VIDEO, vincular: [{ url: ROTEIRO, titulo: 'Roteiro' }] });
-  const doProjeto = resumir(dir, { fontes: [MARCA], texto: TEXTO }).out.geradoEm;
-  const doVideo = resumir(dir, { video: VIDEO, fontes: [ROTEIRO], texto: TEXTO }).out.geradoEm;
+  const doProjeto = resumir(dir, { paginasLidas: [MARCA], texto: TEXTO }).out.geradoEm;
+  const doVideo = resumir(dir, { video: VIDEO, paginasLidas: [ROTEIRO], texto: TEXTO }).out.geradoEm;
 
   out = comPlano(dir);
   assert.equal(out.pronto.plano, false);
@@ -318,4 +333,10 @@ test('the Plano cites every Resumo Notion the Vídeo relies on, by its date', ()
   out = comPlano(dir, [{ nivel: 'projeto', geradoEm: doProjeto }, { nivel: 'video', geradoEm: doVideo }]);
   assert.deepEqual(out.problemas.plano, []);
   assert.equal(out.pronto.plano, true);
+
+  // A Plano she already approved stays as she approved it, even when a Resumo is refreshed later.
+  const planoFile = path.join(videoDir(dir), 'plano.json');
+  fs.writeFileSync(planoFile, JSON.stringify({ ...JSON.parse(fs.readFileSync(planoFile, 'utf8')), aprovadoEm: '2026-09-30T12:00:00.000Z' }));
+  resumir(dir, { paginasLidas: [MARCA], texto: `${TEXTO}\n- Nova nota.` });
+  assert.deepEqual(notionProblems(run('plano', dir, PROJETO, VIDEO).out), []);
 });

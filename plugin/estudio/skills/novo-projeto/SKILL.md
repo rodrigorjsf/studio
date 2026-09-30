@@ -75,7 +75,7 @@ After the catalogue, ask one more question: does she have Notion pages that expl
 - linking the pages with `vincular-notion`;
 - writing the dated Resumo Notion and showing it to her.
 
-Notion never blocks the Projeto. Without the connector, record the links and go on. What the Resumo takes from her pages feeds the Kit you propose, and her own answers in this interview win over it.
+Notion never blocks the Projeto. Without the connector, record the links and go on. The Kit does not exist yet, so nothing conflicts: use what the Resumo says to suggest answers to the Grilling questions, and name the page you took each suggestion from. She decides every answer, and only her answers go into the Kit.
 
 ### Reference images
 

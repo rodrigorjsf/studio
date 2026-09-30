@@ -34,7 +34,7 @@ import { nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { boxProblem } from './ingest.mjs';
 import { KIT, PALAVRAS, PLANO, PRINTS, VIDEO_DOC, VIDEO_KIT, ZONA_DO_ROSTO } from './layout.mjs';
-import { readNotion } from './notion.mjs';
+import { notionLevels } from './notion.mjs';
 import { findVideo, kitGaps, registrarVideo } from './video.mjs';
 
 // The scene repertoire of the editorial direction, by the names the Plano uses.
@@ -140,11 +140,12 @@ function planoProblems(data, nivel) {
 
 // The Plano must cite each Resumo Notion the Vídeo relies on (its Projeto's and its own) by the
 // date it was written, so she knows what informed it and a Plano drafted from an older Resumo is
-// caught. Links without a Resumo cite nothing: Notion is never a blocker.
-function notionProblems(citados, dir) {
+// caught. Links without a Resumo cite nothing: Notion is never a blocker. A Plano she already
+// approved stays as she approved it, even when a Resumo is refreshed afterwards.
+function notionProblems(citados, dir, aprovado) {
+  if (aprovado) return [];
   const list = Array.isArray(citados) ? citados : [];
-  const resumos = { projeto: readNotion(path.join(dir, '..', '..')).resumo, video: readNotion(dir).resumo };
-  return Object.entries(resumos).flatMap(([nivel, resumo]) => {
+  return Object.entries(notionLevels(dir)).flatMap(([nivel, { resumo }]) => {
     const citado = list.find((item) => item?.nivel === nivel);
     if (!resumo) return citado ? [`resumosNotion cites a Resumo Notion of the ${nivel} that does not exist`] : [];
     if (!citado) return [`resumosNotion must cite the Resumo Notion of the ${nivel} (geradoEm ${resumo.geradoEm})`];
@@ -206,7 +207,7 @@ export function plano(folder, projetoNome, videoNome) {
   const whole = planoProblems(data, nivel);
   const planoProblemList = [
     ...whole.problems,
-    ...notionProblems(data.resumosNotion, dir),
+    ...notionProblems(data.resumosNotion, dir, Boolean(data.aprovadoEm)),
     ...cenas.flatMap((cena, i) => sceneProblems(cena, i + 1, context)),
   ];
   const quadrosProblemList = quadrosProblems(data.quadros, dir, zona.duracao, whole.labelled);

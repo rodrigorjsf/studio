@@ -11,13 +11,13 @@
 //                          `subpaginas`: her consent to read the page's sub-pages (default no)
 //   notion/resumo.md      the Resumo Notion, pt-BR, for her to read. Frontmatter:
 //                            geradoEm: ISO            when it was written
-//                            fontes:                  the linked pages it was taken from
+//                            paginasLidas:            the linked pages it was taken from
 //                              - https://www.notion.so/…
 //                            subpaginasLidas:         those whose sub-pages were read (with her consent)
 //                              - https://www.notion.so/…
 //
-// A Resumo is `atualizado` while its sources are exactly the linked pages, read with the
-// consent each link holds now; otherwise `desatualizado` (a page was linked, unlinked or its
+// A Resumo is `atualizado` while its `paginasLidas` are exactly the linked pages, read with the
+// consent each link holds now (sub-pages read exactly where she allows it); otherwise `desatualizado` (a page was linked, unlinked or its
 // consent withdrawn since). `ausente` when pages are linked but no Resumo exists, and
 // `sem-paginas` when nothing is linked, which is a valid choice.
 import fs from 'node:fs';
@@ -28,6 +28,8 @@ import { NOTION_PAGINAS, NOTION_RESUMO, PROJETOS, VIDEOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
 import { findVideo } from './video.mjs';
 
+// A file of the Estúdio layout (`notion/paginas.json`) inside a Projeto or Vídeo folder.
+const at = (dir, rel) => path.join(dir, ...rel.split('/'));
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
@@ -64,9 +66,9 @@ export function linksProblems(data) {
   const problems = [];
   if (data.schemaVersion !== 1) problems.push('schemaVersion must be 1');
   data.paginas.forEach((pagina, i) => {
-    const problem = linkProblem(pagina);
+    // On disk `subpaginas` is always written; only a new link may leave it out (default no).
+    const problem = linkProblem({ subpaginas: null, ...pagina });
     if (problem) problems.push(`pagina ${i + 1}: ${problem}`);
-    else if (typeof pagina.subpaginas !== 'boolean') problems.push(`pagina ${i + 1}: subpaginas must be true or false`);
     else if (!isoDate(pagina.vinculadaEm)) problems.push(`pagina ${i + 1}: vinculadaEm must be a date (ISO)`);
   });
   const urls = data.paginas.map((p) => p?.url);
@@ -78,13 +80,13 @@ export function linksProblems(data) {
 export function resumoProblems(data) {
   const problems = [];
   if (!isoDate(data.geradoEm)) problems.push('geradoEm must be the date the Resumo was written (ISO)');
-  const fontes = data.fontes ?? null;
-  if (!Array.isArray(fontes) || fontes.length === 0) problems.push('fontes must list the Páginas Notion it was taken from');
-  else fontes.forEach((url) => { const p = notionUrlProblem(url); if (p) problems.push(`fontes: ${p}`); });
+  const paginasLidas = data.paginasLidas ?? null;
+  if (!Array.isArray(paginasLidas) || paginasLidas.length === 0) problems.push('paginasLidas must list the Páginas Notion it was taken from');
+  else paginasLidas.forEach((url) => { const p = notionUrlProblem(url); if (p) problems.push(`paginasLidas: ${p}`); });
   const lidas = data.subpaginasLidas ?? [];
   if (!Array.isArray(lidas)) problems.push('subpaginasLidas must list the pages whose sub-pages were read (empty when none)');
-  else if (Array.isArray(fontes)) {
-    lidas.filter((url) => !fontes.includes(url)).forEach((url) => problems.push(`subpaginasLidas: ${url} is not one of its fontes`));
+  else if (Array.isArray(paginasLidas)) {
+    lidas.filter((url) => !paginasLidas.includes(url)).forEach((url) => problems.push(`subpaginasLidas: ${url} is not one of its paginasLidas`));
   }
   return problems;
 }
@@ -95,17 +97,18 @@ export function resumoState(paginas, resumo) {
   if (paginas.length === 0 && !resumo) return 'sem-paginas';
   if (!resumo) return 'ausente';
   const lidas = resumo.subpaginasLidas ?? [];
-  const same = paginas.length === resumo.fontes.length
-    && paginas.every((p) => resumo.fontes.includes(p.url))
-    && lidas.every((url) => paginas.find((p) => p.url === url)?.subpaginas === true);
+  const consented = paginas.filter((p) => p.subpaginas).map((p) => p.url);
+  const same = paginas.length === resumo.paginasLidas.length
+    && paginas.every((p) => resumo.paginasLidas.includes(p.url))
+    && lidas.length === consented.length && consented.every((url) => lidas.includes(url));
   return same ? 'atualizado' : 'desatualizado';
 }
 
 // The Notion context of one Projeto or Vídeo folder, as `estado` reports it, with the problems
 // found in each file (`{file, message}`). A malformed file counts as no links / no Resumo.
 export function readNotion(dir) {
-  const linksFile = path.join(dir, ...NOTION_PAGINAS.split('/'));
-  const resumoFile = path.join(dir, ...NOTION_RESUMO.split('/'));
+  const linksFile = at(dir, NOTION_PAGINAS);
+  const resumoFile = at(dir, NOTION_RESUMO);
   const problems = [];
   const fail = (file, message) => problems.push({ file, message });
   let paginas = [];
@@ -135,6 +138,10 @@ export function readNotion(dir) {
   }
   return { paginas, resumo, problems, state: { paginas: paginas.length, resumo: resumoState(paginas, resumo) } };
 }
+
+// The two levels of Notion context a Vídeo relies on: its Projeto's (two folders up,
+// `projetos/<projeto>/videos/<vídeo>`) and its own.
+export const notionLevels = (videoDir) => ({ projeto: readNotion(path.join(videoDir, '..', '..')), video: readNotion(videoDir) });
 
 // The Projeto's or the Vídeo's folder the edit is about (`video` names a Vídeo), or a refusal.
 function target(folder, projetoNome, videoNome) {
@@ -186,7 +193,7 @@ export function vincularNotion(folder, projetoNome, editText) {
   if (refusal) return { linked: false, ...refusal };
   const where = { projeto, ...(video && { video }) };
 
-  const linksFile = path.join(dir, ...NOTION_PAGINAS.split('/'));
+  const linksFile = at(dir, NOTION_PAGINAS);
   const { paginas: current, problems: broken } = readNotion(dir);
   // A links file she or someone broke by hand is fixed first (`estado` names the problem),
   // never silently replaced.
@@ -207,17 +214,17 @@ export function vincularNotion(folder, projetoNome, editText) {
 }
 
 // `resumo-notion`: writes the dated Resumo Notion of a Projeto, or of one of its Vídeos when
-// `video` is named, from what the Diretor read in the linked pages. `fontes` must be exactly the
+// `video` is named, from what the Diretor read in the linked pages. `paginasLidas` must be exactly the
 // linked pages (each one read, none other), and `subpaginasLidas` only pages whose link holds her
 // consent to read sub-pages. `texto` is the pt-BR body she reads. A new Resumo replaces the
 // previous one, which the studio wrote.
 export function resumoNotion(folder, projetoNome, resumoText) {
-  const { value: resumo, problem } = parseJsonArg(resumoText, ['video', 'fontes', 'subpaginasLidas', 'texto']);
+  const { value: resumo, problem } = parseJsonArg(resumoText, ['video', 'paginasLidas', 'subpaginasLidas', 'texto']);
   if (problem) return { written: false, reason: 'invalid-resumo', message: problem };
-  const fontes = resumo.fontes ?? [];
+  const paginasLidas = resumo.paginasLidas ?? [];
   const lidas = resumo.subpaginasLidas ?? [];
-  if (!Array.isArray(fontes) || !Array.isArray(lidas)) {
-    return { written: false, reason: 'invalid-resumo', message: 'fontes and subpaginasLidas must be lists of page addresses' };
+  if (!Array.isArray(paginasLidas) || !Array.isArray(lidas)) {
+    return { written: false, reason: 'invalid-resumo', message: 'paginasLidas and subpaginasLidas must be lists of page addresses' };
   }
   if (typeof resumo.texto !== 'string' || resumo.texto.trim() === '') {
     return { written: false, reason: 'invalid-resumo', message: 'texto must be the summary she reads (pt-BR)' };
@@ -226,21 +233,24 @@ export function resumoNotion(folder, projetoNome, resumoText) {
   if (refusal) return { written: false, ...refusal };
   const where = { projeto, ...(video && { video }) };
   const { paginas, problems: broken } = readNotion(dir);
-  const linksFile = path.join(dir, ...NOTION_PAGINAS.split('/'));
+  const linksFile = at(dir, NOTION_PAGINAS);
   if (broken.some((p) => p.file === linksFile)) return { written: false, reason: 'invalid-links', ...where };
 
-  const notLinked = fontes.find((url) => !paginas.some((p) => p.url === url));
+  const notLinked = paginasLidas.find((url) => !paginas.some((p) => p.url === url));
   if (notLinked) return { written: false, reason: 'not-linked', ...where, url: notLinked };
   const noConsent = lidas.find((url) => paginas.find((p) => p.url === url)?.subpaginas !== true);
   if (noConsent) return { written: false, reason: 'no-consent', ...where, url: noConsent };
-  const missing = paginas.filter((p) => !fontes.includes(p.url)).map((p) => p.url);
-  if (missing.length > 0 || fontes.length === 0) return { written: false, reason: 'missing-pages', ...where, paginas: missing };
+  const missing = paginas.filter((p) => !paginasLidas.includes(p.url)).map((p) => p.url);
+  if (missing.length > 0 || paginasLidas.length === 0) return { written: false, reason: 'missing-pages', ...where, paginas: missing };
+  // Her consent asks for the sub-pages: a page she allowed is read with them.
+  const subpaginasMissing = paginas.filter((p) => p.subpaginas && !lidas.includes(p.url)).map((p) => p.url);
+  if (subpaginasMissing.length > 0) return { written: false, reason: 'missing-subpages', ...where, paginas: subpaginasMissing };
 
   const geradoEm = new Date().toISOString();
-  const file = path.join(dir, ...NOTION_RESUMO.split('/'));
+  const file = at(dir, NOTION_RESUMO);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const titulo = `# Resumo Notion — ${video ?? projeto}`;
-  fs.writeFileSync(file, writeDocument({ geradoEm, fontes, subpaginasLidas: lidas }, `${titulo}\n\n${resumo.texto.trim()}\n`));
+  fs.writeFileSync(file, writeDocument({ geradoEm, paginasLidas, subpaginasLidas: lidas }, `${titulo}\n\n${resumo.texto.trim()}\n`));
   const arquivo = [PROJETOS, projeto, ...(video ? [VIDEOS, video] : []), NOTION_RESUMO].join('/');
   return { written: true, ...where, arquivo, geradoEm };
 }
@@ -248,8 +258,10 @@ export function resumoNotion(folder, projetoNome, resumoText) {
 // `conferir-notion`: before the Plano of a Vídeo, tells whether the Resumos Notion it relies on
 // (its Projeto's and its own) still match the linked pages. `editadas` maps each linked page the
 // Diretor looked up to when her connector says it was last edited (null: not reported). A page
-// edited after its Resumo was written is in `mudaram`; `perguntarAtualizar` is true when a page
-// changed or a Resumo is missing or out of date, so the Diretor asks her whether to refresh it.
+// edited after its Resumo was written is in `mudaram`; a linked page with no date is in
+// `naoConferidas`. `perguntarAtualizar` is true when a page changed, a page was read without a date
+// (null: it may have changed), or a Resumo is missing or out of date, so the Diretor asks her
+// whether to refresh it. A page left out of `editadas` (her connector did not answer) asks nothing.
 export function conferirNotion(folder, projetoNome, videoNome, editadasText) {
   let editadas;
   try {
@@ -263,7 +275,7 @@ export function conferirNotion(folder, projetoNome, videoNome, editadasText) {
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { checked: false, ...refusal };
   const where = { projeto, video };
-  const levels = { projeto: readNotion(path.join(dir, '..', '..')), video: readNotion(dir) };
+  const levels = notionLevels(dir);
   const linked = Object.values(levels).flatMap((level) => level.paginas.map((p) => p.url));
   const notLinked = Object.keys(editadas).find((url) => !linked.includes(url));
   if (notLinked) return { checked: false, reason: 'not-linked', ...where, url: notLinked };
@@ -276,7 +288,8 @@ export function conferirNotion(folder, projetoNome, videoNome, editadasText) {
     const naoConferidas = paginas.filter((p) => !editadas[p.url]).map((p) => p.url);
     return [nivel, { resumo: state.resumo, geradoEm, mudaram, naoConferidas }];
   }));
-  const perguntarAtualizar = Object.values(niveis)
+  const semData = Object.values(editadas).some((editadaEm) => editadaEm === null);
+  const perguntarAtualizar = semData || Object.values(niveis)
     .some((n) => n.mudaram.length > 0 || n.resumo === 'ausente' || n.resumo === 'desatualizado');
   return { checked: true, ...where, niveis, perguntarAtualizar };
 }
