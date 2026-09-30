@@ -23,9 +23,15 @@
 //                                    directions proposed, her requests, the Quadros de estilo and the
 //                                    approval stamps (schema and checks: plano.mjs)
 //   projetos/<projeto>/videos/<vídeo>/quadros/              the Quadros de estilo, one PNG per label
+//   projetos/<projeto>/videos/<vídeo>/master/<file>.mp4     the Master a Pré-corte wrote (`precorte`);
+//                                    without a Pré-corte the Master is the Original itself
+//   projetos/<projeto>/videos/<vídeo>/precorte/             proposta.json (the cuts the Editor de
+//                                    pré-corte proposes) and mapa.json (the segment map `precorte` applied)
+//   projetos/<projeto>/videos/<vídeo>/transcricao/original/ the Original's transcript, kept aside when a
+//                                    Pré-corte moves palavras.json onto the new Master's clock
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
-// Anything else inside a Projeto or Vídeo folder (the Master of a Pré-corte, versions,
+// Anything else inside a Projeto or Vídeo folder (versions,
 // the Entrega, and the reserved `notion/` folder for Página Notion links and Resumo Notion
 // documents) is left to later stages and never rejected here.
 export const SCHEMA_VERSION = 1;
@@ -48,3 +54,7 @@ export const MEDICOES_ROSTO = 'frames/zona-do-rosto/medicoes.json';
 export const ZONA_DO_ROSTO = 'zona-do-rosto.json';
 export const PLANO = 'plano.json';
 export const QUADROS = 'quadros';
+export const MASTER = 'master';
+export const TRANSCRIPT_MD = 'transcricao/transcript.md';
+export const TRANSCRICAO_ORIGINAL = 'transcricao/original';
+export const PRECORTE_MAPA = 'precorte/mapa.json';

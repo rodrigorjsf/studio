@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // WHAT  The Estúdio's deterministic CLI: JSON out on stdout, one subcommand per job.
-// WHY   Deterministic logic (state, scaffold, later QC and Pré-corte) lives behind one tested
+// WHY   Deterministic logic (state, scaffold, Pré-corte, later QC) lives behind one tested
 //       command so skills read facts instead of re-deriving them, and regressions are caught
 //       without running a model.
 // WHEN  Skills run it at every session start (`estado`), when the Criadora accepts turning
@@ -8,9 +8,11 @@
 //       then `aprovar-kit` once she approves the Kit de marca), and when she changes an
 //       approved Kit (`editar-kit`) or opts an existing Vídeo into it (`atualizar-kit-video`);
 //       when a recording starts a Vídeo (`novo-video`), as the Diretor records its Nível, Status,
-//       Gate and counters (`registrar-video`), and when the Assistente de edição has measured the
-//       face on every frame (`zona-do-rosto`); when the Plano and its Quadros de estilo are checked
-//       (`plano`) and when she approves them at their Gate (`aprovar-plano`).
+//       Gate and counters (`registrar-video`), when the Assistente de edição has measured the
+//       face on every frame (`zona-do-rosto`), when the Diretor checks whether a recording looks
+//       untrimmed (`pausas`), when the Criadora approved the cuts of a Pré-corte (`precorte`), when
+//       the Plano and its Quadros de estilo are checked (`plano`) and when she approves them at
+//       their Gate (`aprovar-plano`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
@@ -22,6 +24,8 @@
 //       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" plano "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-plano "<folder>" "<projeto>" "<vídeo>" "<plano|quadros|plano-e-quadros>"
+//       node "<plugin root>/scripts/estudio.mjs" pausas "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" precorte "<folder>" "<projeto>" "<vídeo>" '<json>' "<ffmpeg>" "<ffprobe>"
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
@@ -31,6 +35,7 @@ import { estado } from './lib/estado.mjs';
 import { atualizarKitVideo, editarKit } from './lib/editar.mjs';
 import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 import { aprovarPlano, plano } from './lib/plano.mjs';
+import { pausas, precorte } from './lib/precorte.mjs';
 import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
 // Each subcommand with the arguments it takes after the Estúdio folder.
@@ -46,6 +51,8 @@ const COMMANDS = {
   'zona-do-rosto': { run: zonaDoRosto, args: ['"<projeto>"', '"<vídeo>"'] },
   plano: { run: plano, args: ['"<projeto>"', '"<vídeo>"'] },
   'aprovar-plano': { run: aprovarPlano, args: ['"<projeto>"', '"<vídeo>"', '"<etapa>"'] },
+  pausas: { run: pausas, args: ['"<projeto>"', '"<vídeo>"', '"<ffprobe>"'] },
+  precorte: { run: precorte, args: ['"<projeto>"', '"<vídeo>"', "'<json>'", '"<ffmpeg>"', '"<ffprobe>"'] },
 };
 
 function usageError(error) {

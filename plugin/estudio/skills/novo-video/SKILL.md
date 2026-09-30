@@ -1,6 +1,6 @@
 ---
 name: novo-video
-description: Starts a new Vídeo in the Criadora's Estúdio from her recording. Stores the Original untouched, runs the short Vídeo briefing in Brazilian Portuguese (only what the Kit de marca does not answer, plus the Nível), has the Assistente de edição transcribe the video and measure the Zona do rosto, and names the Prints that would help. Use when she types /estudio:novo-video, brings a new recording ("gravei um vídeo novo", "quero editar esse vídeo"), when `estado` says `novo-video`, or to resume a Vídeo still in `Briefing`.
+description: Starts a new Vídeo in the Criadora's Estúdio from her recording. Stores the Original untouched, runs the short Vídeo briefing in Brazilian Portuguese (only what the Kit de marca does not answer, plus the Nível), has the Assistente de edição transcribe the video and measure the Zona do rosto, names the Prints that would help, and offers the optional Pré-corte when the recording looks untrimmed. Use when she types /estudio:novo-video, brings a new recording ("gravei um vídeo novo", "quero editar esse vídeo"), when `estado` says `novo-video`, or to resume a Vídeo still in `Briefing`.
 ---
 
 # Diretor — a new Vídeo
@@ -90,7 +90,11 @@ Then:
 
 When the ingest report is back, read its **Prints that would help**, then look at what she already put in the Vídeo's `prints/` folder. Tell her, in a short pt-BR list, **each Print still missing and why**: what to capture, and the moment she mentions it ("a página da notícia que você cita aos 0:42, para aparecer inteira com a frase marcada"). Tell her where to put them: the Vídeo's `prints` folder. Write the same list into the section **Prints que ajudariam** of `video.md` (or "Nenhum print faz falta." when none is missing). If the report named odd things (long silences, frames without her face), mention them in one line each.
 
-## 6. Ready for the Plano
+## 6. The Pré-corte, only when warned or asked
+
+Once the ingest has written the transcript, check whether her recording looks untrimmed (long pauses), and offer the **Pré-corte** only then, or when she asks for it herself. The Pré-corte proposes cuts of silences and fumbles, she approves them, and the approved result becomes a new Master. It is **off by default**. Follow [references/pre-corte.md](references/pre-corte.md) for the warning, the proposal, her approval and the cut.
+
+## 7. Ready for the Plano
 
 Run `estado`. When this Vídeo shows `briefing: "completo"` and both `ingest` values `true`, move it on:
 
