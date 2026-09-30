@@ -1,6 +1,7 @@
 #!/bin/sh
 # WHAT  Checks whether the computer can edit videos: Node, ffmpeg, ffprobe, Python with
-#       faster-whisper, and (inside an Estúdio) the Remotion dependencies. Never installs.
+#       faster-whisper, the speech model's files, and (inside an Estúdio) the Remotion
+#       dependencies. Never installs.
 # WHY   The session-start hook and the estudio skill must know what is missing before the
 #       Diretor asks the one preparation question; installing is instalar.sh's job, and
 #       only after the Criadora says yes.
@@ -10,6 +11,7 @@
 #       Defaults: $CLAUDE_PLUGIN_DATA and $CLAUDE_PROJECT_DIR (else the current folder).
 #       Without --json: prints one line for the model when something is missing, nothing
 #       otherwise. With --json: {"os","missing":[…],"tools":{node,ffmpeg,ffprobe,python},
+#       ("speech-model" is in "missing" when any model file is absent from the model folder),
 #       "remotion":"ok|missing|not-an-estudio"}. Always exits 0.
 #       On Windows (Git Bash) it hands over to verificar.ps1.
 
@@ -32,6 +34,7 @@ NODE=$(acha_node)
 FFMPEG=$(acha_ffmpeg)
 FFPROBE=$(acha_ffprobe)
 PYTHON=$(acha_python)
+MODELO=$(estado_modelo)
 REMOTION=$(estado_remotion "$ESTUDIO")
 
 FALTANDO=
@@ -39,6 +42,7 @@ FALTANDO=
 [ -z "$FFMPEG" ] && FALTANDO="$FALTANDO ffmpeg"
 [ -z "$FFPROBE" ] && FALTANDO="$FALTANDO ffprobe"
 [ -z "$PYTHON" ] && FALTANDO="$FALTANDO python"
+[ "$MODELO" = missing ] && FALTANDO="$FALTANDO speech-model"
 [ "$REMOTION" = missing ] && FALTANDO="$FALTANDO remotion"
 
 json_texto() {

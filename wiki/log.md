@@ -94,3 +94,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Esteira actors, call-chain diagram and Gates table documented once in the README, personas page links to it (ticket #36)
 Pages: entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Speech model in the Preparação; offline transcription, exit 3 (#32)
+Pages: concepts/plugin-architecture.md.

@@ -1,7 +1,8 @@
 ﻿# WHAT  Windows twin of instalar.sh: prepares the computer to edit videos without any admin
 #       password or system window. Portable Node, a static ffmpeg/ffprobe and Python
-#       (through uv) with faster-whisper go into the plugin data folder; the Remotion
-#       dependencies go into the Estúdio folder.
+#       (through uv) with faster-whisper and the speech model (~1.6 GB, from our GitHub
+#       Release) go into the plugin data folder; the Remotion dependencies go into the
+#       Estúdio folder.
 # WHY   The Criadora cannot type a password or answer an OS prompt from the Claude Desktop
 #       Code tab, and must never be sent to a package manager. Claude Code deletes the plugin
 #       data folder on uninstall, so the computer is left clean. Files fetched with
@@ -9,8 +10,12 @@
 #       warning when they run.
 # WHEN  Only after the Criadora says yes to the Diretor's preparation question. Safe to
 #       re-run: every step that is already done is skipped without downloading anything.
-# HOW   powershell -NoProfile -ExecutionPolicy Bypass -File instalar.ps1 -Passo <node|ffmpeg|python|remotion|tudo> -Dados "<plugin data folder>" [-Estudio "<Estúdio folder>"]
+# HOW   powershell -NoProfile -ExecutionPolicy Bypass -File instalar.ps1 -Passo <node|ffmpeg|python|modelo|remotion|tudo> -Dados "<plugin data folder>" [-Estudio "<Estúdio folder>"]
 #       -ExecutionPolicy Bypass applies to this one process only and needs no admin rights.
+#       `modelo` downloads the speech model's files listed in ..\vendor.json into
+#       <plugin data folder>\modelos\large-v3-turbo\, verifies each sha256, deletes and reports
+#       any file that fails, and skips files already verified. ESTUDIO_MODELO_MANIFESTO points
+#       it at another manifest (tests serve local file:// URLs); real downloads need the network.
 #       Prints progress in plain Portuguese. Exit 0 when ready, 1 when a step failed
 #       (nothing half-installed stays behind), 2 on a usage error.
 param(
@@ -22,8 +27,8 @@ param(
 $ProgressPreference = 'SilentlyContinue' # the progress bar slows downloads tenfold
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-if ($Passo -notin @('node', 'ffmpeg', 'python', 'remotion', 'tudo') -or -not $Dados) {
-  [Console]::Error.WriteLine('uso: instalar.ps1 -Passo <node|ffmpeg|python|remotion|tudo> -Dados "<pasta de dados>" [-Estudio "<pasta do Estúdio>"]')
+if ($Passo -notin @('node', 'ffmpeg', 'python', 'modelo', 'remotion', 'tudo') -or -not $Dados) {
+  [Console]::Error.WriteLine('uso: instalar.ps1 -Passo <node|ffmpeg|python|modelo|remotion|tudo> -Dados "<pasta de dados>" [-Estudio "<pasta do Estúdio>"]')
   exit 2
 }
 . (Join-Path $PSScriptRoot 'lib\ferramentas.ps1')
@@ -53,7 +58,12 @@ function NovoTmp([string]$Nome) {
 }
 
 function Baixa([string]$Url, [string]$Arquivo) {
-  try { Invoke-WebRequest -Uri $Url -OutFile $Arquivo -UseBasicParsing; $true } catch { $false }
+  try {
+    # file:// is how the tests serve local fixtures; Invoke-WebRequest cannot read it.
+    if ($Url -like 'file:*') { Copy-Item -LiteralPath ([Uri]$Url).LocalPath -Destination $Arquivo -Force -ErrorAction Stop }
+    else { Invoke-WebRequest -Uri $Url -OutFile $Arquivo -UseBasicParsing }
+    $true
+  } catch { $false }
 }
 
 function Abre([string]$Zip, [string]$Destino) {
@@ -134,6 +144,39 @@ function InstalaPython {
   'Python com faster-whisper: pronto.'
 }
 
+# The speech model comes from our own GitHub Release, never from Hugging Face. Each file lands in
+# the model folder only after its sha256 matches the manifest, so an interrupted run leaves only
+# verified files and the next run fetches the rest.
+function InstalaModelo {
+  $arquivos = @(ModeloArquivos)
+  if ($arquivos.Count -eq 0) { Falha 'ler a lista de arquivos do modelo de fala' }
+  $pendentes = @($arquivos | Where-Object {
+    $destino = Join-Path $ModeloPasta $_.name
+    -not ((Test-Path -LiteralPath $destino -PathType Leaf) -and ((Sha256De $destino) -eq $_.sha256))
+  })
+  if ($pendentes.Count -eq 0) { 'Modelo de fala: já estava pronto.'; return }
+  'Modelo de fala (o que entende as suas falas, baixado uma só vez): baixando cerca de 1,6 GB, pode levar alguns minutos…'
+  $t = NovoTmp 'modelo'
+  try { New-Item -ItemType Directory -Path $ModeloPasta -Force | Out-Null } catch { Falha 'preparar o modelo de fala' }
+  $n = 0
+  foreach ($arquivo in $pendentes) {
+    $n++
+    "  ($n de $($pendentes.Count)) baixando $($arquivo.name)…"
+    $destino = Join-Path $ModeloPasta $arquivo.name
+    Remove-Item -LiteralPath $destino -Force -ErrorAction SilentlyContinue
+    $parcial = Join-Path $t $arquivo.name
+    if (-not (Baixa $arquivo.url $parcial)) { Falha "baixar o arquivo $($arquivo.name) do modelo de fala" }
+    if ((Sha256De $parcial) -ne $arquivo.sha256) {
+      Remove-Item -LiteralPath $parcial -Force -ErrorAction SilentlyContinue
+      "O arquivo $($arquivo.name) do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
+      Remove-Item -LiteralPath $Tmp -Recurse -Force -ErrorAction SilentlyContinue
+      exit 1
+    }
+    try { Move-Item -LiteralPath $parcial -Destination $destino } catch { Falha "guardar o arquivo $($arquivo.name) do modelo de fala" }
+  }
+  'Modelo de fala: pronto.'
+}
+
 function InstalaRemotion {
   switch (EstadoRemotion $Estudio) {
     'ok' { 'Remotion: já estava pronto.'; return }
@@ -167,11 +210,13 @@ switch ($Passo) {
   'node' { InstalaNode }
   'ffmpeg' { InstalaFfmpeg }
   'python' { InstalaPython }
+  'modelo' { InstalaModelo }
   'remotion' { InstalaRemotion }
   'tudo' {
     InstalaNode
     InstalaFfmpeg
     InstalaPython
+    InstalaModelo
     InstalaRemotion
     'Computador preparado para editar vídeos.'
   }

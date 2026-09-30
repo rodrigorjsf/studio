@@ -28,19 +28,24 @@ You can use Claude in three ways. All of them run the plugin:
 
 ## 2. Prepare the computer (the plugin's installer)
 
-She installs the plugin from the `studio` marketplace; she never clones a repository, opens a terminal or uses a package manager. The programs it needs come from its own no-admin installer. The `estudio` skill runs it only after the Criadora answers "sim" to one question, "Posso preparar seu computador para editar vídeos? (~10 min, grátis)"; see *The preparation question* in the skill.
+She installs the plugin from the `studio` marketplace; she never clones a repository, opens a terminal or uses a package manager. The programs and the speech model it needs come from its own no-admin installer, the **Preparação**. The `estudio` skill runs it only after the Criadora answers "sim" to one question, "Posso preparar seu computador para editar vídeos? (~2 GB, ~15 min, grátis)"; see *The preparation question* in the skill. **Every download the studio needs happens here, once.** Nothing is downloaded in the middle of an edit, and transcribing a video afterwards needs no internet.
 
 | What | Where it goes | Size (download) |
 |---|---|---|
 | Portable Node (official build, pinned version) | plugin data folder, `runtime/node/` | ~30–50 MB |
 | Static ffmpeg + ffprobe | plugin data folder, `runtime/ffmpeg/` | ~30–200 MB, by system |
 | Python through `uv`, with faster-whisper in its own environment | plugin data folder, `runtime/uv/`, `runtime/uv-python/`, `runtime/python/` | ~150 MB |
+| The speech model (`large-v3-turbo`, five files, each checked against its sha256) | plugin data folder, `modelos/large-v3-turbo/` | ~1.6 GB |
 | Remotion dependencies (`npm install` of the Estúdio's `package.json`) | the Estúdio folder, `node_modules/` | ~250 MB |
+
+About **2 GB in all**, the figure the preparation question states. The model comes from a GitHub Release of the plugin's own repository (see *the speech model* below), so no other website is involved.
 
 - Nothing needs an admin password or opens a system window: every file lands in a folder she owns, and download caches stay in the plugin data folder too.
 - Claude Code deletes the plugin data folder when the plugin is uninstalled, so the runtimes leave with it. `node_modules/` is part of her Estúdio folder, like her videos, and stays.
 - Every step is safe to repeat: a program that already works — the studio's own or one already on the computer — is not downloaded again.
 - The programs the studio downloads are **not** on the computer's PATH. Run them by the full path the computer check prints (`tools.node`, `tools.ffmpeg`, `tools.ffprobe`, `tools.python`).
+- **The speech model.** `instalar.sh modelo` (Windows: `instalar.ps1 -Passo modelo`) reads the file list from the plugin's `vendor.json` (source `speech-model`), downloads each file, checks its sha256, and deletes and reports any file that fails. A file that is already there and verified is skipped, so a re-run downloads nothing and an interrupted run resumes with the missing files. The computer check reports `speech-model` in `missing` when any file is absent; it never downloads.
+- **If the model is missing when a transcription starts,** `transcrever.py` stops with exit 3 and writes nothing: it never downloads. Offer the Preparação again (it fetches only what is missing).
 - Nothing else is installed: no other plugin, marketplace or skill. What the studio needs from third-party skills ships inside the plugin (section 3).
 
 ## 3. What ships inside the plugin
@@ -49,7 +54,7 @@ The plugin carries what the studio needs from two third-party skills, one to wat
 
 - **The frame sampler** (`scripts/frames/amostrar.py`): samples frames of her video in two modes, an overview and a face-zone pass over the whole clip. It needs only the Python and ffmpeg from section 2, runs locally, sends nothing anywhere and asks for no key. How to use it: [watching a video](watching-a-video.md).
 - **The Remotion rules** ([references/remotion/](remotion/index.md)): short rulebooks per topic, written for the Remotion version the Estúdio template pins.
-- **Transcription** stays local and free with faster-whisper (section 2); no cloud transcription service or API key is used.
+- **Transcription** stays local and free with faster-whisper and the speech model from section 2; no cloud transcription service or API key is used, and no network is needed once the Preparação is done.
 
 Where each piece comes from, with its license, is in the plugin's `THIRD_PARTY.md`.
 

@@ -158,7 +158,7 @@ Um **Gate** é um ponto em que o trabalho para até você (ou a sua Autonomia) a
 
 | Gate | O que você vê | O que a aprovação libera | O que a rejeição faz | A Autonomia aprova? |
 |---|---|---|---|---|
-| **Preparação do computador** | a pergunta "Posso preparar seu computador para editar vídeos? (~10 min, grátis)", com "sim" e "agora não" | o estúdio baixa os programas de edição para uma pasta reservada do plugin, sem senha e sem abrir janelas | "agora não": todo o resto continua funcionando; a pergunta volta quando você for editar um Vídeo e na próxima sessão | Não |
+| **Preparação do computador** | a pergunta "Posso preparar seu computador para editar vídeos? (~2 GB, ~15 min, grátis)", com "sim" e "agora não" | o estúdio baixa, uma única vez, os programas de edição e o modelo de fala (cerca de 2 GB) para uma pasta reservada do plugin, sem senha e sem abrir janelas; depois disso, transcrever um vídeo não precisa de internet | "agora não": todo o resto continua funcionando; a pergunta volta quando você for editar um Vídeo e na próxima sessão | Não |
 | **Criar o Estúdio** | a pergunta se a pasta aberta pode virar o seu Estúdio (um arquivo marcador, a pasta `projetos` e os arquivos do Remotion), dizendo que os seus arquivos ficam como estão | cria o Estúdio e segue para o Perfil e o Projeto | "agora não": o Diretor diz que você volta com `/estudio:estudio` quando quiser e para | Não |
 | **Kit de marca** | um resumo em português simples do Kit: Formato, cores, fontes, legendas, movimento, música, entregáveis, orçamento de créditos, referências e o que fazer e evitar | o Projeto fica pronto para receber Vídeos; até lá nenhum Vídeo começa nele | "pedir mudanças" volta aos tópicos que você nomeia; "aprovar com pequenos ajustes" aplica e mostra só o que mudou. Mudar um Kit já aprovado (`/estudio:editar-projeto`) também só vale com o seu "aplicar" | Não |
 | **Pré-corte** | primeiro o aviso, só quando a gravação parece sem cortes (quantas pausas e quantos segundos), com "não" como padrão; se você aceitar, a lista de cortes com tempo, motivo e o que é dito | os cortes aprovados viram um novo Master; o Original fica guardado intacto | "não" ou "cancelar": nada é cortado; se você tira um corte, o trecho volta ao Vídeo | Não |
@@ -220,7 +220,7 @@ Evite pastas sincronizadas com iCloud, OneDrive ou Google Drive: vídeos grandes
    /estudio:estudio
    ```
 
-3. O Diretor cumprimenta você e pergunta se pode **preparar o seu computador** (baixa os programas de edição, cerca de 10 minutos, grátis). Não pede senha nem abre janelas; tudo fica guardado dentro do próprio plugin. Se preferir, responda "agora não" e volte depois.
+3. O Diretor cumprimenta você e pergunta se pode **preparar o seu computador** (baixa uma única vez os programas de edição e o modelo de fala, cerca de 2 GB e 15 minutos, grátis). Não pede senha nem abre janelas; tudo fica guardado dentro do próprio plugin. Se preferir, responda "agora não" e volte depois.
 4. Em seguida ele prepara a pasta e conduz duas conversas curtas, uma vez só: sobre **você** (Perfil) e sobre **cada conta** em que você publica (Projeto e Kit de marca).
 
 Pronto: a partir daí, para cada vídeo novo, abra a mesma pasta e digite `/estudio:estudio` (ou `/estudio:novo-video`).

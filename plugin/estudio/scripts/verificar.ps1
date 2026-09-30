@@ -1,5 +1,6 @@
 ﻿# WHAT  Windows twin of verificar.sh: checks Node, ffmpeg, ffprobe, Python with
-#       faster-whisper and (inside an Estúdio) the Remotion dependencies. Never installs.
+#       faster-whisper, the speech model's files and (inside an Estúdio) the Remotion
+#       dependencies. Never installs.
 # WHY   The session-start hook and the estudio skill must know what is missing before the
 #       Diretor asks the one preparation question.
 # WHEN  At every session start on Windows (hooks/hooks.json) and whenever the skill needs
@@ -22,9 +23,11 @@ $ferramentas = [ordered]@{
   ffprobe = AchaFfprobe
   python = AchaPython
 }
+$modelo = EstadoModelo
 $remotion = EstadoRemotion $Estudio
 $faltando = New-Object System.Collections.Generic.List[string]
 foreach ($nome in $ferramentas.Keys) { if (-not $ferramentas[$nome]) { $faltando.Add($nome) } }
+if ($modelo -eq 'missing') { $faltando.Add('speech-model') }
 if ($remotion -eq 'missing') { $faltando.Add('remotion') }
 
 if ($Json) {

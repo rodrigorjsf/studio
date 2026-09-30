@@ -1,16 +1,21 @@
 #!/bin/sh
 # WHAT  Prepares a macOS or Linux computer to edit videos without any admin password or
 #       system window: portable Node, a static ffmpeg/ffprobe, Python (through uv) with
-#       faster-whisper, all inside the plugin data folder; then the Remotion dependencies
-#       inside the Estúdio folder. Windows uses instalar.ps1.
+#       faster-whisper and the speech model (~1.6 GB, from our GitHub Release), all inside the
+#       plugin data folder; then the Remotion dependencies inside the Estúdio folder.
+#       Windows uses instalar.ps1.
 # WHY   The Criadora cannot type a password or answer an OS prompt from the Claude Desktop
 #       Code tab, and must never be sent to a package manager. Claude Code deletes the plugin
 #       data folder on uninstall, so the computer is left clean.
 # WHEN  Only after the Criadora says yes to the Diretor's preparation question. Safe to
 #       re-run: every step that is already done is skipped without downloading anything.
-# HOW   sh instalar.sh <node|ffmpeg|python|remotion|tudo> "<plugin data folder>" ["<Estúdio folder>"]
+# HOW   sh instalar.sh <node|ffmpeg|python|modelo|remotion|tudo> "<plugin data folder>" ["<Estúdio folder>"]
 #       Prints progress in plain Portuguese (the Diretor relays it). Exit 0 when the step is
 #       ready, 1 when it failed (nothing half-installed stays behind), 2 on a usage error.
+#       `modelo` downloads the speech model's files listed in ../vendor.json into
+#       <plugin data folder>/modelos/large-v3-turbo/, verifies each sha256, deletes and reports
+#       any file that fails, and skips files already verified. ESTUDIO_MODELO_MANIFESTO points
+#       it at another manifest (tests serve local file:// URLs); real downloads need the network.
 
 PASSO=$1
 DADOS=$2
@@ -24,8 +29,8 @@ case "$(uname -s)" in
 esac
 
 case "$PASSO" in
-  node | ffmpeg | python | remotion | tudo) ;;
-  *) echo "uso: instalar.sh <node|ffmpeg|python|remotion|tudo> \"<pasta de dados>\" [\"<pasta do Estúdio>\"]" >&2; exit 2 ;;
+  node | ffmpeg | python | modelo | remotion | tudo) ;;
+  *) echo "uso: instalar.sh <node|ffmpeg|python|modelo|remotion|tudo> \"<pasta de dados>\" [\"<pasta do Estúdio>\"]" >&2; exit 2 ;;
 esac
 if [ -z "$DADOS" ]; then echo "uso: falta a pasta de dados do plugin" >&2; exit 2; fi
 # Absolute, so the paths still resolve after the Remotion step changes folder.
@@ -133,6 +138,44 @@ instala_python() {
   echo "Python com faster-whisper: pronto."
 }
 
+# The speech model comes from our own GitHub Release, never from Hugging Face. Each file lands in
+# the model folder only after its sha256 matches the manifest, so an interrupted run leaves only
+# verified files and the next run fetches the rest.
+instala_modelo() {
+  lista=$(modelo_arquivos "$MODELO_MANIFESTO")
+  [ -n "$lista" ] || falha "ler a lista de arquivos do modelo de fala"
+  pendentes=
+  while read -r nome sha url; do
+    if [ -f "$MODELO_PASTA/$nome" ] && [ "$(sha256_de "$MODELO_PASTA/$nome")" = "$sha" ]; then continue; fi
+    pendentes="$pendentes$nome $sha $url
+"
+  done <<FIM
+$lista
+FIM
+  if [ -z "$pendentes" ]; then echo "Modelo de fala: já estava pronto."; return; fi
+  echo "Modelo de fala (o que entende as suas falas, baixado uma só vez): baixando cerca de 1,6 GB, pode levar alguns minutos…"
+  total=$(printf '%s' "$pendentes" | sed -n '$=')
+  novo_tmp modelo || falha "preparar o modelo de fala"
+  mkdir -p "$MODELO_PASTA" || falha "preparar o modelo de fala"
+  n=0
+  while read -r nome sha url; do
+    [ -n "$nome" ] || continue # the here-document ends with an empty line
+    n=$((n + 1))
+    echo "  ($n de $total) baixando $nome…"
+    rm -f "$MODELO_PASTA/$nome"
+    baixa "$url" "$TMP/modelo/$nome" || falha "baixar o arquivo $nome do modelo de fala"
+    if [ "$(sha256_de "$TMP/modelo/$nome")" != "$sha" ]; then
+      rm -f "$TMP/modelo/$nome"
+      echo "O arquivo $nome do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
+      exit 1
+    fi
+    mv "$TMP/modelo/$nome" "$MODELO_PASTA/$nome" || falha "guardar o arquivo $nome do modelo de fala"
+  done <<FIM
+$pendentes
+FIM
+  echo "Modelo de fala: pronto."
+}
+
 instala_remotion() {
   case "$(estado_remotion "$ESTUDIO")" in
     ok) echo "Remotion: já estava pronto."; return ;;
@@ -163,6 +206,7 @@ case "$PASSO" in
     instala_node
     instala_ffmpeg
     instala_python
+    instala_modelo
     instala_remotion
     echo "Computador preparado para editar vídeos."
     ;;

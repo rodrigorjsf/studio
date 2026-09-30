@@ -11,10 +11,13 @@ WHEN  The Assistente de edição runs it once per Vídeo during the ingest, on t
 HOW   "<python>" transcrever.py "<video>" "<output folder>" --modelos "<plugin data>/modelos"
           [--idioma pt] [--kit "<kit.json>"] [--modelo large-v3-turbo]
       <python> is `tools.python` from the computer check (the Python holding faster-whisper).
-      --modelos is where the speech model is downloaded on the first run (~1.6 GB for
-      large-v3-turbo) and found afterwards; keep it inside the plugin's data folder, so removing
-      the studio removes it too. --kit reads the Kit de marca's `glossario` (names and brands she
-      says) and hands it to the model as a hint for their spelling. Exits 2 on a usage error.
+      --modelos is the folder the Preparação fills with the speech model (~1.6 GB for
+      large-v3-turbo, in the subfolder named after the model). The model is loaded from that
+      folder by path and never downloaded: this script never contacts the network. --kit reads
+      the Kit de marca's `glossario` (names and brands she says) and hands it to the model as a
+      hint for their spelling.
+      Exit 0 = done. Exit 2 = usage error. Exit 3 = the model is not prepared: nothing was
+      written, and the message names the Preparação (the Diretor offers it again).
 """
 from __future__ import annotations
 
@@ -27,6 +30,10 @@ import json
 from pathlib import Path
 
 DEFAULT_MODEL = "large-v3-turbo"
+EXIT_MODEL_NOT_PREPARED = 3
+# What faster-whisper cannot load a model without. A folder missing the tokenizer would make it
+# fall back to a download, which this script never does. The Preparação verifies every file.
+REQUIRED_MODEL_FILES = ("model.bin", "config.json", "tokenizer.json")
 # The graphics card when there is one, the processor otherwise.
 DEVICES = [("cuda", "float16"), ("cpu", "int8")]
 
@@ -43,13 +50,17 @@ def glossary_prompt(kit: Path | None) -> str | None:
     return f"Glossário: {', '.join(words)}." if words else None
 
 
-def transcribe(video: Path, language: str, model_name: str, models: Path, prompt: str | None):
+def model_prepared(folder: Path) -> bool:
+    return all((folder / name).is_file() for name in REQUIRED_MODEL_FILES)
+
+
+def transcribe(video: Path, language: str, folder: Path, prompt: str | None):
     from faster_whisper import WhisperModel  # imported here: a usage error needs no model
 
     errors = []
     for device, compute in DEVICES:
         try:
-            model = WhisperModel(model_name, device=device, compute_type=compute, download_root=str(models))
+            model = WhisperModel(str(folder), device=device, compute_type=compute)
             segments, info = model.transcribe(
                 str(video), language=language, word_timestamps=True, vad_filter=True, initial_prompt=prompt)
             # The generator decodes only here; CUDA errors surface on this line.
@@ -71,9 +82,15 @@ def main() -> None:
     if not args.video.is_file():
         ap.error(f"video not found: {args.video}")
 
+    folder = args.modelos / args.modelo
+    if not model_prepared(folder):
+        print(f'o modelo de fala "{args.modelo}" ainda não está preparado em {folder}. '
+              "Ele é baixado uma única vez, na Preparação do computador; nada foi transcrito nem escrito.",
+              file=sys.stderr)
+        sys.exit(EXIT_MODEL_NOT_PREPARED)
+
     args.saida.mkdir(parents=True, exist_ok=True)
-    args.modelos.mkdir(parents=True, exist_ok=True)
-    segments, info, device = transcribe(args.video, args.idioma, args.modelo, args.modelos, glossary_prompt(args.kit))
+    segments, info, device = transcribe(args.video, args.idioma, folder, glossary_prompt(args.kit))
 
     words = [{"w": w.word.strip(), "s": round(w.start, 3), "e": round(w.end, 3)}
              for segment in segments for w in (segment.words or [])]
