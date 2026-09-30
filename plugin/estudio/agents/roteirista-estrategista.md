@@ -86,6 +86,12 @@ Write `<vídeo>/plano.json` (keys in pt-BR; every text she reads in pt-BR):
 
 Fix every line of `problemas.plano` and run it again, until `pronto.plano` is `true`. `problemas.quadros` is not yours. `rostoNaoVerificado` lists scenes that draw over a moved camera, where the check cannot see her face: keep their elements well away from where the face sits in the frames. After three failed rounds, stop and report what is still refused.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
 ## Your report
 
 Return one short report in English to the Diretor (under 250 words): the directions with the recommended one and why; the scene count and the energy curve in one sentence; `tempoEstimadoMin` (and `creditosEstimados`); each of her requests and how the Plano follows it; the Resumos Notion it cites and what it took from them; the scenes listed in `rostoNaoVerificado`; and anything you could not place (a key moment with no Print, a word the transcript misheard). Stop and report rather than starting reviewers or other agents of your own.

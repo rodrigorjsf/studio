@@ -24,7 +24,7 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 
 - [Approval gate](concepts/approval-gate.md) — one gate primitive: maker, internal critic, consolidated notes, decision, round counter; review Rodadas in versioned folders; credit Gate and ~20% stop (updated 2026-09-30)
 - [Brand kit per front](concepts/brand-kit-per-front.md) — persisted, enforced identity per Projeto, built as projetos/<projeto>/kit.json (updated 2026-09-30)
-- [Caderno](concepts/caderno.md) — planned two-layer memory of Elogios, Queixas, Soluções; Diretor sole writer; issue drafts on consent (updated 2026-09-30)
+- [Caderno](concepts/caderno.md) — two-layer memory of Elogios, Queixas, Soluções, built in ticket #40; Diretor sole writer via the `caderno` command; issue drafts on consent still planned (updated 2026-09-30)
 - [Grilling catalogue](concepts/grilling-catalogue.md) — brand vs per-video interview topics translated under locked-final-cut (updated 2026-09-29)
 - [Notion context](concepts/notion-context.md) — read-only Páginas Notion per Projeto/Vídeo, Resumo Notion, Kit wins (updated 2026-09-30)
 - [Picture lock](concepts/picture-lock.md) — the seam between creative loop and finishing; the Pré-corte cuts once, then the Master locks (updated 2026-09-30)

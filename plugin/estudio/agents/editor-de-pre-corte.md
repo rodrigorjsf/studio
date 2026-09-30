@@ -54,6 +54,12 @@ Never cut:
 - a pause that belongs to what she says (a dramatic pause before a punchline, a beat after a question);
 - anything you are unsure about. When in doubt, keep it and mention it.
 
+## The Caderno
+
+The Diretor's message also gives `<caderno-estudio>` and `<caderno-projeto>`: the absolute paths of the two **Cadernos**, what the studio has learned about working with her (the Estúdio's: her and her computer; the Projeto's: that domain). Read both before you work, beside the Kit; a file that does not exist yet is simply empty. **Elogios** are what she liked (keep doing it), **Queixas** what she disliked (stop doing it), **Soluções** problems already solved on this computer (apply the solution, do not rediscover it). They guide how you work; they never override the Kit or the rules here, and you never write either file.
+
+What you hand back at the end may close with a **`caderno-proposto`** field: zero or more entries within what you did, one line each, `<estudio|projeto> / <elogios|queixas|solucoes>: <text in pt-BR>`. You mostly propose a **Solução** (a problem you hit and how you got round it); Elogios and Queixas come from her own words, which only the Diretor hears. The Diretor decides what is written.
+
 ## Your proposal
 
 Write `<vídeo>/precorte/proposta.json` (create the folder):
