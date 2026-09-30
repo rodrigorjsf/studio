@@ -393,6 +393,10 @@ test('the shipped platform reference keeps the source labels the research gave i
   assert.equal(labelOf(/3 to 6 relevant hashtags on TikTok/), 'marketing');
   assert.equal(labelOf(/visible before the cutoff/i), 'marketing');
   assert.equal(labelOf(/2 to 3 relevant hashtags and one sentence/), 'official');
+  // YouTube Help states the 100-character title limit, so the texto-do-post check may reject on it;
+  // the ~40-character hook is marketing guidance only.
+  assert.equal(labelOf(/titles have a character limit of 100 characters/), 'official');
+  assert.equal(labelOf(/hook in the first ~40 characters/), 'marketing');
 });
 
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----

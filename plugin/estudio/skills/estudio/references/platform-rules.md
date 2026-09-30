@@ -44,8 +44,9 @@ Some official pages (TikTok Creator Academy, the Instagram Help Center) render a
 
 ## YouTube Shorts title and description
 
-- [official] The Shorts description holds up to 5,000 characters and helps search. The 100-character title limit is not stated on this page; it comes from marketing guides, so confirm it in YouTube Studio. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
-- [marketing] Write the Shorts title as a human hook plus the keyword, at most 100 characters, with the hook in the first ~40 characters (the part visible in the feed) and no hashtags in the title. No YouTube page states this; it comes from marketing guides. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
+- [official] The Shorts description holds up to 5,000 characters and helps search. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
+- [official] YouTube Help: "Video titles have a character limit of 100 characters and cannot include invalid characters." The `texto-do-post` check rejects a longer Shorts title. sourced: 2026-09-30 <https://support.google.com/youtube/answer/57407?hl=en>
+- [marketing] Write the Shorts title as a human hook plus the keyword, with the hook in the first ~40 characters (the part visible in the feed) and no hashtags in the title. No YouTube page states the ~40 characters; it comes from marketing guides. sourced: 2026-09-30 <https://support.google.com/youtube/answer/12948449?hl=en>
 - [official] Put 2 to 3 relevant hashtags and one sentence of context in the Shorts description: YouTube shows a video's hashtags above its title, taken from the description. sourced: 2026-09-30 <https://support.google.com/youtube/answer/6390658?hl=en>
 - [official] YouTube's spam policy forbids maliciously misleading titles, thumbnails and descriptions, tag stuffing in the description, and rewards in exchange for likes, views or subscribers. sourced: 2026-09-30 <https://support.google.com/youtube/answer/2801973?hl=en>
 - [marketing] Links in a Shorts description are not clickable (2023). sourced: 2026-09-30 <https://www.phonearena.com/news/youtube-shorts-blocks-clickable-links_id149677>
