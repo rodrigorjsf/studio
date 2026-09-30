@@ -15,7 +15,7 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 
 ## Entities
 
-- [Studio personas](entities/studio-personas.md) — ~15 studio roles in four families and the compressed solo-creator chain (updated 2026-09-30)
+- [Studio personas](entities/studio-personas.md) — ~15 studio roles in four families and the compressed solo-creator chain; the README section "Quem trabalha em cada etapa" holds the actors and Gates tables (updated 2026-09-30)
 
 ## Concepts
 

@@ -88,3 +88,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Skills pin the Diretor and Entrevistador to Opus 5.5 medium, review round 2
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Esteira actors, call-chain diagram and Gates table documented once in the README, personas page links to it (ticket #36)
+Pages: entities/studio-personas.md, overview.md, index.md.
