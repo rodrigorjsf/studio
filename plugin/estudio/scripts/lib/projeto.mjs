@@ -3,30 +3,10 @@
 // approval Gate. Neither ever overwrites the Criadora's answers.
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseFrontmatter } from './frontmatter.mjs';
-import { defaultKit, validateKit } from './kit.mjs';
+import { briefingTemplate, unansweredSections } from './briefing.mjs';
+import { estado } from './estado.mjs';
+import { defaultKit } from './kit.mjs';
 import { KIT, KIT_ASSETS, MARKER, PROJETO_DOC, PROJETOS } from './layout.mjs';
-
-// The Projeto Grilling's catalogue, one briefing section per topic, in the order the
-// Entrevistador asks them. The Criadora reads this file, so the headings are pt-BR.
-export const BRIEFING_SECTIONS = [
-  'Negócio',
-  'Público',
-  'Tom de voz',
-  'Referências',
-  'Comportamento de câmera',
-  'Enquadramento',
-  'Prints',
-  'Interação com imagens',
-  'Animações',
-  'Ritmo',
-  'Legendas',
-  'Cores',
-  'Som',
-  'Música',
-  'Entregáveis',
-  'Orçamento de créditos',
-];
 
 // A Projeto is a folder named as she calls it ("Minha Empresa"), so the name must be a
 // single, portable folder name on Mac and Windows.
@@ -47,11 +27,6 @@ function findProjeto(folder, nome) {
     .find((entry) => entry.isDirectory() && nfc(entry.name) === nfc(nome))?.name ?? null;
 }
 
-function briefing(nome, createdAt) {
-  const sections = BRIEFING_SECTIONS.map((title) => `## ${title}\n\n_A preencher na entrevista._\n`).join('\n');
-  return `---\nnome: "${nome}"\ncriadoEm: ${createdAt}\n---\n# ${nome}\n\n${sections}`;
-}
-
 export function novoProjeto(folder, nome) {
   if (!fs.existsSync(path.join(folder, MARKER))) return { created: false, reason: 'not-estudio' };
   const problem = nameProblem(nome);
@@ -61,7 +36,7 @@ export function novoProjeto(folder, nome) {
   const dir = path.join(folder, PROJETOS, existing ?? projeto);
   // Each file is written only when absent: an interrupted Projeto is completed, never reset.
   const files = [
-    [path.join(dir, PROJETO_DOC), () => briefing(projeto, new Date().toISOString())],
+    [path.join(dir, PROJETO_DOC), () => briefingTemplate(projeto, new Date().toISOString())],
     [path.join(dir, KIT), () => `${JSON.stringify(defaultKit(), null, 2)}\n`],
   ];
   const missing = files.filter(([file]) => !fs.existsSync(file));
@@ -73,30 +48,26 @@ export function novoProjeto(folder, nome) {
   return { created: true, ...(existing && { resumed: true }), projeto, path: `${PROJETOS}/${projeto}` };
 }
 
+// Closes the Kit approval Gate: stamps `aprovadoEm` only on a Projeto whose documents
+// `estado` finds valid and whose briefing has every section answered.
 export function aprovarKit(folder, nome) {
-  const found = findProjeto(folder, nome);
-  if (!fs.existsSync(path.join(folder, MARKER)) || !found) return { approved: false, reason: 'unknown-projeto' };
-  const dir = path.join(folder, PROJETOS, found);
-  const errors = [];
+  const state = estado(folder);
+  const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(nome));
+  if (!projeto) return { approved: false, reason: 'unknown-projeto' };
+  const prefix = `${PROJETOS}/${projeto.id}/`;
+  const errors = state.errors
+    .filter((e) => e.file === `${prefix}${PROJETO_DOC}` || e.file === `${prefix}${KIT}`)
+    .map((e) => `${e.file.slice(prefix.length)}: ${e.message}`);
+  if (projeto.kit === 'pendente') errors.push(`${KIT}: missing`);
+  const dir = path.join(folder, PROJETOS, findProjeto(folder, nome));
   const briefingFile = path.join(dir, PROJETO_DOC);
-  if (!fs.existsSync(briefingFile)) errors.push(`${PROJETO_DOC}: missing`);
-  else {
-    try {
-      parseFrontmatter(fs.readFileSync(briefingFile, 'utf8'));
-    } catch (err) {
-      errors.push(`${PROJETO_DOC}: ${err.message}`);
-    }
-  }
-  let kit = null;
-  try {
-    kit = JSON.parse(fs.readFileSync(path.join(dir, KIT), 'utf8'));
-    errors.push(...validateKit(kit, dir).map((message) => `${KIT}: ${message}`));
-  } catch (err) {
-    errors.push(`${KIT}: ${err.code === 'ENOENT' ? 'missing' : `not valid JSON (${err.message})`}`);
-  }
-  if (errors.length > 0) return { approved: false, reason: 'invalid', projeto: nfc(found), errors };
+  const unanswered = fs.existsSync(briefingFile) ? unansweredSections(fs.readFileSync(briefingFile, 'utf8')) : 0;
+  if (unanswered > 0) errors.push(`${PROJETO_DOC}: ${unanswered} sections still to fill in the interview`);
+  if (errors.length > 0) return { approved: false, reason: 'invalid', projeto: projeto.id, errors };
 
+  const kitFile = path.join(dir, KIT);
+  const kit = JSON.parse(fs.readFileSync(kitFile, 'utf8'));
   kit.aprovadoEm = new Date().toISOString();
-  fs.writeFileSync(path.join(dir, KIT), `${JSON.stringify(kit, null, 2)}\n`);
-  return { approved: true, projeto: nfc(found), aprovadoEm: kit.aprovadoEm };
+  fs.writeFileSync(kitFile, `${JSON.stringify(kit, null, 2)}\n`);
+  return { approved: true, projeto: projeto.id, aprovadoEm: kit.aprovadoEm };
 }

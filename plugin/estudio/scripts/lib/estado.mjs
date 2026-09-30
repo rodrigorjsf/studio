@@ -2,6 +2,7 @@
 // Projeto's and Vídeo's Status, what waits for the Criadora, and the next step.
 import fs from 'node:fs';
 import path from 'node:path';
+import { unansweredSections } from './briefing.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { validateKit } from './kit.mjs';
 import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEOS } from './layout.mjs';
@@ -79,8 +80,11 @@ export function estado(folder) {
   const projetos = subfolders(path.join(folder, PROJETOS)).map((name) => {
     const dir = path.join(folder, PROJETOS, name);
     const briefing = path.join(dir, PROJETO_DOC);
-    if (fs.existsSync(briefing)) readDoc(briefing);
-    else fail(briefing, 'missing: every Projeto needs its briefing document');
+    // `incompleto` while a section still waits for her answer: the Grilling was interrupted.
+    let briefingState = 'incompleto';
+    if (fs.existsSync(briefing)) {
+      if (readDoc(briefing) && unansweredSections(fs.readFileSync(briefing, 'utf8')) === 0) briefingState = 'completo';
+    } else fail(briefing, 'missing: every Projeto needs its briefing document');
 
     // The Kit's state: `pendente` (no kit.json yet), `invalido`, `aguardando-aprovacao`
     // (valid, its approval Gate still open) or `ok` (approved: the Projeto is usable).
@@ -119,7 +123,7 @@ export function estado(folder) {
       } else video.nivel = data.nivel ?? null;
       return video;
     });
-    return { id: nfc(name), kit, videos };
+    return { id: nfc(name), briefing: briefingState, kit, videos };
   });
 
   const waiting = projetos.flatMap((projeto) => projeto.videos
@@ -130,13 +134,13 @@ export function estado(folder) {
 }
 
 // One next step, in the order the Esteira needs them: a broken document first, then the
-// Perfil, a first Projeto, an unfinished Kit, a Kit awaiting her approval, a Vídeo waiting for her, a Vídeo in progress,
+// Perfil, a first Projeto, an unfinished Grilling (briefing or Kit), a Kit awaiting her approval, a Vídeo waiting for her, a Vídeo in progress,
 // and finally a new Vídeo.
 function nextStep({ errors, perfil, projetos, waiting }) {
   if (errors.length > 0) return { action: 'corrigir-erros' };
   if (!perfil.present) return { action: 'perfil' };
   if (projetos.length === 0) return { action: 'novo-projeto' };
-  const unfinished = projetos.find((projeto) => projeto.kit === 'pendente');
+  const unfinished = projetos.find((projeto) => projeto.kit === 'pendente' || projeto.briefing === 'incompleto');
   if (unfinished) return { action: 'concluir-projeto', projeto: unfinished.id };
   const unapproved = projetos.find((projeto) => projeto.kit === 'aguardando-aprovacao');
   if (unapproved) return { action: 'aprovar-kit', projeto: unapproved.id };

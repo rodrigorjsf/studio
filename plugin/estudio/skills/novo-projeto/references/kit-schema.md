@@ -10,7 +10,7 @@ The Kit de marca is the Projeto's machine-readable identity: `projetos/<projeto>
 |---|---|---|---|
 | `schemaVersion` | always `1` | `1` | none |
 | `aprovadoEm` | ISO date or `null` | `null` | Set only by `aprovar-kit`. Never write it yourself. |
-| `formato` | `"9:16"`, `"16:9"` or `"1:1"` | `"9:16"` | Entregáveis |
+| `formato` | `"9:16"`, `"16:9"` or `"1:1"`; it must also be listed in `entregaveis.formatos` | `"9:16"` | Entregáveis |
 | `cores` | map of name to `"#RRGGBB"`. It must have `primaria`, `destaque`, `fundo` and `texto`. More names are allowed (e.g. `secundaria`). | `#111111` / `#FFD400` / `#FFFFFF` / `#111111` | Cores, Referências |
 | `tipografia.titulo`, `tipografia.texto` | `{familia, peso (100–900), arquivo (asset or null)}` | Inter 800 / Inter 500, no file | Referências, Legendas |
 | `tipografia.escala` | map of role to size in px at 1080 px width. It must have `titulo` and `corpo`. | `96` / `48` | Animações |

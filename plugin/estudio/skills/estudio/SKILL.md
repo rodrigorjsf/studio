@@ -27,7 +27,7 @@ It prints JSON. **This output is your only source for the Estúdio's state**: do
 | `isEmpty` | `true`: nothing of hers is in the folder (hidden and system files do not count). |
 | `errors` | `[{file, message}]`: documents that are missing or malformed, path relative to the Estúdio. |
 | `perfil.present` | Whether her Perfil exists. |
-| `projetos` | Each Projeto: `id` (folder name), `kit` (`ok` = approved / `aguardando-aprovacao` / `pendente` = no Kit yet / `invalido`), `videos` with `id`, `status`, `rodada`, `nivel`, `waitingForCriadora`. |
+| `projetos` | Each Projeto: `id` (folder name), `briefing` (`completo` / `incompleto` = its interview has unanswered sections), `kit` (`ok` = approved / `aguardando-aprovacao` / `pendente` = no Kit yet / `invalido`), `videos` with `id`, `status`, `rodada`, `nivel`, `waitingForCriadora`. |
 | `waiting` | What waits for her now: `{projeto, video, status}`. |
 | `nextStep` | `{action, projeto?, video?, status?}`: the single next step. |
 

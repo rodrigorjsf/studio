@@ -22,7 +22,7 @@ Each command prints JSON. Its output is your only source of truth about the Est�
 Run `estado`.
 
 - `isEstudio` is `false` → the folder is not an Estúdio yet. Tell her in one line, and follow `/estudio:estudio`, which offers to set it up.
-- `nextStep.action` is `concluir-projeto` → that Projeto was interrupted. Go to step 2 with its name; the command completes it without erasing her answers. Then skip the sections of its `projeto.md` that already hold answers.
+- `nextStep.action` is `concluir-projeto` → that Projeto's Grilling was interrupted: its briefing still has unanswered sections (`briefing: "incompleto"`) or its Kit is missing. Go to step 2 with its name; the command adds only what is missing and never erases her answers. Then ask only the sections of its `projeto.md` that still hold the placeholder `_A preencher na entrevista._`.
 - `nextStep.action` is `aprovar-kit` → the Grilling is done and the Kit waits for her. Go straight to step 5.
 - `perfil.present` is `false` → mention in one line that her Perfil is not set up yet, and carry on. The Projeto does not depend on it.
 
@@ -56,7 +56,7 @@ Keep it light, because she is tired and short on time:
 | 4 | Referências | Videos, accounts or images whose look she wants to copy. See "Reference images" below. | `referencias`, and often `cores`, `tipografia` |
 | 5 | Comportamento de câmera | Talking head, walking, screen recording, several setups. | `camera.comportamento` |
 | 6 | Enquadramento | Where her face usually sits, per recording setup (e.g. selfie at the desk). | `camera.enquadramento`, `zonaDoRosto` |
-| 7 | Prints | Whether she shows screenshots, and how: whole, zoomed, highlighted. | `imagens.prints` |
+| 7 | Prints | Whether she shows Prints, and how: whole, zoomed, highlighted. | `imagens.prints` |
 | 8 | Interação com imagens | How images meet her on screen: split screen, card, full screen, behind her. | `imagens.interacao` |
 | 9 | Animações | How much moves on screen, and which resources she likes. | `movimento.intensidade`, `movimento.recursos`, `tipografia.escala` |
 | 10 | Ritmo | Calm, balanced or fast cuts, and how fast things enter. | `movimento.ritmo`, `movimento.entradaMs`, `movimento.transicao` |
@@ -71,7 +71,7 @@ Keep it light, because she is tired and short on time:
 
 ### Reference images
 
-Invite her to **show rather than describe**: screenshots of accounts she likes, photos of her brand material, a short video she admires.
+Invite her to **show rather than describe**: Prints of accounts she likes, photos of her brand material, a short video she admires.
 
 - When she gives a file path or drags a file in, **copy** it into `projetos/<nome>/kit/referencias/`. Never move, rename or change her original. Look at the copy yourself (you can read images). For a video, use ffmpeg when it is available to extract two or three frames into the same folder, and look at them.
 - Record each file in `referencias` with a short pt-BR `nota` saying what to take from it (e.g. "cores quentes, legenda grande amarela"). Also carry into `cores`, `tipografia` and `legendas` what the references settle.
@@ -80,10 +80,10 @@ Invite her to **show rather than describe**: screenshots of accounts she likes, 
 
 ## 4. Write the briefing and the Kit
 
-- **`projeto.md`**: replace each section's placeholder with her answers, in pt-BR, in her own words where possible. Where she chose "decide você", say which default was used. Keep the frontmatter and the headings.
+- **`projeto.md`**: replace **every** section's placeholder `_A preencher na entrevista._` with her answers, in pt-BR, in her own words where possible. Where she chose "decide você", say which default was used. Keep the frontmatter and the headings. A section still holding the placeholder keeps the Grilling open: `estado` reports `concluir-projeto` and `aprovar-kit` refuses.
 - **`kit.json`**: change only the fields her answers settle ([kit-schema.md](references/kit-schema.md) lists every field, its type and its default). Keep the defaults for the rest. Never set `aprovadoEm` yourself.
 
-Then run `estado` again. If `errors` lists this Projeto's files, fix them and run it once more. The Gate opens only on a Kit without errors.
+Then run `estado` again. If `errors` lists this Projeto's files, fix them and run it once more. The Gate opens only when this Projeto shows `briefing: "completo"` and `kit: "aguardando-aprovacao"`.
 
 ## 5. The Kit approval Gate
 

@@ -22,8 +22,8 @@ import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 const COMMANDS = {
   estado: { run: estado, args: [] },
   criar: { run: criar, args: [] },
-  'novo-projeto': { run: novoProjeto, args: ['<projeto>'] },
-  'aprovar-kit': { run: aprovarKit, args: ['<projeto>'] },
+  'novo-projeto': { run: novoProjeto, args: ['"<projeto>"'] },
+  'aprovar-kit': { run: aprovarKit, args: ['"<projeto>"'] },
 };
 
 function usageError(error) {
@@ -33,8 +33,8 @@ function usageError(error) {
 
 const usage = Object.entries(COMMANDS).map(([name, { args }]) => [name, '"<folder>"', ...args].join(' ')).join(' | ');
 const [command, folder, ...args] = process.argv.slice(2);
-const spec = Object.hasOwn(COMMANDS, command) ? COMMANDS[command] : null;
-if (!spec || !folder || args.length !== spec.args.length) usageError(`usage: estudio.mjs ${usage}`);
+const entry = Object.hasOwn(COMMANDS, command) ? COMMANDS[command] : null;
+if (!entry || !folder || args.length !== entry.args.length) usageError(`usage: estudio.mjs ${usage}`);
 const target = path.resolve(folder);
 if (!fs.statSync(target, { throwIfNoEntry: false })?.isDirectory()) usageError(`not a folder: ${target}`);
-process.stdout.write(`${JSON.stringify(spec.run(target, ...args), null, 2)}\n`);
+process.stdout.write(`${JSON.stringify(entry.run(target, ...args), null, 2)}\n`);

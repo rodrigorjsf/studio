@@ -35,9 +35,14 @@ function estudio() {
 }
 
 const projetoDir = (dir, nome) => path.join(dir, 'projetos', nome);
+// Stands in for the Entrevistador answering every section of the Grilling.
+function answerBriefing(dir, nome) {
+  const file = path.join(projetoDir(dir, nome), 'projeto.md');
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replaceAll('_A preencher na entrevista._', 'Respondido.'));
+}
 const readKit = (dir, nome) => JSON.parse(fs.readFileSync(path.join(projetoDir(dir, nome), 'kit.json'), 'utf8'));
 
-test('novo-projeto creates the briefing, a Kit with the defaults and the assets folder, awaiting approval', () => {
+test('novo-projeto creates the briefing, a Kit with the defaults and the assets folder, and the Grilling comes next', () => {
   const dir = estudio();
   const { code, out } = run('novo-projeto', dir, 'Minha Empresa');
   assert.equal(code, 0);
@@ -53,8 +58,8 @@ test('novo-projeto creates the briefing, a Kit with the defaults and the assets 
 
   const state = run('estado', dir).out;
   assert.deepEqual(state.errors, []);
-  assert.deepEqual(state.projetos, [{ id: 'Minha Empresa', kit: 'aguardando-aprovacao', videos: [] }]);
-  assert.deepEqual(state.nextStep, { action: 'aprovar-kit', projeto: 'Minha Empresa' });
+  assert.deepEqual(state.projetos, [{ id: 'Minha Empresa', briefing: 'incompleto', kit: 'aguardando-aprovacao', videos: [] }]);
+  assert.deepEqual(state.nextStep, { action: 'concluir-projeto', projeto: 'Minha Empresa' });
 });
 
 test('estado validates the Kit schema field by field and holds the Projeto until it is fixed', () => {
@@ -113,6 +118,7 @@ test('reference images and brand assets stored in the kit folder make a valid Ki
 test('the Kit approval Gate: an invalid Kit is refused, a valid one is approved and the Projeto becomes usable', () => {
   const dir = estudio();
   run('novo-projeto', dir, 'Minha Empresa');
+  answerBriefing(dir, 'Minha Empresa');
   const kitFile = path.join(projetoDir(dir, 'Minha Empresa'), 'kit.json');
   const valid = fs.readFileSync(kitFile, 'utf8');
   fs.writeFileSync(kitFile, valid.replace('"9:16"', '"quadrado"'));
@@ -142,13 +148,15 @@ test('aprovar-kit refuses a Projeto that does not exist or has no briefing', () 
   fs.rmSync(path.join(projetoDir(dir, 'Pessoal'), 'projeto.md'));
   const { out } = run('aprovar-kit', dir, 'Pessoal');
   assert.equal(out.approved, false);
-  assert.deepEqual(out.errors, ['projeto.md: missing']);
+  assert.deepEqual(out.errors, ['projeto.md: missing: every Projeto needs its briefing document']);
 });
 
 test('several Projetos coexist in one Estúdio, each with its own Kit and its own Gate', () => {
   const dir = estudio();
   assert.equal(run('novo-projeto', dir, 'Minha Empresa').out.created, true);
   assert.equal(run('novo-projeto', dir, 'Instagram Pessoal').out.created, true);
+  answerBriefing(dir, 'Minha Empresa');
+  answerBriefing(dir, 'Instagram Pessoal');
   run('aprovar-kit', dir, 'Minha Empresa');
 
   const kitFile = path.join(projetoDir(dir, 'Instagram Pessoal'), 'kit.json');
@@ -202,7 +210,7 @@ test('novo-projeto refuses names that are not a single portable folder name, and
 test('novo-projeto without a name is a usage error', () => {
   const r = spawnSync(process.execPath, [cli, 'novo-projeto', estudio()], { encoding: 'utf8' });
   assert.equal(r.status, 2);
-  assert.match(JSON.parse(r.stdout).error, /novo-projeto "<folder>" <projeto>/);
+  assert.match(JSON.parse(r.stdout).error, /novo-projeto "<folder>" "<projeto>"/);
 });
 
 test('the briefing holds one pt-BR section per topic of the Projeto Grilling catalogue', () => {
@@ -234,4 +242,30 @@ test('an interrupted Projeto is completed: novo-projeto adds only the missing fi
   assert.equal(fs.readFileSync(briefingFile, 'utf8'), '---\nnome: Pessoal\n---\n## Negócio\n\nReceitas de família.\n');
   assert.equal(readKit(dir, 'Pessoal').formato, '9:16');
   assert.deepEqual(run('estado', dir).out.nextStep, { action: 'aprovar-kit', projeto: 'Pessoal' });
+});
+
+test('a Grilling interrupted midway is resumed, not sent to approval: placeholders left in the briefing hold the Gate', () => {
+  const dir = estudio();
+  run('novo-projeto', dir, 'Pessoal');
+  let state = run('estado', dir).out;
+  assert.equal(state.projetos[0].briefing, 'incompleto');
+  assert.deepEqual(state.nextStep, { action: 'concluir-projeto', projeto: 'Pessoal' });
+  const refused = run('aprovar-kit', dir, 'Pessoal').out;
+  assert.equal(refused.approved, false);
+  assert.deepEqual(refused.errors, ['projeto.md: 16 sections still to fill in the interview']);
+
+  answerBriefing(dir, 'Pessoal');
+  state = run('estado', dir).out;
+  assert.equal(state.projetos[0].briefing, 'completo');
+  assert.deepEqual(state.nextStep, { action: 'aprovar-kit', projeto: 'Pessoal' });
+  assert.equal(run('aprovar-kit', dir, 'Pessoal').out.approved, true);
+});
+
+test('the default Formato must be one of the Formatos the Projeto delivers', () => {
+  const dir = estudio();
+  run('novo-projeto', dir, 'Pessoal');
+  const kit = readKit(dir, 'Pessoal');
+  kit.formato = '16:9';
+  fs.writeFileSync(path.join(projetoDir(dir, 'Pessoal'), 'kit.json'), JSON.stringify(kit));
+  assert.deepEqual(run('estado', dir).out.errors.map((e) => e.message), ['formato "16:9" must be listed in entregaveis.formatos']);
 });

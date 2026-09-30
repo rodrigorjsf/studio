@@ -1,5 +1,5 @@
 // The Kit de marca: the machine-readable identity of a Projeto (`projetos/<p>/kit.json`).
-// The Remotion compositions and the brand Crítico read the same values, so the schema is
+// The Remotion compositions and the Guardião da marca read the same values, so the schema is
 // checked here, deterministically, instead of trusted. The field-by-field description the
 // Entrevistador follows lives in skills/novo-projeto/references/kit-schema.md.
 //
@@ -9,10 +9,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { KIT_ASSETS } from './layout.mjs';
 
-export const KIT_SCHEMA_VERSION = 1;
-export const FORMATOS = ['9:16', '16:9', '1:1'];
+const KIT_SCHEMA_VERSION = 1;
+const FORMATOS = ['9:16', '16:9', '1:1'];
 // no-app: she adds the music herself in Instagram/TikTok (trending audio, no copyright mute).
-export const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
+const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
 
 // A complete, valid Kit: what "decide você" answers when she has no preference.
 // Vertical 9:16 and music added by her in the app are the spec's defaults.
@@ -50,8 +50,8 @@ export function defaultKit() {
 // ---- checkers: each returns null when the value is fine, or a plain problem ----
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const oneOf = (values) => (v) => (values.includes(v) ? null : `must be one of: ${values.join(', ')}`);
-const string = (v) => (typeof v === 'string' ? null : 'must be text');
-const boolean = (v) => (typeof v === 'boolean' ? null : 'must be true or false');
+const text = (v) => (typeof v === 'string' ? null : 'must be text');
+const flag = (v) => (typeof v === 'boolean' ? null : 'must be true or false');
 const positive = (v) => (typeof v === 'number' && v > 0 ? null : 'must be a number above 0');
 const positiveInt = (v) => (Number.isInteger(v) && v > 0 ? null : 'must be a whole number above 0');
 const weight = (v) => (Number.isInteger(v) && v >= 100 && v <= 900 ? null : 'must be a font weight from 100 to 900');
@@ -88,7 +88,7 @@ const asset = (v, ctx) => {
 };
 const fraction = (v) => (typeof v === 'number' && v >= 0 && v <= 1 ? null : 'must be a fraction of the frame, from 0 to 1');
 const faceZone = shape({ x: fraction, y: fraction, largura: fraction, altura: fraction });
-const font = shape({ familia: string, peso: weight, arquivo: orNull(asset) });
+const font = shape({ familia: text, peso: weight, arquivo: orNull(asset) });
 
 const KIT_SHAPE = shape({
   schemaVersion: (v) => (v === KIT_SCHEMA_VERSION ? null : `must be ${KIT_SCHEMA_VERSION}`),
@@ -97,26 +97,26 @@ const KIT_SHAPE = shape({
   cores: mapOf(color, ['primaria', 'destaque', 'fundo', 'texto']),
   tipografia: shape({ titulo: font, texto: font, escala: mapOf(positive, ['titulo', 'corpo']) }),
   legendas: shape({
-    ativas: boolean, estilo: string, fonte: oneOf(['titulo', 'texto']), tamanho: positive,
+    ativas: flag, estilo: text, fonte: oneOf(['titulo', 'texto']), tamanho: positive,
     cor: color, destaque: orNull(color), posicao: oneOf(['superior', 'centro', 'inferior']),
-    caixaAlta: boolean, palavrasPorVez: positiveInt,
+    caixaAlta: flag, palavrasPorVez: positiveInt,
   }),
   movimento: shape({
     intensidade: oneOf(['sutil', 'equilibrada', 'dominante']),
     ritmo: oneOf(['calmo', 'equilibrado', 'acelerado']),
-    entradaMs: positiveInt, transicao: string, recursos: listOf(string),
+    entradaMs: positiveInt, transicao: text, recursos: listOf(text),
   }),
-  camera: shape({ comportamento: string, enquadramento: string }),
+  camera: shape({ comportamento: text, enquadramento: text }),
   zonaDoRosto: mapOf(faceZone),
-  imagens: shape({ prints: string, interacao: string }),
-  som: shape({ efeitos: string }),
+  imagens: shape({ prints: text, interacao: text }),
+  som: shape({ efeitos: text }),
   musica: shape({ politica: oneOf(POLITICAS_MUSICA) }),
-  entregaveis: shape({ formatos: nonEmptyListOf(oneOf(FORMATOS)), overlays: boolean }),
+  entregaveis: shape({ formatos: nonEmptyListOf(oneOf(FORMATOS)), overlays: flag }),
   creditos: shape({ porVideo: budget, porMes: budget }),
-  fazer: listOf(string),
-  evitar: listOf(string),
-  glossario: listOf(string),
-  referencias: listOf(shape({ arquivo: asset, nota: string })),
+  fazer: listOf(text),
+  evitar: listOf(text),
+  glossario: listOf(text),
+  referencias: listOf(shape({ arquivo: asset, nota: text })),
   ativos: shape({ logos: listOf(asset), fontes: listOf(asset), cartaoFinal: orNull(asset), outros: listOf(asset) }),
 });
 
@@ -127,12 +127,17 @@ export function validateKit(kit, projetoDir) {
   const ctx = {
     projetoDir,
     problem: (where, message) => problems.push(`${where.replace(/^\./, '') || 'kit'} ${message}`),
-    check(check, value, where, present = true) {
+    check(checker, value, where, present = true) {
       if (!present) return this.problem(where, 'is missing');
-      const message = check(value, this, where);
+      const message = checker(value, this, where);
       if (message) this.problem(where, message);
     },
   };
   ctx.check(KIT_SHAPE, kit, '');
+  // The default Formato is the one every Vídeo gets unless she asks, so it must be delivered.
+  const formatos = kit?.entregaveis?.formatos;
+  if (FORMATOS.includes(kit?.formato) && Array.isArray(formatos) && formatos.length > 0 && !formatos.includes(kit.formato)) {
+    problems.push(`formato ${JSON.stringify(kit.formato)} must be listed in entregaveis.formatos`);
+  }
   return problems;
 }
