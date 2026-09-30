@@ -60,7 +60,7 @@ Run `estado` and find the Vídeo: its `status`, `rodada` and `versao` (`{nome, d
 
 **Nível 2: Higgsedit, only on her explicit request.** Higgsedit (Higgsfield's cloud editor) never builds the edit on the studio's initiative: you never propose it, and neither "decide você" nor her Autonomia ever chooses it. Only when **she asks** for an effect only Higgsedit has, at any moment of a Nível 2 Vídeo (asked during the Plano, it waits for the Plano's approval):
 
-1. Tell her in one sentence that it is a **mudança de escopo** (a new idea, with its own cost and time), and which part it covers: the stretch of her Master she means (`{"inicio": <s>, "fim": <s>}`, from `palavras.json`), or the whole Vídeo when that is what she asked (`"video-inteiro"`).
+1. Tell her in one sentence that it is a **mudança de escopo** (a new idea, with its own cost and time), and which part it covers: the stretch of her Master she means (`{"inicio": <s>, "fim": <s>}`, from `palavras.json`), or the whole Vídeo when that is what she asked (`"video-inteiro"`: then it is delivered in the Kit's Formato only, with no other Formato or overlays; say so).
 2. **Its own cost Gate.** Estimate its credits from what the connector quotes for Higgsedit runs, plus a redo margin (with no quote, say so in one line: it cannot run without her knowing the cost). Read her balance (`balance`), open the Gate (`registrar-video` with `{"gate": "aberto"}`) and ask one question (count it) with the cost next to her balance: approve it, or keep the edit in Remotion. On yes, record her request **in her own words**:
 
    ```bash

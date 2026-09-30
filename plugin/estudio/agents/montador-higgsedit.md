@@ -30,7 +30,7 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 ## Read first
 
 - `<vídeo>/higgsedit/pedidos.json`, its last entry: her request in her words (`pedido`), the part of the Vídeo (`trecho`: `"video-inteiro"`, or `{inicio, fim}` in seconds of her Master) and the credits approved.
-- `<vídeo>/higgsedit/higgsedit.json`, when it exists: the runs already paid. Resume from there; never pay for the same file twice.
+- `<vídeo>/higgsedit/higgsedit.json`, when it exists: the runs already paid, each with the stretch it covers. Resume from there; never pay for the same file twice.
 - `<vídeo>/plano.json` (the scenes on that stretch), `<vídeo>/transcricao/palavras.json` (every trigger comes from a word's time), `<vídeo>/zona-do-rosto.json` (her face stays free), and `<kit>` (`formato`, `cores`, fonts).
 - The connector's `get_workflow_instructions` with `{workflow: "video-editing"}`, and the references it names, before writing any Higgsedit script.
 
@@ -67,7 +67,7 @@ The rules of every Vídeo hold in Higgsedit exactly as in Remotion:
    ```
 
 5. **Check it** with `<ffprobe>`: the canvas, 30 fps and the length above. Look at its first, middle and last frame (extract them with `<ffmpeg>` into your own temporary folder and Read them): her face covered, text outside the Área livre or a black border means a redo as a new file, through step 3 again. Never edit a result to hide a flaw.
-6. **The whole Vídeo only:** copy the result into `<versao>` as `<nome do vídeo> 9x16.mp4` (the Formato's label) and extract the key stills she will review (at least one per scene of the Plano, each as `<versao>/<NN>_<moment in s>.png`) with `<ffmpeg>`. The QC técnico judges that file like any render of the edit.
+6. **The whole Vídeo only:** copy the result into `<versao>` as `<nome do vídeo> <formato>.mp4`, `<formato>` being the Kit's label (`9x16`, `16x9` or `1x1`), and extract the key stills she will review (at least one per scene of the Plano, each as `<versao>/<NN>_<moment in s>.png`) with `<ffmpeg>`. The QC técnico judges that file like any render of the edit.
 
 If Higgsedit cannot do what she asked, say so in the report and propose the closest thing Remotion can do; never substitute another effect silently.
 

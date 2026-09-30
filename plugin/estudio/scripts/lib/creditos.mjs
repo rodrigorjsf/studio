@@ -36,11 +36,11 @@ const GERACAO = {
   estimados: 'creditosEstimados', gastos: 'creditosGastos', aprovadoEm: 'creditosAprovadosEm', paradoEm: 'creditosParadosEm',
   semAprovacao: 'no-credit-approval',
 };
-const MONTAGEM = {
+const HIGGSEDIT_CREDITOS = {
   estimados: 'higgseditCreditosEstimados', gastos: 'higgseditCreditosGastos', aprovadoEm: 'higgseditAprovadoEm', paradoEm: 'higgseditParadoEm',
   semAprovacao: 'no-higgsedit-approval',
 };
-const outro = (budget) => (budget === GERACAO ? MONTAGEM : GERACAO);
+const outro = (budget) => (budget === GERACAO ? HIGGSEDIT_CREDITOS : GERACAO);
 const creditsOr0 = (v) => (isCredits(v) ? v : 0);
 // What a budget holds of the Kit's: the larger of its estimate and what it spent.
 const usedBy = (record, budget) => Math.max(creditsOr0(record[budget.estimados]), creditsOr0(record[budget.gastos]));
@@ -99,15 +99,14 @@ function approvedThisMonth(videosDir, self, month) {
       } catch {
         return sum;
       }
-      return sum + [GERACAO, MONTAGEM].filter((b) => approvedIn(data, b, month)).reduce((s, b) => s + usedBy(data, b), 0);
+      return sum + [GERACAO, HIGGSEDIT_CREDITOS].filter((b) => approvedIn(data, b, month)).reduce((s, b) => s + usedBy(data, b), 0);
     }, 0);
 }
 
 // Her Gate on one budget of a Nível 2 Vídeo whose Plano she approved: a new total estimate,
 // never below what that budget already spent, her balance covering what is still to be spent, and
-// the Kit's budget covering it with the Vídeo's other budget. `recordGate` adds what the Gate
-// keeps besides the credits, from the updated record. Returns its JSON answer.
-function approve(found, budget, creditosEstimados, saldo, recordGate = () => {}) {
+// the Kit's budget covering it with the Vídeo's other budget. Returns its JSON answer.
+function approve(found, budget, creditosEstimados, saldo) {
   const { projeto, video, dir, record, kit, status } = found;
   const refuse = (reason, extra = {}) => ({ approved: false, reason, projeto, video, ...extra });
   if (record.nivel !== 2) return refuse('not-nivel-2');
@@ -143,7 +142,6 @@ function approve(found, budget, creditosEstimados, saldo, recordGate = () => {})
     current.gates = (current.gates ?? 0) + 1;
   });
   if (!data) return refuse('invalid-document', { message });
-  recordGate(data);
   return {
     approved: true,
     projeto,
@@ -153,6 +151,7 @@ function approve(found, budget, creditosEstimados, saldo, recordGate = () => {})
     creditosGastos: data[budget.gastos],
     saldo,
     gates: data.gates,
+    aprovadoEm: data[budget.aprovadoEm],
   };
 }
 
@@ -196,14 +195,14 @@ export function aprovarHiggsedit(folder, projetoNome, videoNome, inputText) {
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { approved: false, ...found.refusal };
   const pedido = input.pedido.trim();
-  const out = approve(found, MONTAGEM, input.creditosEstimados, input.saldo, (data) => {
-    const file = path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/'));
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    const registrados = readJson(file) ?? [];
-    registrados.push({ pedido, trecho: input.trecho, creditosEstimados: input.creditosEstimados, aprovadoEm: data[MONTAGEM.aprovadoEm] });
-    fs.writeFileSync(file, `${JSON.stringify(registrados, null, 2)}\n`);
-  });
-  return out.approved ? { ...out, pedido, trecho: input.trecho } : out;
+  const out = approve(found, HIGGSEDIT_CREDITOS, input.creditosEstimados, input.saldo);
+  if (!out.approved) return out;
+  const file = path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/'));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const registrados = readJson(file) ?? [];
+  registrados.push({ pedido, trecho: input.trecho, creditosEstimados: input.creditosEstimados, aprovadoEm: out.aprovadoEm });
+  fs.writeFileSync(file, `${JSON.stringify(registrados, null, 2)}\n`);
+  return { ...out, pedido, trecho: input.trecho };
 }
 
 // One paid item (a generation or a Higgsedit run) against a budget: her Gate on it, no stop and no
@@ -255,15 +254,6 @@ function spend(found, budget, { arquivo, creditos, saldo }, { pasta, registro, e
   };
 }
 
-// A file directly inside `pasta`, with one of the `extensions`: "<pasta>/<name>.<ext>".
-function fileProblem(arquivo, pasta, extensions, example) {
-  const parts = typeof arquivo === 'string' ? arquivo.split('/') : [];
-  if (parts.length !== 2 || parts[0] !== pasta || !extensions.test(parts[1]) || parts[1].startsWith('.')) {
-    return `arquivo must be ${extensions === GENERATED_FILE ? 'an image or clip' : 'a video'} directly inside "${pasta}/", like "${example}"`;
-  }
-  return null;
-}
-
 // A prompt must forbid text in the image, in English or pt-BR ("no text", "sem texto"): every
 // word she sees is drawn at the montage, sharp and correct.
 const FORBIDS_TEXT = /\b(no text|sem texto)\b/i;
@@ -271,16 +261,24 @@ const FORBIDS_TEXT = /\b(no text|sem texto)\b/i;
 const GENERATED_FILE = /^[^/\\]+\.(png|jpe?g|webp|mp4|mov)$/i;
 const SPEND_FIELDS = ['arquivo', 'creditos', 'saldo', 'modelo', 'prompt'];
 
+// A file directly inside `pasta` that `extensions` accepts ("<pasta>/<name>.<ext>"); `what` names it.
+function fileProblem(arquivo, { pasta, extensions, what, example }) {
+  const parts = typeof arquivo === 'string' ? arquivo.split('/') : [];
+  if (parts.length !== 2 || parts[0] !== pasta || !extensions.test(parts[1]) || parts[1].startsWith('.')) {
+    return `arquivo must be ${what} directly inside "${pasta}/", like "${example}"`;
+  }
+  return null;
+}
+
 function spendProblem(input) {
   if (!isCredits(input.creditos)) return 'creditos must be the cost the connector quotes, 0 or more';
-  if (!isCredits(input.saldo)) return 'saldo must be her balance in credits, 0 or more';
-  return null;
+  return balanceProblem(input);
 }
 
 function generationProblem(input) {
   if (typeof input.modelo !== 'string' || input.modelo.trim() === '') return 'modelo must name the Higgsfield model';
   if (typeof input.prompt !== 'string' || input.prompt.trim() === '') return 'prompt must be the text sent to the model';
-  return fileProblem(input.arquivo, GERADOS, GENERATED_FILE, `${GERADOS}/03_broll_ampulheta.mp4`);
+  return fileProblem(input.arquivo, { pasta: GERADOS, extensions: GENERATED_FILE, what: 'an image or clip', example: `${GERADOS}/03_broll_ampulheta.mp4` });
 }
 
 export function gastarCreditos(folder, projetoNome, videoNome, inputText) {
@@ -303,9 +301,12 @@ const HIGGSEDIT_FIELDS = ['arquivo', 'creditos', 'saldo'];
 
 export function gastarHiggsedit(folder, projetoNome, videoNome, inputText) {
   const { input, problem } = readInput(inputText, HIGGSEDIT_FIELDS, HIGGSEDIT_FIELDS);
-  const invalid = problem ?? spendProblem(input) ?? fileProblem(input.arquivo, HIGGSEDIT, MONTAGE_FILE, `${HIGGSEDIT}/01_transicao_3d.mp4`);
+  const invalid = problem ?? spendProblem(input)
+    ?? fileProblem(input.arquivo, { pasta: HIGGSEDIT, extensions: MONTAGE_FILE, what: 'a video', example: `${HIGGSEDIT}/01_transicao_3d.mp4` });
   if (invalid) return { authorized: false, reason: 'invalid-input', message: invalid };
   const found = creditVideo(folder, projetoNome, videoNome);
   if (found.refusal) return { authorized: false, ...found.refusal };
-  return spend(found, MONTAGEM, input, { pasta: HIGGSEDIT, registro: HIGGSEDIT_REGISTRO, entry: {} });
+  // Each run keeps the stretch of the request it was paid for, so every file keeps its place.
+  const trecho = readJson(path.join(found.dir, ...HIGGSEDIT_PEDIDOS.split('/')))?.at(-1)?.trecho ?? null;
+  return spend(found, HIGGSEDIT_CREDITOS, input, { pasta: HIGGSEDIT, registro: HIGGSEDIT_REGISTRO, entry: { trecho } });
 }

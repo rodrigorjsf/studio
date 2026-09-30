@@ -194,6 +194,11 @@ test('each paid Higgsedit run is cleared first, and what it montages goes into t
   const [entrada] = execucoes(video);
   assert.equal(entrada.arquivo, 'higgsedit/01_transicao.mp4');
   assert.equal(entrada.creditos, 12);
+  // Each run keeps the stretch it was paid for, even after a later request for another one.
+  assert.deepEqual(entrada.trecho, TRECHO);
+  assert.equal(aprovarHiggsedit(dir, pedido({ trecho: { inicio: 1, fim: 2 }, creditosEstimados: 40 })).approved, true);
+  assert.equal(gastarHiggsedit(dir, execucao('higgsedit/04_zoom.mp4', 1)).authorized, true);
+  assert.deepEqual(execucoes(video).map((e) => e.trecho), [TRECHO, { inicio: 1, fim: 2 }]);
   assert.deepEqual(run('estado', dir).out.errors, []);
 
   assert.equal(gastarHiggsedit(dir, execucao('higgsedit/02_render.mp4', 10, 9)).reason, 'insufficient-balance');

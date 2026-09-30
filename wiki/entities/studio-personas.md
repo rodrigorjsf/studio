@@ -34,8 +34,9 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 | Assistente de edição | subagent | Sonnet 5.5 · high |
 | Editor de pré-corte | subagent | Sonnet 5.5 · high |
 | Artista generativo | subagent | Sonnet 5.5 · high |
-| Montador Higgsedit | subagent (`plugin/estudio/agents/montador-higgsedit.md`, added in ticket #16: Higgsedit montage only on her explicit request) | Sonnet 5.5 · high |
 | Finalizador | subagent | Sonnet 5.5 · high |
 | QC técnico (Crítico) | subagent (`plugin/estudio/agents/qc-tecnico.md`, built in ticket #12: runs `qc`, tools Bash/Read) | Sonnet 5.5 · high |
 | Revisor de plataforma (Crítico) | subagent | Sonnet 5.5 · high |
 | Guardião da marca (Crítico) | subagent | Sonnet 5.5 · xhigh |
+
+Added after the grilling: **Montador Higgsedit** (subagent, Sonnet 5.5 · high, `plugin/estudio/agents/montador-higgsedit.md`, ticket #16). It montages a stretch or the whole Vídeo in Higgsedit only on her explicit request, behind its own cost Gate; the cast is now 13 personas.
