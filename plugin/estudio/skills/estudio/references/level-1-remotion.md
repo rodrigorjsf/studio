@@ -30,7 +30,7 @@ One of two deliverables (Claude asks if it is not clear):
 - **Full video** (default): a final MP4 with camera, animations, split screens and prints, with the original audio.
 - **Separate inserts:** loose files for you to assemble in your own editor. Transparent overlays in `.mov` (ProRes 4444, with alpha channel) and full screens in `.mp4`, plus a list of timecodes.
 
-Everything goes to `edicoes/<NNN. nome>/`.
+In the plugin, everything goes to the Vídeo's own `entrega/` folder (`projetos/<projeto>/videos/<vídeo>/entrega/`); the upstream `edicoes/` paths below describe the same files.
 
 ---
 
@@ -77,6 +77,8 @@ See a real plan in `projetos/000. exemplo/plano.md` (the example ships with the 
 
 ### 4. Program the scenes
 
+In the plugin, steps 4 to 6 are the [edicao skill](../../edicao/SKILL.md): the Motion designer builds the Vídeo's composition on `<Edicao>` from `src/_shared/edicao.tsx` (her Master as one continuous layer with its original audio, lasting exactly as long as the Master; registered with `calculateMetadata={calcularMetadadosDaEdicao}` and the props `{projeto, video, master, duracao, formato}`) and renders the key stills of each version into `revisao/v01/`, `revisao/v02/`…; the Diretor holds her review in Rodadas (`abrir-revisao`, `decidir-revisao`); the Finalizador renders into `entrega/` and the `entregar` command checks every file against the Master before the Vídeo is Entregue. The upstream notes below still apply to the code.
+
 - The video's code lives in `src/videos/<slug>/` and is registered in `src/Root.tsx` inside a `<Folder>`.
 - **Every value of the brand comes from the Projeto's Kit de marca** (`projetos/<projeto>/kit.json`): colors, fonts, type scale, caption style, motion and Formato. Register the composition with `calculateMetadata={calcularMetadadosDoKit}` and the props `{projeto, formato}` from `src/_shared/kit.ts`; the component receives the Kit as its `kit` prop. Build text, captions and entrances with `src/_shared/marca.tsx` (`estiloDaFonte`, `LegendaDoKit`, `useEntradaDoKit`, `useFontesDoKit`). Never write a color, a font or a caption rule in a Vídeo's code. `src/kit/PreviaDoKit.tsx` is the worked example.
 - **Formato:** `formato: null` renders the Kit's Formato (vertical 9:16 unless she chose otherwise). A 16:9 version exists only when she asks: render the same composition with `formato: "16:9"`.
@@ -93,17 +95,17 @@ See a real plan in `projetos/000. exemplo/plano.md` (the example ships with the 
 
 1. `npm run typecheck`.
 2. Stills (frozen frames) at the start, middle and end of each layout change:
-   `npx remotion still src/index.ts <Composicao> edicoes/<NNN. nome>/stills/q0450.png --frame=450`
+   `npx remotion still src/index.ts <Composicao> "<vídeo>/revisao/v01/01-abertura.png" --frame=450`
 3. Claude reviews: face covered? text legible? black border? print cropped? highlight in place? And shows the main stills for you to approve before the render.
 4. You can also watch everything in real time with `npm run studio` (opens in the browser).
 
 ### 6. Render and deliver
 
 - **Final MP4:**
-  `npx remotion render src/index.ts <Composicao> "edicoes/<NNN. nome>/<nome>-final.mp4" --codec=h264 --crf=17`
+  `npx remotion render src/index.ts <Composicao> "<vídeo>/entrega/<nome> 9x16.mp4" --codec=h264 --crf=17`
 - **Transparent overlay:**
-  `npx remotion render src/index.ts <Composicao> "edicoes/<NNN. nome>/<nome>-overlay.mov" --image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444`
-- Validation with `ffprobe`: resolution, fps, duration equal to the master's, a single audio track (and alpha channel in the `.mov` files).
+  `npx remotion render src/index.ts <Composicao> "<vídeo>/entrega/<nome> sobreposição.mov" --props='{"sobreposicao": true}' --image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444 --muted` (`--muted`: without it Remotion adds a silent audio track, and an overlay carries none)
+- Validation: the `entregar` command (duration equal to the master's ±1 frame, a single audio track in each MP4, none in an overlay); resolution, fps, loudness and alpha channel with `ffprobe` until the `qc` command arrives.
 - Claude reports the file path, duration, resolution, codecs and timecodes (if they are inserts).
 - Deletes only the intermediates it created itself. Your video and your prints are never deleted.
 

@@ -29,10 +29,14 @@
 //                                    pré-corte proposes) and mapa.json (the segment map `precorte` applied)
 //   projetos/<projeto>/videos/<vídeo>/transcricao/original/ the Original's transcript, kept aside when a
 //                                    Pré-corte moves palavras.json onto the new Master's clock
+//   projetos/<projeto>/videos/<vídeo>/revisao/vNN/          one folder per version of the edit (v01, v02…):
+//                                    the key stills she reviews, then decisao.json (her decision and her
+//                                    notes consolidated) and notas.md (the same list, in pt-BR, for her)
+//   projetos/<projeto>/videos/<vídeo>/entrega/              the Entrega: the final MP4 (9:16 by default; 16:9
+//                                    or transparent MOV overlays on request), checked by `entregar`
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
-// Anything else inside a Projeto or Vídeo folder (versions,
-// the Entrega, and the reserved `notion/` folder for Página Notion links and Resumo Notion
+// Anything else inside a Projeto or Vídeo folder (the reserved `notion/` folder for Página Notion links and Resumo Notion
 // documents) is left to later stages and never rejected here.
 export const SCHEMA_VERSION = 1;
 export const MARKER = 'estudio.json';
@@ -58,3 +62,7 @@ export const MASTER = 'master';
 export const TRANSCRIPT_MD = 'transcricao/transcript.md';
 export const TRANSCRICAO_ORIGINAL = 'transcricao/original';
 export const PRECORTE_MAPA = 'precorte/mapa.json';
+export const REVISAO = 'revisao';
+export const DECISAO = 'decisao.json';
+export const NOTAS_MD = 'notas.md';
+export const ENTREGA = 'entrega';
