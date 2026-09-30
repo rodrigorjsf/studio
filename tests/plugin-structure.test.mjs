@@ -38,7 +38,7 @@ function fixture(files = {}) {
       plugins: [{ name: 'estudio', source: './plugin/estudio' }],
     }),
     'plugin/estudio/.claude-plugin/plugin.json': JSON.stringify({ name: 'estudio', version: '0.1.0' }),
-    'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\n---\nBody\n',
+    'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: claude-opus-5-5\neffort: medium\n---\nBody\n',
   };
   for (const [rel, content] of Object.entries({ ...base, ...files })) {
     if (content === null) continue;
@@ -73,7 +73,7 @@ test('a minimal valid fixture package passes', () => {
 // The spec's slash commands are /estudio:estudio, novo-projeto, projetos, editar-projeto,
 // novo-video and perfil. Any other skill is an Esteira step the Diretor routes to: it stays off
 // her menu (`user-invocable: false`).
-const skill = (name, extra = '') => `---\nname: ${name}\ndescription: A step.\n${extra}---\nBody\n`;
+const skill = (name, extra = '') => `---\nname: ${name}\ndescription: A step.\nmodel: claude-opus-5-5\neffort: medium\n${extra}---\nBody\n`;
 
 test('a skill outside the spec slash commands that shows up in her menu is rejected', () => {
   assertRejected(fixture({ 'plugin/estudio/skills/plano/SKILL.md': skill('plano') }), 'skills/plano/SKILL.md: not a slash command of the spec');
@@ -83,6 +83,26 @@ test('a skill outside the spec slash commands hidden from her menu passes', () =
   const { code, verdict } = check(fixture({ 'plugin/estudio/skills/plano/SKILL.md': skill('plano', 'user-invocable: false\n') }));
   assert.deepEqual(verdict.errors, []);
   assert.equal(code, 0);
+});
+
+// The Diretor and the Entrevistador run in the main session through the skills; the spec pins
+// them to Opus 5.5 `medium`, so every skill declares its model and effort like a persona does.
+test('a skill without a pinned model and effort is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\n---\nBody\n' }),
+    'skills/estudio/SKILL.md: missing "model"',
+  );
+  assertRejected(
+    fixture({ 'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: claude-opus-5-5\n---\nBody\n' }),
+    'skills/estudio/SKILL.md: missing "effort"',
+  );
+});
+
+test('a skill on a model alias instead of a pinned model ID is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: opus\neffort: medium\n---\nBody\n' }),
+    'skills/estudio/SKILL.md: "model" must be a full model ID',
+  );
 });
 
 // Every persona declares its display color in the task list and transcript (ticket #18); the
@@ -251,7 +271,7 @@ for (const [label, tool] of [
 
 test('a package that reads a linked page with notion-fetch passes', () => {
   const { code, verdict } = check(fixture({
-    'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\n---\nRead the linked page with `notion-fetch`; run `vincular-notion`.\n',
+    'plugin/estudio/skills/estudio/SKILL.md': '---\nname: estudio\ndescription: Entry.\nmodel: claude-opus-5-5\neffort: medium\n---\nRead the linked page with `notion-fetch`; run `vincular-notion`.\n',
   }));
   assert.deepEqual(verdict.errors, []);
   assert.equal(code, 0);

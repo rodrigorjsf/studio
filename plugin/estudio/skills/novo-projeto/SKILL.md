@@ -1,6 +1,8 @@
 ---
 name: novo-projeto
 description: Creates a new Projeto in the Criadora's Estúdio. Runs the full Projeto Grilling in Brazilian Portuguese, writes the briefing and the Kit de marca, stores her reference images and brand assets, and stops at the Kit approval Gate. Use when she types /estudio:novo-projeto, asks for a new domain or account ("quero criar um projeto", "um projeto para o meu Instagram pessoal"), or when `estado` says `novo-projeto`, `concluir-projeto` or `aprovar-kit`.
+model: claude-opus-5-5
+effort: medium
 ---
 
 # Entrevistador — new Projeto

@@ -4,7 +4,7 @@
 //       editing tools, a package free of development material and within platform limits,
 //       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
 //       holding a Notion tool), no trace of the Higgsfield API-key path, a valid display color on
-//       every persona, only the spec's slash commands in her menu, and no upstream leftover (the forked repo's paths, install ritual, ticket
+//       every persona, a pinned model and effort on every skill, only the spec's slash commands in her menu, and no upstream leftover (the forked repo's paths, install ritual, ticket
 //       markers).
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
@@ -63,7 +63,7 @@ function checkPlugin(dir, expectedName, errors) {
     errors.push(`${expectedName}: plugin.json "version" must be semver`);
   }
   checkPersonas(dir, expectedName, errors);
-  checkSkillMenu(dir, expectedName, errors);
+  checkSkills(dir, expectedName, errors);
   checkPackageContents(dir, expectedName, errors);
   checkNotionServers(dir, manifest, expectedName, errors);
 }
@@ -220,13 +220,29 @@ function frontmatter(text) {
 // to, so it stays off her menu with `user-invocable: false`.
 const SLASH_COMMANDS = new Set(['estudio', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'perfil']);
 
-function checkSkillMenu(dir, pluginName, errors) {
+// A pinned model and effort (spec story 80), so a session-level change leaves cost and quality
+// predictable. Aliases (opus, sonnet, inherit…) drift with releases; the spec pins full IDs.
+function checkPinnedModel(fields, where, errors) {
+  for (const key of ['model', 'effort']) {
+    if (!fields[key]) errors.push(`${where}: missing "${key}"`);
+  }
+  if (fields.model && !fields.model.startsWith('claude-')) {
+    errors.push(`${where}: "model" must be a full model ID (claude-…), got "${fields.model}"`);
+  }
+}
+
+// Skills run the Diretor and the Entrevistador on the main thread, pinned like the personas
+// (the spec: Opus 5.5 `medium`); only the spec's slash commands show up in her menu.
+function checkSkills(dir, pluginName, errors) {
   const skillsDir = path.join(dir, 'skills');
   if (!fs.existsSync(skillsDir)) return;
   for (const name of fs.readdirSync(skillsDir)) {
     const file = path.join(skillsDir, name, 'SKILL.md');
-    if (SLASH_COMMANDS.has(name) || !fs.existsSync(file)) continue;
-    if (frontmatter(fs.readFileSync(file, 'utf8'))['user-invocable'] !== 'false') {
+    if (!fs.existsSync(file)) continue;
+    const fields = frontmatter(fs.readFileSync(file, 'utf8'));
+    checkPinnedModel(fields, `${pluginName}: skills/${name}/SKILL.md`, errors);
+    if (SLASH_COMMANDS.has(name)) continue;
+    if (fields['user-invocable'] !== 'false') {
       errors.push(`${pluginName}: skills/${name}/SKILL.md: not a slash command of the spec; set "user-invocable: false" to keep it off her menu`);
     }
   }
@@ -238,17 +254,11 @@ function checkPersonas(dir, pluginName, errors) {
   for (const file of fs.readdirSync(agentsDir).filter((f) => f.endsWith('.md'))) {
     const fields = frontmatter(fs.readFileSync(path.join(agentsDir, file), 'utf8'));
     const where = `${pluginName}: agents/${file}`;
-    for (const key of ['model', 'effort']) {
-      if (!fields[key]) errors.push(`${where}: missing "${key}"`);
-    }
+    checkPinnedModel(fields, where, errors);
     // The display color in the task list and transcript: Claude Code accepts only these eight.
     if (!fields.color) errors.push(`${where}: missing "color"`);
     else if (!AGENT_COLORS.includes(fields.color)) {
       errors.push(`${where}: "color" must be one of ${AGENT_COLORS.join(', ')}, got "${fields.color}"`);
-    }
-    // Aliases (opus, sonnet, inherit…) drift with releases; the spec pins full IDs.
-    if (fields.model && !fields.model.startsWith('claude-')) {
-      errors.push(`${where}: "model" must be a full model ID (claude-…), got "${fields.model}"`);
     }
     // An agent without `tools` inherits every tool: editing ones, and her Notion connector.
     const tools = (fields.tools ?? '').split(',').map((t) => t.trim()).filter(Boolean);

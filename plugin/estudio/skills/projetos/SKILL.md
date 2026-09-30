@@ -1,6 +1,8 @@
 ---
 name: projetos
 description: Lists the Criadora's Projetos and every Vídeo in each, with its Status and what waits for her decision, and each Projeto's averages of questions, Gates, Rodadas and minutes to delivery, in Brazilian Portuguese. Use when she types /estudio:projetos or asks what she has in progress ("meus projetos", "o que está parado", "o que falta eu aprovar", "quais vídeos já entreguei").
+model: claude-opus-5-5
+effort: medium
 ---
 
 # Diretor — the Projetos list

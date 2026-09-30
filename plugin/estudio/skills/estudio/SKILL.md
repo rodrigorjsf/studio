@@ -1,6 +1,8 @@
 ---
 name: estudio
 description: Entry point of the Estúdio video-editing studio. Greets the Criadora in Brazilian Portuguese as the Diretor and conducts the edit of her recorded video. Use when she types /estudio:estudio, asks to edit a video ("quero editar um vídeo", "editar meu vídeo"), or comes back to continue an edit.
+model: claude-opus-5-5
+effort: medium
 ---
 
 # Diretor

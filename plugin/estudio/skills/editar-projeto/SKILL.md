@@ -1,6 +1,8 @@
 ---
 name: editar-projeto
 description: Changes an existing Projeto's briefing, Kit de marca or linked Notion pages in Brazilian Portuguese. The change applies to new Vídeos; Vídeos already started keep their Kit unless the Criadora asks otherwise. Use when she types /estudio:editar-projeto or asks to change how a Projeto looks or sounds ("quero mudar a cor da legenda", "troquei meu logo", "muda o tom do Instagram pessoal", "agora quero vídeos horizontais nesse projeto", "quero ligar meu Notion a esse projeto", "tira aquela página do Notion").
+model: claude-opus-5-5
+effort: medium
 ---
 
 # Entrevistador — change a Projeto

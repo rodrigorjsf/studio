@@ -149,6 +149,7 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 
 ## Built: repo cleanup and install guide (ticket #18)
 
+- Every skill pins `model: claude-opus-5-5` and `effort: medium`, the spec's setting for the Diretor and the Entrevistador on the main thread; `scripts/check-plugin.mjs` rejects a skill with no pinned model and effort, as it does a persona (review round 2).
 - Every persona declares a display `color`, grouped by Esteira stage (cyan ingest/Pré-corte, purple Plano/Quadros, blue build, orange credit spenders, green Entrega, red/yellow/pink for the three Críticos). `scripts/check-plugin.mjs` rejects a missing color or one outside the eight Claude Code accepts.
 - The structure check also rejects upstream leftovers in the package: the upstream `edicoes/`, `guias/` and `tools/*.py` paths, `npm run instalar`, and `ticket #N` markers. The translated references now describe the Estúdio folder instead of the upstream repo layout.
 - `plugin/estudio/THIRD_PARTY.md` credits the forked upstream (`mackswendhell/studio`, MIT) with its license text.

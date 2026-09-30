@@ -83,6 +83,8 @@ files, exit codes), never on prompt wording.
   personas that spend Higgsfield credits, green render and Entrega, and one warm color per Crítico
   (red QC técnico, yellow Guardião da marca, pink Revisor de plataforma), because the three run side
   by side.
+- **Skills** (`plugin/estudio/skills/*/SKILL.md`) pin the same way: `model: claude-opus-5-5` and
+  `effort: medium`, the spec's setting for the Diretor and the Entrevistador on the main thread.
 - **Críticos** (`qc-tecnico`, `guardiao-da-marca`, `revisor-de-plataforma`) hold no editing tool.
 - **Self-contained package**: every relative link resolves inside `plugin/estudio/`; skills call
   scripts through `${CLAUDE_PLUGIN_ROOT}`.

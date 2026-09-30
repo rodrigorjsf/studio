@@ -85,3 +85,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | The Plano gets its own Crítico review before her Gate, review round 1
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Skills pin the Diretor and Entrevistador to Opus 5.5 medium, review round 2
+Pages: concepts/plugin-architecture.md.

@@ -1,6 +1,8 @@
 ---
 name: novo-video
 description: Starts a new Vídeo in the Criadora's Estúdio from her recording. Stores the Original untouched, runs the short Vídeo briefing in Brazilian Portuguese (only what the Kit de marca does not answer, plus the Nível), has the Assistente de edição transcribe the video and measure the Zona do rosto, names the Prints that would help, and offers the optional Pré-corte when the recording looks untrimmed. Use when she types /estudio:novo-video, brings a new recording ("gravei um vídeo novo", "quero editar esse vídeo"), when `estado` says `novo-video`, or to resume a Vídeo still in `Briefing`.
+model: claude-opus-5-5
+effort: medium
 ---
 
 # Diretor — a new Vídeo
