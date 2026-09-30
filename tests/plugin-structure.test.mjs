@@ -249,10 +249,10 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
   // the Projeto list (/estudio:projetos), the Projeto edit (/estudio:editar-projeto), the new Vídeo
   // (/estudio:novo-video), its Plano (/estudio:plano) and its edit (/estudio:edicao), plus the Assistente
   // de edição, the Roteirista-estrategista, the Diretor de arte, the Editor de pré-corte, the Motion
-  // designer and the Finalizador personas.
+  // designer and the Finalizador personas, and the QC técnico Crítico.
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
   for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano', 'edicao']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
-  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador']) {
+  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador', 'qc-tecnico']) {
     assert.match(details.out, new RegExp(`Agents \\(\\d+\\)[\\s\\S]*${agent}`), details.out);
   }
 

@@ -58,3 +58,6 @@ Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
 
 ## [2026-09-30] update | Read-only Notion context built: Página Notion links, Resumo Notion, change check (ticket #20)
 Pages: concepts/notion-context.md, overview.md.
+
+## [2026-09-30] update | Technical QC built: `qc`, QC técnico, `entregar` blocked by a failed QC (ticket #12)
+Pages: concepts/plugin-architecture.md, entities/studio-personas.md, overview.md.

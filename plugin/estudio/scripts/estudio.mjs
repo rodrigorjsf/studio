@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // WHAT  The Estúdio's deterministic CLI: JSON out on stdout, one subcommand per job.
-// WHY   Deterministic logic (state, scaffold, Pré-corte, later QC) lives behind one tested
+// WHY   Deterministic logic (state, scaffold, Pré-corte, technical QC) lives behind one tested
 //       command so skills read facts instead of re-deriving them, and regressions are caught
 //       without running a model.
 // WHEN  Skills run it at every session start (`estado`), when the Criadora accepts turning
@@ -16,8 +16,8 @@
 //       (`vincular-notion`), the Diretor records the Resumo Notion it read from them
 //       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
 //       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
-//       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); and when the Finalizador
-//       has rendered the Entrega (`entregar`).
+//       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); when the QC técnico holds
+//       a render against the Master (`qc`); and when the Entrega is rendered and judged (`entregar`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
@@ -37,7 +37,8 @@
 //       node "<plugin root>/scripts/estudio.mjs" nova-versao "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" abrir-revisao "<folder>" "<projeto>" "<vídeo>"
 //       node "<plugin root>/scripts/estudio.mjs" decidir-revisao "<folder>" "<projeto>" "<vídeo>" '<json>'
-//       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffmpeg>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" qc "<folder>" "<projeto>" "<vídeo>" "<render>" "<ffmpeg>" "<ffprobe>"
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
@@ -50,6 +51,7 @@ import { conferirNotion, resumoNotion, vincularNotion } from './lib/notion.mjs';
 import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 import { aprovarPlano, plano } from './lib/plano.mjs';
 import { pausas, precorte } from './lib/precorte.mjs';
+import { qc } from './lib/qc.mjs';
 import { abrirRevisao, decidirRevisao, novaVersao } from './lib/revisao.mjs';
 import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
@@ -74,7 +76,8 @@ const COMMANDS = {
   'nova-versao': { run: novaVersao, args: ['"<projeto>"', '"<vídeo>"'] },
   'abrir-revisao': { run: abrirRevisao, args: ['"<projeto>"', '"<vídeo>"'] },
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
-  entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffprobe>"'] },
+  entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
+  qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
 };
 
 function usageError(error) {
