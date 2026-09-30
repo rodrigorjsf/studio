@@ -12,6 +12,7 @@ import {
 } from './layout.mjs';
 import { STATUS_NAMES } from './estado.mjs';
 import { findVideo } from './video.mjs';
+import { parseJson } from './valores.mjs';
 
 // A silence at least this long (seconds) before the first word, between two words or after the
 // last one is a long pause; breaths and the pauses of normal speech are shorter.
@@ -130,12 +131,8 @@ function sentences(kept) {
 // Original untouched, moves the transcript onto the new Master's clock (the Original's is kept
 // in `transcricao/original/`), records the segment map and makes the result the Vídeo's Master.
 export function precorte(folder, projetoNome, videoNome, approvedText, ffmpeg, ffprobe) {
-  let approved;
-  try {
-    approved = JSON.parse(approvedText);
-  } catch (err) {
-    return { cut: false, reason: 'invalid-segments', message: `not valid JSON (${err.message})` };
-  }
+  const { value: approved, problem: notJson } = parseJson(approvedText);
+  if (notJson) return { cut: false, reason: 'invalid-segments', message: notJson };
   const problem = segmentsProblem(approved);
   if (problem) return { cut: false, reason: 'invalid-segments', message: problem };
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);

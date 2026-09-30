@@ -19,7 +19,7 @@ import { wholeCount } from './estado.mjs';
 import { QC_INTERNO, REVISAO } from './layout.mjs';
 import { BUILDING, internalTurns, locate } from './revisao.mjs';
 import { updateVideoRecord } from './video.mjs';
-import { isObject } from './valores.mjs';
+import { isObject, parseJson } from './valores.mjs';
 
 // The three Críticos of every version, by agent name.
 export const CRITICOS = ['qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma'];
@@ -30,12 +30,8 @@ export const MAX_TURNOS = 3;
 // The turn as the Diretor passes it: `{"vereditos": {<crítico>: {"veredito", "motivos"}}, "custo":
 // {"tokens", "segundos"}}`, checked on its own. A rejection carries its reasons.
 function readTurn(text) {
-  let input;
-  try {
-    input = JSON.parse(text);
-  } catch (err) {
-    return { problem: `not valid JSON (${err.message})` };
-  }
+  const { value: input, problem: notJson } = parseJson(text);
+  if (notJson) return { problem: notJson };
   if (!isObject(input) || !isObject(input.vereditos) || !isObject(input.custo)) {
     return { problem: 'must be a JSON object with vereditos (one per Crítico) and custo ({tokens, segundos})' };
   }

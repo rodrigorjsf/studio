@@ -22,7 +22,7 @@ import {
   GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
 } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
-import { isNonNegativeNumber, isObject, readJson } from './valores.mjs';
+import { isNonNegativeNumber, isObject, parseJson, readJson } from './valores.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
 const MARGEM = 0.2;
@@ -48,12 +48,8 @@ const approvedIn = (record, budget, month) => typeof record[budget.aprovadoEm] =
 
 // The JSON input of a command, checked against the keys it accepts (nothing else is written).
 function readInput(text, accepted, required) {
-  let input;
-  try {
-    input = JSON.parse(text);
-  } catch (err) {
-    return { problem: `not valid JSON (${err.message})` };
-  }
+  const { value: input, problem: notJson } = parseJson(text);
+  if (notJson) return { problem: notJson };
   if (!isObject(input)) return { problem: `must be a JSON object with ${accepted.join(', ')}` };
   const other = Object.keys(input).find((key) => !accepted.includes(key));
   if (other) return { problem: `${other} is not accepted here (${accepted.join(', ')})` };

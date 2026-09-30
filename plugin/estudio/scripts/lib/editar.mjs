@@ -8,7 +8,7 @@ import { estado, isFinished, nfc, subfolders } from './estado.mjs';
 import { validateKit } from './kit.mjs';
 import { KIT, PROJETOS, VIDEO_KIT, VIDEOS } from './layout.mjs';
 import { findProjeto, freezeVideoKits } from './projeto.mjs';
-import { isObject } from './valores.mjs';
+import { isObject, parseJson } from './valores.mjs';
 
 
 // The edit is a JSON object holding only the fields that change. Objects merge field by
@@ -26,12 +26,8 @@ export function merge(base, edit) {
 export const LOCKED = ['schemaVersion', 'aprovadoEm'];
 
 function parseEdit(editText) {
-  let edit;
-  try {
-    edit = JSON.parse(editText);
-  } catch (err) {
-    return { problem: `not valid JSON (${err.message})` };
-  }
+  const { value: edit, problem: notJson } = parseJson(editText);
+  if (notJson) return { problem: notJson };
   if (!isObject(edit)) return { problem: 'must be a JSON object holding only the Kit fields that change' };
   const locked = LOCKED.find((key) => key in edit);
   if (locked) return { problem: `${locked} cannot be edited` };

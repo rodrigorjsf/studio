@@ -16,7 +16,7 @@ import { editarKit, LOCKED, merge } from './editar.mjs';
 import { APRENDIZADOS } from './layout.mjs';
 import { locate } from './revisao.mjs';
 import { updateVideoRecord } from './video.mjs';
-import { isObject } from './valores.mjs';
+import { isObject, parseJson } from './valores.mjs';
 
 
 function learningProblem(item, i) {
@@ -31,12 +31,8 @@ function learningProblem(item, i) {
 }
 
 function readLearnings(text) {
-  let input;
-  try {
-    input = JSON.parse(text);
-  } catch (err) {
-    return { problem: `not valid JSON (${err.message})` };
-  }
+  const { value: input, problem: notJson } = parseJson(text);
+  if (notJson) return { problem: notJson };
   if (!Array.isArray(input?.aprendizados)) return { problem: 'aprendizados must be a list (empty when there is nothing to learn)' };
   const problem = input.aprendizados.map(learningProblem).find(Boolean);
   return problem ? { problem } : { aprendizados: input.aprendizados };

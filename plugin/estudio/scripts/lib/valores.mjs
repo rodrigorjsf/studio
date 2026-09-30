@@ -10,6 +10,15 @@ export const isNonNegativeNumber = (v) => typeof v === 'number' && Number.isFini
 // A date string Date.parse reads (ISO).
 export const isIsoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
+// Text parsed as JSON: { value }, or { problem } saying why it is not valid JSON.
+export function parseJson(text) {
+  try {
+    return { value: JSON.parse(text) };
+  } catch (err) {
+    return { problem: `not valid JSON (${err.message})` };
+  }
+}
+
 // A JSON file's content; undefined when it is missing or not valid JSON.
 export function readJson(file) {
   try {

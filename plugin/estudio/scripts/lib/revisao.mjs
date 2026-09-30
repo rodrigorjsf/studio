@@ -16,6 +16,7 @@ import { DECISIONS, decisionFile, nfc, versionName, versionNumber, versions } fr
 import { parseFrontmatter } from './frontmatter.mjs';
 import { NOTAS_MD, QC_INTERNO, REVISAO, VIDEO_DOC } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
+import { parseJson } from './valores.mjs';
 
 // The Statuses a version is built in: after the Plano (Construção), after the internal review
 // (QC interno) and after she asked for changes (Ajustes).
@@ -115,12 +116,8 @@ const isTextList = (v) => v === undefined || (Array.isArray(v) && v.every((item)
 // The decision she gave, `{"decisao", "notas": [...], "mudancasDeEscopo": [...]}`, checked on
 // its own: the refusal to return, or the decision with her notes consolidated.
 function readDecision(text) {
-  let input;
-  try {
-    input = JSON.parse(text);
-  } catch (err) {
-    return { refusal: { reason: 'invalid-decision', message: `not valid JSON (${err.message})` } };
-  }
+  const { value: input, problem: notJson } = parseJson(text);
+  if (notJson) return { refusal: { reason: 'invalid-decision', message: notJson } };
   if (!DECISIONS.includes(input?.decisao)) {
     return { refusal: { reason: 'invalid-decision', message: `decisao must be one of: ${DECISIONS.join(', ')}` } };
   }

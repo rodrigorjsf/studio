@@ -13,7 +13,7 @@ import { measureZone } from './ingest.mjs';
 import {
   AMOSTRAS_ROSTO, FRAMES_ROSTO, FRAMES_VISAO_GERAL, KIT, MEDICOES_ROSTO, ORIGINAL, PRINTS, PROJETOS, VIDEO_DOC, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
-import { isObject } from './valores.mjs';
+import { isObject, parseJson } from './valores.mjs';
 
 // The Vídeo briefing asks only what a Kit de marca never answers — these five, every time —
 // plus the Kit's own gaps (see kitGaps). Formato, style, captions, music and the rest come
@@ -141,12 +141,8 @@ export function updateVideoRecord(dir, change) {
 }
 
 export function registrarVideo(folder, projetoNome, videoNome, recordText) {
-  let record;
-  try {
-    record = JSON.parse(recordText);
-  } catch (err) {
-    return { recorded: false, reason: 'invalid-record', message: `not valid JSON (${err.message})` };
-  }
+  const { value: record, problem: notJson } = parseJson(recordText);
+  if (notJson) return { recorded: false, reason: 'invalid-record', message: notJson };
   const problem = recordProblem(record);
   if (problem) return { recorded: false, reason: 'invalid-record', message: problem };
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);

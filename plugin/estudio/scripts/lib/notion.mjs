@@ -27,7 +27,7 @@ import { parseFrontmatter, writeDocument } from './frontmatter.mjs';
 import { NOTION_PAGINAS, NOTION_RESUMO, PROJETOS, VIDEOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
 import { findVideo } from './video.mjs';
-import { isIsoDate, isObject } from './valores.mjs';
+import { isIsoDate, isObject, parseJson } from './valores.mjs';
 
 // A file of the Estúdio layout (`notion/paginas.json`) inside a Projeto or Vídeo folder.
 const at = (dir, rel) => path.join(dir, ...rel.split('/'));
@@ -155,12 +155,8 @@ function target(folder, projetoNome, videoNome) {
 }
 
 function parseJsonArg(text, allowed) {
-  let value;
-  try {
-    value = JSON.parse(text);
-  } catch (err) {
-    return { problem: `not valid JSON (${err.message})` };
-  }
+  const { value, problem: notJson } = parseJson(text);
+  if (notJson) return { problem: notJson };
   if (!isObject(value)) return { problem: `must be a JSON object with ${allowed.join(', ')}` };
   const other = Object.keys(value).find((key) => !allowed.includes(key));
   if (other) return { problem: `${other} is not understood here (${allowed.join(', ')})` };
@@ -262,12 +258,8 @@ export function resumoNotion(folder, projetoNome, resumoText) {
 // (null: it may have changed), or a Resumo is missing or out of date, so the Diretor asks her
 // whether to refresh it. A page left out of `editadas` (her connector did not answer) asks nothing.
 export function conferirNotion(folder, projetoNome, videoNome, editadasText) {
-  let editadas;
-  try {
-    editadas = JSON.parse(editadasText);
-  } catch (err) {
-    return { checked: false, reason: 'invalid-edit', message: `not valid JSON (${err.message})` };
-  }
+  const { value: editadas, problem: notJson } = parseJson(editadasText);
+  if (notJson) return { checked: false, reason: 'invalid-edit', message: notJson };
   if (!isObject(editadas) || !Object.values(editadas).every((v) => v === null || isIsoDate(v))) {
     return { checked: false, reason: 'invalid-edit', message: 'must map each linked page to its last-edited date (ISO) or null' };
   }
