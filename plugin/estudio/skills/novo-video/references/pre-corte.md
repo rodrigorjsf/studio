@@ -9,10 +9,10 @@ Run every command as the [novo-video skill](../SKILL.md) says (`<node>` and the 
 After the ingest, run:
 
 ```bash
-"<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" pausas "." "<projeto>" "<nome do vídeo>"
+"<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" pausas "." "<projeto>" "<nome do vídeo>" "<ffprobe>"
 ```
 
-It lists the long pauses of the Master: silences of 1.5 s or more before she starts talking or between two words.
+It lists the long pauses of the Master: silences of 1.5 s or more before she starts talking, between two words, or after her last word.
 
 - `semCorte: false` → the recording looks trimmed. Say nothing about the Pré-corte, unless she asks for it.
 - `semCorte: true` → the long pauses add up to 3 s or more, so the recording looks untrimmed. Warn her in one plain sentence with the numbers, and offer the Pré-corte as a Gate. The default is **no**:
@@ -23,8 +23,9 @@ It lists the long pauses of the Master: silences of 1.5 s or more before she sta
   Count the question (`somar.perguntas`) and the Gate (`somar.gates`) with `registrar-video`. If her Autonomia lets you decide, still ask. The Pré-corte changes her video, so it is never approved automatically.
 
 - `reason: "no-transcript"` → the ingest has not finished the transcript. Wait for it.
+- `reason: "probe-failed"` → the Master could not be read. Skip the warning and mention it in one line.
 
-She can also ask for the Pré-corte herself ("corta os silêncios", "tira as pausas"). Go to step 2 whatever `pausas` says.
+The Pré-corte happens only while the Vídeo is in `Briefing`, before the Plano: the Plano is timed on the Master. She can also ask for the Pré-corte herself ("corta os silêncios", "tira as pausas"). Go to step 2 whatever `pausas` says.
 
 ## 2. The proposal
 
@@ -54,7 +55,7 @@ With her approval, run, where `<json>` is `{"manter": [...]}` with the approved 
 | `cut: true` | The new Master is in `master/`, and `video.md` now points `master` to it. `transcricao/palavras.json` now follows the new Master's clock; the Original's transcript is kept in `transcricao/original/`. Tell her the new duration and that her recording is still kept, intact. From now on the Master is locked (`locked-final-cut`): nothing cuts it again. |
 | `reason: "cuts-a-word"` | A kept segment starts or ends in the middle of a word (`palavras` names each word and the cut). Move that boundary to just before the word's `s` or just after its `e`, and run again. There is no need to ask her again. |
 | `reason: "invalid-segments"` | Fix the list that `message` names and run again. |
-| `reason: "master-locked"` | This Vídeo already has its Pré-corte, or its edit has already started on the Master. Tell her the Master can no longer be cut. Offer to start a new Vídeo from the same recording if she really wants another cut. |
+| `reason: "master-locked"` | This Vídeo already has its Pré-corte, or it has left `Briefing` and its Plano is timed on the Master. Tell her the Master can no longer be cut. Offer to start a new Vídeo from the same recording if she really wants another cut. |
 | `reason: "ffmpeg-failed"` or `"probe-failed"` | Tell her in one sentence that the cut did not work and that her recording is safe. Report `message` and offer to try again. Nothing was written. |
 
-The Zona do rosto stays valid. It was measured on the Original, and the new Master only keeps parts of it.
+The Zona do rosto (`zona-do-rosto.json`) stays valid. It is one area covering her face across the whole Original, and the new Master only keeps parts of the Original.

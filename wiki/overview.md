@@ -1,7 +1,7 @@
 ---
 title: Overview
 type: overview
-updated: 2026-09-29
+updated: 2026-09-30
 sources: [sources/estudio-profissional-de-video-report.md, sources/grilling-estudio-plugin-2026-09-29.md, sources/modelos-opus-sonnet-5-5.md]
 ---
 

@@ -28,7 +28,7 @@ Absolute paths, each to be quoted (they carry spaces and accents):
 2. The long pauses the studio found:
 
    ```bash
-   "<node>" "<plugin>/scripts/estudio.mjs" pausas "<estudio>" "<projeto>" "<nome do vídeo>"
+   "<node>" "<plugin>/scripts/estudio.mjs" pausas "<estudio>" "<projeto>" "<nome do vídeo>" "<ffprobe>"
    ```
 
 3. The Original's duration:

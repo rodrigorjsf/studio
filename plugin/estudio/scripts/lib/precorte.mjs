@@ -1,5 +1,5 @@
-// The Pré-corte (ADR 0003): the optional stage that removes silences and fumbles from the
-// Original to make a new Master. Off by default — a Criadora who trims her own videos is never
+// The Pré-corte: the optional stage that removes silences and fumbles from the
+// Original to make a new Master; the Original is never touched. Off by default — a Criadora who trims her own videos is never
 // second-guessed — so the studio only warns when a Master looks untrimmed (`pausas`), and cuts
 // only what she approved (`precorte`).
 import { spawnSync } from 'node:child_process';
@@ -8,48 +8,64 @@ import path from 'node:path';
 import { parseFrontmatter, replaceFrontmatter } from './frontmatter.mjs';
 import { transcriptProblem } from './ingest.mjs';
 import {
-  MASTER, PALAVRAS, PRECORTE_MAPA, TRANSCRICAO, TRANSCRICAO_ORIGINAL, VIDEO_DOC,
+  MASTER, PALAVRAS, PRECORTE_MAPA, TRANSCRICAO_ORIGINAL, TRANSCRIPT_MD, VIDEO_DOC,
 } from './layout.mjs';
+import { STATUS_NAMES } from './estado.mjs';
 import { findVideo } from './video.mjs';
 
-// A silence at least this long (seconds) before the first word or between two words is a long
-// pause; breaths and the pauses of normal speech are shorter.
+// A silence at least this long (seconds) before the first word, between two words or after the
+// last one is a long pause; breaths and the pauses of normal speech are shorter.
 export const PAUSA_LONGA = 1.5;
 // Long pauses adding up to this much (seconds) make a Master look untrimmed.
 export const SEM_CORTE = 3;
 
 const round = (v) => Math.round(v * 1000) / 1000;
+const at = (dir, rel) => path.join(dir, ...rel.split('/'));
 
 function readTranscript(dir) {
   try {
-    const words = JSON.parse(fs.readFileSync(path.join(dir, ...PALAVRAS.split('/')), 'utf8'));
+    const words = JSON.parse(fs.readFileSync(at(dir, PALAVRAS), 'utf8'));
     return transcriptProblem(words) ? null : words;
   } catch {
     return null;
   }
 }
 
-// `pausas`: the long pauses of the Master, from its word-timed transcript, and whether they add
-// up to an untrimmed recording (`semCorte`), so the Diretor warns her and offers the Pré-corte.
-export function pausas(folder, projetoNome, videoNome) {
-  const { dir, refusal } = findVideo(folder, projetoNome, videoNome);
+// The Vídeo document's record, or the refusal to return.
+function readRecord(dir, projeto, video) {
+  const text = fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8');
+  try {
+    return { text, record: parseFrontmatter(text) };
+  } catch (err) {
+    return { refusal: { reason: 'invalid-document', projeto, video, message: err.message } };
+  }
+}
+
+// `pausas`: the long pauses of the Master, from its word-timed transcript and its duration, and
+// whether they add up to an untrimmed recording (`semCorte`), so the Diretor warns her and
+// offers the Pré-corte.
+export function pausas(folder, projetoNome, videoNome, ffprobe) {
+  const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { analyzed: false, ...refusal };
   const words = readTranscript(dir);
   if (!words) return { analyzed: false, reason: 'no-transcript' };
+  const doc = readRecord(dir, projeto, video);
+  if (doc.refusal) return { analyzed: false, ...doc.refusal };
+  const media = typeof doc.record.master === 'string' ? probe(ffprobe, at(dir, doc.record.master)) : null;
+  if (!media) return { analyzed: false, reason: 'probe-failed', projeto, video };
 
-  const found = words
-    .map((word, i) => ({ inicio: i === 0 ? 0 : words[i - 1].e, fim: word.s }))
+  const edges = [0, ...words.flatMap((w) => [w.s, w.e]), media.duration];
+  const found = Array.from({ length: words.length + 1 }, (_, i) => ({ inicio: edges[2 * i], fim: edges[2 * i + 1] }))
     .map(({ inicio, fim }) => ({ inicio: round(inicio), fim: round(fim), duracao: round(fim - inicio) }))
     .filter((pause) => pause.duracao >= PAUSA_LONGA);
   const totalPausas = round(found.reduce((sum, pause) => sum + pause.duracao, 0));
   return { analyzed: true, semCorte: totalPausas >= SEM_CORTE, pausas: found, totalPausas, limites: { pausaLonga: PAUSA_LONGA, semCorte: SEM_CORTE } };
 }
 
-// The Pré-corte is Esteira step 3, between the ingest and the Plano: once the edit is being
-// built on the Master, it is locked (`locked-final-cut`) and never cut again.
-const CUTTABLE = new Set(['Briefing', 'Planejamento']);
-
-const at = (dir, rel) => path.join(dir, ...rel.split('/'));
+// The Pré-corte is Esteira step 3, between the ingest and the Plano: only a Vídeo still before
+// `Planejamento` may be cut. Once the Plano is timed on the Master, the Master is locked
+// (`locked-final-cut`) and never cut again.
+const CUTTABLE = new Set(STATUS_NAMES.slice(0, STATUS_NAMES.indexOf('Planejamento')));
 const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
 const mmss = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${(t % 60).toFixed(3).padStart(6, '0')}`;
 
@@ -100,6 +116,16 @@ function cut(ffmpeg, source, target, segments, audio) {
   return r.status === 0 ? null : (r.stderr || r.error?.message || 'ffmpeg failed').trim().split('\n').slice(-3).join('\n');
 }
 
+// The kept words as transcript sentences: a sentence ends at . ! ? … or where a cut falls.
+function sentences(kept) {
+  return kept.flatMap((ws) => ws.reduce((out, w) => {
+    const current = out.at(-1);
+    if (current && !/[.!?…]$/.test(current.at(-1).w)) current.push(w);
+    else out.push([w]);
+    return out;
+  }, []));
+}
+
 // `precorte`: writes a new Master from the kept segments the Criadora approved, leaves the
 // Original untouched, moves the transcript onto the new Master's clock (the Original's is kept
 // in `transcricao/original/`), records the segment map and makes the result the Vídeo's Master.
@@ -115,14 +141,9 @@ export function precorte(folder, projetoNome, videoNome, approvedText, ffmpeg, f
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { cut: false, ...refusal };
 
-  const docFile = path.join(dir, VIDEO_DOC);
-  const docText = fs.readFileSync(docFile, 'utf8');
-  let record;
-  try {
-    record = parseFrontmatter(docText);
-  } catch (err) {
-    return { cut: false, reason: 'invalid-document', projeto, video, message: err.message };
-  }
+  const doc = readRecord(dir, projeto, video);
+  if (doc.refusal) return { cut: false, ...doc.refusal };
+  const { record, text: docText } = doc;
   if (typeof record.original !== 'string' || !fs.existsSync(at(dir, record.original))) {
     return { cut: false, reason: 'no-original', projeto, video };
   }
@@ -169,18 +190,17 @@ export function precorte(folder, projetoNome, videoNome, approvedText, ffmpeg, f
   // The Original's transcript stays next to it; palavras.json now follows the Master's clock.
   const transcricaoOriginal = at(dir, TRANSCRICAO_ORIGINAL);
   fs.mkdirSync(transcricaoOriginal, { recursive: true });
-  for (const file of ['palavras.json', 'transcript.md']) {
-    const from = path.join(dir, TRANSCRICAO, file);
-    if (fs.existsSync(from)) fs.renameSync(from, path.join(transcricaoOriginal, file));
+  for (const rel of [PALAVRAS, TRANSCRIPT_MD]) {
+    if (fs.existsSync(at(dir, rel))) fs.renameSync(at(dir, rel), path.join(transcricaoOriginal, path.basename(rel)));
   }
   fs.writeFileSync(at(dir, PALAVRAS), JSON.stringify(kept.flat(), null, 1));
-  const lines = kept.filter((ws) => ws.length > 0).map((ws) => `[${mmss(ws[0].s)}] ${ws.map((w) => w.w).join(' ')}`);
-  fs.writeFileSync(path.join(dir, TRANSCRICAO, 'transcript.md'), [`<!-- Pré-corte: times on the new Master's clock; the Original's transcript is in original/ -->`, ...lines, ''].join('\n'));
+  const lines = sentences(kept).map((ws) => `[${mmss(ws[0].s)}] ${ws.map((w) => w.w).join(' ')}`);
+  fs.writeFileSync(at(dir, TRANSCRIPT_MD), [`<!-- Pré-corte: times on the new Master's clock; the Original's transcript is in original/ -->`, ...lines, ''].join('\n'));
 
   const duracao = made ? round(made.duration) : null;
   const report = { original: record.original, master, duracaoOriginal: round(media.duration), duracao, segmentos };
   fs.mkdirSync(path.dirname(at(dir, PRECORTE_MAPA)), { recursive: true });
   fs.writeFileSync(at(dir, PRECORTE_MAPA), `${JSON.stringify({ ...report, feitoEm: new Date().toISOString() }, null, 2)}\n`);
-  fs.writeFileSync(docFile, replaceFrontmatter(docText, { ...record, master }));
+  fs.writeFileSync(path.join(dir, VIDEO_DOC), replaceFrontmatter(docText, { ...record, master }));
   return { cut: true, projeto, video, ...report, palavras: kept.flat().length, palavrasCortadas: words.length - kept.flat().length };
 }

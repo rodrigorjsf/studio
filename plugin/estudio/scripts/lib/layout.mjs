@@ -49,6 +49,6 @@ export const AMOSTRAS_ROSTO = 'frames/zona-do-rosto/amostras.json';
 export const MEDICOES_ROSTO = 'frames/zona-do-rosto/medicoes.json';
 export const ZONA_DO_ROSTO = 'zona-do-rosto.json';
 export const MASTER = 'master';
-export const TRANSCRICAO = 'transcricao';
+export const TRANSCRIPT_MD = 'transcricao/transcript.md';
 export const TRANSCRICAO_ORIGINAL = 'transcricao/original';
 export const PRECORTE_MAPA = 'precorte/mapa.json';

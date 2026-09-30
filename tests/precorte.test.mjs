@@ -2,8 +2,8 @@
 // Master looks untrimmed, from the long pauses in its word-timed transcript) and `precorte` (a
 // new Master written from the approved kept segments, the Original left byte-identical).
 // Drives plugin/estudio/scripts/estudio.mjs as a process and asserts only on its JSON output,
-// exit code and the files it produces. The `precorte` tests cut a synthetic clip ffmpeg makes
-// during the test, with the programs the computer check finds (set ESTUDIO_DADOS to an
+// exit code and the files it produces. Most tests use a synthetic clip ffmpeg makes during
+// the test, with the programs the computer check finds (set ESTUDIO_DADOS to an
 // installed plugin data folder); without them they are skipped with the reason.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -56,61 +56,77 @@ function estudioComVideo(recordingBytes) {
   return { dir, video, recording };
 }
 
+// Her recording: `seconds` at 25 fps, with a tone unless `silent`, so a cut has picture and
+// sound to keep. A silent one lasts exactly `seconds` (no audio padding).
+const clipOf = (seconds, { silent = false } = {}) => (file) => {
+  const made = spawnSync(tools.ffmpeg, [
+    '-hide_banner', '-loglevel', 'error', '-y',
+    '-f', 'lavfi', '-i', `testsrc=s=160x120:r=25:d=${seconds}`,
+    ...(silent ? [] : ['-f', 'lavfi', '-i', `sine=frequency=440:sample_rate=48000:d=${seconds}`, '-c:a', 'aac', '-shortest']),
+    '-c:v', 'libx264', '-pix_fmt', 'yuv420p', file,
+  ], { encoding: 'utf8' });
+  assert.equal(made.status, 0, made.stderr);
+};
+const clip = clipOf(3);
+
 function transcricao(video, words) {
   fs.mkdirSync(path.join(video, 'transcricao'), { recursive: true });
   fs.writeFileSync(path.join(video, 'transcricao', 'palavras.json'), JSON.stringify(words));
 }
 
-test('pausas warns that a Master with long pauses looks untrimmed, naming each pause', () => {
-  const { dir, video } = estudioComVideo('gravação');
-  // She starts talking after 2 s, and stops twice for about 2 s: a raw, untrimmed recording.
+const pausas = (dir) => run('pausas', dir, 'Minha Empresa', 'Dica rápida', tools.ffprobe);
+
+test('pausas warns that a Master with long pauses looks untrimmed, naming each pause', needsTools, () => {
+  const { dir, video } = estudioComVideo(clipOf(10, { silent: true }));
+  // She starts talking after 2 s, stops twice for about 2 s, and lets the camera run 1.6 s after
+  // her last word: a raw, untrimmed recording.
   transcricao(video, [
     { w: 'Oi,', s: 2.0, e: 2.3 }, { w: 'tudo', s: 2.4, e: 2.7 }, { w: 'bem?', s: 2.8, e: 3.1 },
     { w: 'Hoje', s: 5.3, e: 5.6 }, { w: 'eu', s: 5.7, e: 5.8 },
     { w: 'mostro', s: 8.0, e: 8.4 },
   ]);
 
-  const { code, out } = run('pausas', dir, 'Minha Empresa', 'Dica rápida');
+  const { code, out } = pausas(dir);
   assert.equal(code, 0);
   assert.equal(out.semCorte, true);
   assert.deepEqual(out.pausas, [
     { inicio: 0, fim: 2, duracao: 2 },
     { inicio: 3.1, fim: 5.3, duracao: 2.2 },
     { inicio: 5.8, fim: 8, duracao: 2.2 },
+    { inicio: 8.4, fim: 10, duracao: 1.6 },
   ]);
-  assert.equal(out.totalPausas, 6.4);
+  assert.equal(out.totalPausas, 8);
 });
 
-test('pausas stays quiet on a Master she already trimmed', () => {
-  const { dir, video } = estudioComVideo('gravação');
+test('pausas counts the silence after her last word', needsTools, () => {
+  const { dir, video } = estudioComVideo(clipOf(5, { silent: true }));
+  // She speaks from the first frame without a pause, then the camera runs 4 s after she ends.
+  transcricao(video, [{ w: 'Oi,', s: 0.05, e: 0.3 }, { w: 'tudo', s: 0.35, e: 0.6 }, { w: 'bem?', s: 0.7, e: 1.0 }]);
+
+  const { out } = pausas(dir);
+  assert.equal(out.semCorte, true);
+  assert.deepEqual(out.pausas, [{ inicio: 1, fim: 5, duracao: 4 }]);
+});
+
+test('pausas stays quiet on a Master she already trimmed', needsTools, () => {
+  const { dir, video } = estudioComVideo(clipOf(4.1, { silent: true }));
   // Jump cuts: speech from the first frame, only breaths between sentences, one short pause.
   transcricao(video, [
     { w: 'Oi,', s: 0.05, e: 0.3 }, { w: 'tudo', s: 0.35, e: 0.6 }, { w: 'bem?', s: 0.7, e: 1.0 },
     { w: 'Hoje', s: 1.4, e: 1.7 }, { w: 'eu', s: 1.8, e: 1.9 }, { w: 'mostro', s: 3.6, e: 4.0 },
   ]);
 
-  const { out } = run('pausas', dir, 'Minha Empresa', 'Dica rápida');
+  const { out } = pausas(dir);
   assert.equal(out.semCorte, false);
   assert.deepEqual(out.pausas, [{ inicio: 1.9, fim: 3.6, duracao: 1.7 }]);
 });
 
 test('pausas needs the word-timed transcript of the ingest', () => {
   const { dir } = estudioComVideo('gravação');
-  const { code, out } = run('pausas', dir, 'Minha Empresa', 'Dica rápida');
+  const { code, out } = run('pausas', dir, 'Minha Empresa', 'Dica rápida', 'ffprobe');
   assert.equal(code, 0);
   assert.deepEqual(out, { analyzed: false, reason: 'no-transcript' });
 });
-
-// Her recording: 3 s at 25 fps with a tone, so the cut has both picture and sound to keep.
-function clip(file) {
-  const made = spawnSync(tools.ffmpeg, [
-    '-hide_banner', '-loglevel', 'error', '-y',
-    '-f', 'lavfi', '-i', 'testsrc=s=320x240:r=25:d=3',
-    '-f', 'lavfi', '-i', 'sine=frequency=440:sample_rate=48000:d=3',
-    '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', file,
-  ], { encoding: 'utf8' });
-  assert.equal(made.status, 0, made.stderr);
-}
 
 function probe(file) {
   const r = spawnSync(tools.ffprobe, ['-v', 'error', '-show_entries', 'format=duration:stream=codec_type', '-of', 'json', file], { encoding: 'utf8' });
@@ -159,6 +175,8 @@ test('precorte writes a new Master from the kept segments and leaves the Origina
   const palavras = (rel) => JSON.parse(fs.readFileSync(path.join(video, 'transcricao', ...rel), 'utf8'));
   assert.deepEqual(palavras(['palavras.json']), [{ w: 'um', s: 0.2, e: 0.6 }, { w: 'dois', s: 1.2, e: 1.6 }]);
   assert.deepEqual(palavras(['original', 'palavras.json']), FALA);
+  const transcript = fs.readFileSync(path.join(video, 'transcricao', 'transcript.md'), 'utf8');
+  assert.deepEqual(transcript.split('\n').filter((line) => line.startsWith('[')), ['[00:00.200] um', '[00:01.200] dois']);
   assert.deepEqual(run('estado', dir).out.errors, []);
 });
 
@@ -191,15 +209,15 @@ test('once the Pré-corte is applied the Master is locked: it is never cut again
   assert.equal(masterField(video), 'master/Gravação de terça.mp4');
 });
 
-test('precorte refuses a Vídeo whose edit has started on its Master', () => {
+test('precorte refuses a Vídeo already in the Plano: the Plano is timed on its Master', () => {
   const { dir, video } = estudioComVideo('gravação');
   transcricao(video, FALA);
-  assert.equal(run('registrar-video', dir, 'Minha Empresa', 'Dica rápida', '{"status": "Construção"}').out.recorded, true);
+  assert.equal(run('registrar-video', dir, 'Minha Empresa', 'Dica rápida', '{"status": "Planejamento"}').out.recorded, true);
 
   const { out } = run('precorte', dir, 'Minha Empresa', 'Dica rápida', MANTER, 'ffmpeg', 'ffprobe');
   assert.deepEqual(out, {
     cut: false, reason: 'master-locked', projeto: 'Minha Empresa', video: 'Dica rápida',
-    master: 'original/Gravação de terça.mp4', status: 'Construção',
+    master: 'original/Gravação de terça.mp4', status: 'Planejamento',
   });
   assert.equal(masterField(video), 'original/Gravação de terça.mp4');
 });

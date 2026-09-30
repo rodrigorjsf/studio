@@ -20,7 +20,7 @@
 //       node "<plugin root>/scripts/estudio.mjs" novo-video "<folder>" "<projeto>" "<vídeo>" "<gravação>"
 //       node "<plugin root>/scripts/estudio.mjs" registrar-video "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
-//       node "<plugin root>/scripts/estudio.mjs" pausas "<folder>" "<projeto>" "<vídeo>"
+//       node "<plugin root>/scripts/estudio.mjs" pausas "<folder>" "<projeto>" "<vídeo>" "<ffprobe>"
 //       node "<plugin root>/scripts/estudio.mjs" precorte "<folder>" "<projeto>" "<vídeo>" '<json>' "<ffmpeg>" "<ffprobe>"
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
@@ -44,7 +44,7 @@ const COMMANDS = {
   'novo-video': { run: novoVideo, args: ['"<projeto>"', '"<vídeo>"', '"<gravação>"'] },
   'registrar-video': { run: registrarVideo, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   'zona-do-rosto': { run: zonaDoRosto, args: ['"<projeto>"', '"<vídeo>"'] },
-  pausas: { run: pausas, args: ['"<projeto>"', '"<vídeo>"'] },
+  pausas: { run: pausas, args: ['"<projeto>"', '"<vídeo>"', '"<ffprobe>"'] },
   precorte: { run: precorte, args: ['"<projeto>"', '"<vídeo>"', "'<json>'", '"<ffmpeg>"', '"<ffprobe>"'] },
 };
 
