@@ -140,6 +140,10 @@ _Avoid_: tier, plan, mode
 The finished file handed to the Criadora, in the requested Formato, inside the Vídeo's folder.
 _Avoid_: export, output, render (for the delivered file)
 
+**Preparação**:
+The one-time download, after the Criadora agrees, of everything editing needs on her computer, including the speech model; afterwards, editing never reaches the network for tools or models.
+_Avoid_: setup, install (for the whole step), onboarding
+
 ## Relationships
 
 - An **Estúdio** holds one **Perfil** and many **Projetos**; a **Projeto** has one **Kit de marca** and many **Vídeos**.
