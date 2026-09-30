@@ -21,3 +21,4 @@ What the grilling fixed, as input to the spec. Terms follow [CONTEXT.md](../../C
 - **Metric**: `video.md` counts questions, gates, time, rounds.
 - **Validation**: maintainer's video on Windows first, then the Criadora.
 - **Spec**: [Spec — Estúdio plugin v1](../sources/spec-estudio-plugin-v1.md), issue #1; test seams: one CLI (`estado`/`qc`/`precorte`), Remotion still render, plugin structure check.
+- **Notion**: read-only context via her account connector, Páginas Notion per Projeto/Vídeo, dated Resumo Notion, main thread only; see [notion-context](../concepts/notion-context.md).

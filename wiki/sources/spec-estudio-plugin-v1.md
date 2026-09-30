@@ -2,7 +2,7 @@
 title: Spec — Estúdio plugin v1
 type: source
 updated: 2026-09-29
-sources: [../../raw/specs/estudio-plugin-v1.md]
+sources: [../../raw/specs/estudio-plugin-v1.md, ../../raw/specs/estudio-plugin-v1.1.md]
 ---
 
 # Spec — Estúdio plugin v1
@@ -16,3 +16,7 @@ Implements [estudio-plugin-decisions](../analyses/estudio-plugin-decisions.md).
 ## Tickets (published 2026-09-29)
 
 Vertical slices #2–#19, each with native `blocked_by` edges: #2 skeleton+marketplace → #3 Estúdio folder+`estado` → {#4 installer, #5 Perfil, #6 Projeto+Kit} → {#7 list/edit, #8 Kit→frame, #9 Vídeo briefing+ingest} → #10 Plano+Quadros → #11 build/Rodadas/Entrega (first full Vídeo) → #12 `qc` → #13 brand/platform Críticos+loop; #14 Pré-corte (after #9); #15 Nível 2 → #16 Higgsedit; #17 Autonomia/metrics/learnings; #18 cleanup+install guide; #19 end-to-end run (`ready-for-human`).
+
+## Revision 1.1 (2026-09-29)
+
+[estudio-plugin-v1.1.md](../../raw/specs/estudio-plugin-v1.1.md) replaces issue #1's body: stories 87–95 and a decision for read-only [Notion context](../concepts/notion-context.md); new slice #20 (blocked by #10; #19 now also blocked by #20); notes on #3, #6, #7, #9, #10; Notion write-back is follow-up #21.

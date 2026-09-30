@@ -74,6 +74,14 @@ _Avoid_: final cut, base video
 The optional stage that removes silences and fumbles from the Original to produce a new Master, approved by the Criadora before it locks.
 _Avoid_: rough cut, trim, pre-edit
 
+**Página Notion**:
+A page in the Criadora's own Notion that she links to a Projeto or a Vídeo as extra context (brand notes, calendar, script). Read only, never written.
+_Avoid_: Notion integration, source, doc, fonte
+
+**Resumo Notion**:
+The dated summary of what the studio took from the linked Páginas Notion, stored with the Projeto or Vídeo; the only form in which Notion content reaches the personas.
+_Avoid_: snapshot, export, cache
+
 **Print**:
 A screenshot the Criadora supplies as visual proof of what she mentions; always shown intact, highlighted exactly on the quoted phrase.
 _Avoid_: image, capture, screenshot (in chat)
@@ -135,3 +143,4 @@ _Avoid_: export, output, render (for the delivered file)
 - The **Diretor** runs every **Gate**; every other **Persona** works between Gates and never asks the **Criadora** anything.
 - Every artifact passes a **Crítico** that is not its **Autor** before it reaches the **Criadora**.
 - A **Vídeo**'s briefing **Grilling** only asks what its **Projeto**'s **Kit de marca** does not already answer.
+- A **Projeto** or **Vídeo** may link any number of **Páginas Notion**; the **Diretor** turns them into a **Resumo Notion**; the **Kit de marca** wins when they disagree.

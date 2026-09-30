@@ -56,5 +56,5 @@ wiki/analyses/       filed-back answers: comparisons, decision inputs
 
 ## Raw source rules
 
-- Files in `raw/` are never edited after they land. A correction is a new file.
+- Files in `raw/` are never edited after they land. A correction is a new file. Exception: `README.md` index files, which list a folder's contents and are updated when a file is added.
 - Research output goes to `raw/research/<topic-slug>/` (notes, report, transcripts, a `README.md` listing them).
