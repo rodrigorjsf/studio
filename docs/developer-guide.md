@@ -59,6 +59,7 @@ Each `npm` script body also runs directly with `node`, for machines where `npm` 
 | Typecheck (TypeScript + split-layout guard) | `tsc --noEmit -p tsconfig.json && node scripts/check-split-layouts.mjs` (`npm run typecheck`) |
 | Plugin structure check | `node scripts/check-plugin.mjs .` |
 | Validate with Claude Code | `claude plugin validate --strict --json .` and `… plugin/estudio` |
+| Mirror the speech model on the GitHub Release (maintainer; publishing is outward, see the script header) | `sh scripts/espelhar-modelo.sh [--dry-run]` |
 | Try the plugin locally | `claude --plugin-dir plugin/estudio`, then `/estudio:estudio` in an empty folder |
 
 Tests that need ffmpeg, Python, `node_modules` or the `claude` CLI skip with the reason when those

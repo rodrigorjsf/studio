@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "note": "Third-party material in this package. Attribution and license texts: THIRD_PARTY.md. Each files[] entry is a verbatim copy; its sha256 is checked by the repo's tests, so a change without updating this manifest fails.",
+  "note": "Third-party material in this package. Attribution and license texts: THIRD_PARTY.md. Each files[] entry of a vendored-subset source is a verbatim copy; its sha256 is checked by the repo's tests, so a change without updating this manifest fails. A mirrored source (the speech model) is not bundled: its files[] entries (name, sha256, Release URL) are what the Preparação downloads and verifies.",
   "sources": [
     {
       "id": "watch-skill",
@@ -41,6 +41,47 @@
       "upstreamPath": "packages/skills/skills/remotion/rules",
       "distilledInto": "skills/estudio/references/remotion",
       "files": []
+    },
+    {
+      "id": "speech-model",
+      "host": "huggingface.co",
+      "owner": "mobiuslabsgmbh",
+      "repo": "faster-whisper-large-v3-turbo",
+      "servedAs": "dropbox-dash/faster-whisper-large-v3-turbo",
+      "sha": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",
+      "license": "MIT",
+      "mode": "mirrored",
+      "mirror": {
+        "repo": "rodrigorjsf/studio",
+        "releaseTag": "modelo-large-v3-turbo-0a363e9"
+      },
+      "files": [
+        {
+          "name": "model.bin",
+          "sha256": "e76620f83d5f5b69efd3d87e3dc180c1bd21df9fbebacfd4335e5e1efcc018da",
+          "url": "https://github.com/rodrigorjsf/studio/releases/download/modelo-large-v3-turbo-0a363e9/model.bin"
+        },
+        {
+          "name": "config.json",
+          "sha256": "b0253ea6c0d3bea6b1e19e91a02acfd3b53f4467362efcb5a3e6b16c9b3a9b7e",
+          "url": "https://github.com/rodrigorjsf/studio/releases/download/modelo-large-v3-turbo-0a363e9/config.json"
+        },
+        {
+          "name": "tokenizer.json",
+          "sha256": "297b13372ac43916285644fb9687add3cc62ee2a1adb60da3dc25cc94c1871fd",
+          "url": "https://github.com/rodrigorjsf/studio/releases/download/modelo-large-v3-turbo-0a363e9/tokenizer.json"
+        },
+        {
+          "name": "vocabulary.json",
+          "sha256": "c69260f2ab26d659b7c398f9a2b2b48ed0df16c3b47d7326782fd9cba71690c1",
+          "url": "https://github.com/rodrigorjsf/studio/releases/download/modelo-large-v3-turbo-0a363e9/vocabulary.json"
+        },
+        {
+          "name": "preprocessor_config.json",
+          "sha256": "7ccc62c6f2765af1f3b46c00c9b5894426835a05021c8b9c01eecb6dfb542711",
+          "url": "https://github.com/rodrigorjsf/studio/releases/download/modelo-large-v3-turbo-0a363e9/preprocessor_config.json"
+        }
+      ]
     }
   ]
 }

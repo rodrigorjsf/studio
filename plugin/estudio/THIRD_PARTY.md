@@ -1,6 +1,6 @@
 # Third-party material in the estudio plugin
 
-The plugin depends on no other plugin, marketplace or skill. It carries three pieces derived from
+The plugin depends on no other plugin, marketplace or skill. It carries four pieces derived from
 third-party work, listed here with their upstream, the exact commit used, and the license terms.
 The machine-readable list, with the sha256 of every verbatim file, is [vendor.json](vendor.json);
 the repository's tests fail if a verbatim file changes without a matching update there.
@@ -101,6 +101,47 @@ The MIT license text, which applies to the upstream work above:
 MIT License
 
 Copyright (c) 2026 Macks Wendhell
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 4. Speech model, mirrored on our GitHub Release (MIT)
+
+| | |
+|---|---|
+| Model | Whisper `large-v3-turbo`, converted to CTranslate2 (faster-whisper) form, weights in FP16 |
+| Original model | https://huggingface.co/openai/whisper-large-v3-turbo (OpenAI Whisper), MIT, Copyright (c) 2022 OpenAI |
+| Conversion | https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo (Mobius Labs; now served as `dropbox-dash/faster-whisper-large-v3-turbo`), MIT per its model card. That repository ships no LICENSE file and names no copyright holder for the conversion, so the license text below carries the original model's copyright line. |
+| Pinned commit | `0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf` |
+| Mirror | Release `modelo-large-v3-turbo-0a363e9` of https://github.com/rodrigorjsf/studio |
+| In this plugin | nothing is bundled. The Preparação downloads the five files from the Release into the plugin data folder and checks each sha256 recorded in `vendor.json` (source `speech-model`, mode `mirrored`). |
+
+The five files (`model.bin`, `config.json`, `tokenizer.json`, `vocabulary.json`,
+`preprocessor_config.json`) are redistributed unmodified, byte for byte, so that the Criadora's
+computer never has to reach Hugging Face (its download hosts change over time). The maintainer
+refreshes the mirror with the repository's `scripts/espelhar-modelo.sh` (not part of this package). The MIT license text, which applies to the
+model:
+
+```text
+MIT License
+
+Copyright (c) 2022 OpenAI
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
