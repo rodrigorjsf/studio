@@ -99,9 +99,11 @@ files, exit codes), never on prompt wording.
 
 Conversation with the Criadora and every file she reads are pt-BR; skill bodies, agent prompts,
 code, tests, ADRs and the wiki are English; command names are pt-BR (`/estudio:novo-video`).
-The template's `_shared/` API still carries Portuguese identifiers from the upstream project; see
-#26. The Preparação and computer-check scripts already use English identifiers, keeping only
-glossary terms.
+The template's `_shared/` helpers use English names, keeping only glossary terms (`Edicao`, `Kit`,
+`Formato`, `Gerado`, ...). Each old Portuguese name is still exported as a `@deprecated` alias of its
+new name, so a Vídeo composition written before the rename keeps compiling; the aliases go in a later
+breaking release (`tests/template-names.test.mjs` guards both halves). The Preparação and
+computer-check scripts already use English identifiers, keeping only glossary terms.
 
 ## Project knowledge and tracking
 

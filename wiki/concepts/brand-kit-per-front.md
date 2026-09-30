@@ -32,7 +32,7 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 
 ## Built: the Kit reaches the frame (ticket #8)
 
-- Every Vídeo composition of the Estúdio's Remotion template reads the Projeto's `kit.json` through `plugin/estudio/template/src/_shared/kit.ts`: `calcularMetadadosDoKit` loads the Kit from the public folder (`projetos/`), sets the frame size from the Formato and hands the Kit to the component as its `kit` prop.
+- Every Vídeo composition of the Estúdio's Remotion template reads the Projeto's `kit.json` through `plugin/estudio/template/src/_shared/kit.ts`: `calculateKitMetadata` loads the Kit from the public folder (`projetos/`), sets the frame size from the Formato and hands the Kit to the component as its `kit` prop.
 - Formato: `formato: null` renders the Kit's Formato (9:16 by default, 1080×1920); `"16:9"` (1920×1080) or `"1:1"` is a variant on request, same composition.
 - Brand pieces in `plugin/estudio/template/src/_shared/marca.tsx`: fonts (family, weight, optional font file under `kit/`), the entrance motion (`movimento.entradaMs`) and the caption style (`legendas`: grouping, highlight, position, case). `PreviaDoKit` ("Prévia do Kit") draws a Kit on one frame and is the worked example.
 - The default Kit has one source, `plugin/estudio/template/src/_shared/kit-padrao.json`, read by both `novo-projeto` (`lib/kit.mjs`) and the template (Prévia without a Projeto).

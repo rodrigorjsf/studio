@@ -12,22 +12,22 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import {arquivoDoProjeto, Fonte, Kit, tamanhoNoQuadro} from './kit';
+import {projectFile, Font, Kit, scaleToFrame} from './kit';
 
-export const estiloDaFonte = (fonte: Fonte): React.CSSProperties => ({
+export const fontStyle = (fonte: Font): React.CSSProperties => ({
   fontFamily: `"${fonte.familia}", system-ui, sans-serif`,
   fontWeight: fonte.peso,
 });
 
 // Loads the font files the Kit carries (`tipografia.*.arquivo`) before any frame is drawn.
 // A font without a file is used by its family name, as installed on the computer.
-export const useFontesDoKit = (kit: Kit, projeto: string) => {
+export const useKitFonts = (kit: Kit, projeto: string) => {
   const [espera] = useState(() => delayRender('Carregando as fontes do Kit de marca'));
   useEffect(() => {
     const comArquivo = [kit.tipografia.titulo, kit.tipografia.texto].filter((fonte) => projeto && fonte.arquivo);
     Promise.all(
       comArquivo.map(async (fonte) => {
-        const url = arquivoDoProjeto(projeto, fonte.arquivo as string);
+        const url = projectFile(projeto, fonte.arquivo as string);
         const face = new FontFace(fonte.familia, `url("${url}")`, {weight: String(fonte.peso)});
         document.fonts.add(await face.load());
       }),
@@ -38,7 +38,7 @@ export const useFontesDoKit = (kit: Kit, projeto: string) => {
 };
 
 // Entrance progress 0 → 1 starting at `inicio` seconds and lasting the Kit's `movimento.entradaMs`.
-export const useEntradaDoKit = (kit: Kit, inicio: number) => {
+export const useKitEntrance = (kit: Kit, inicio: number) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const fim = inicio + kit.movimento.entradaMs / 1000;
@@ -50,15 +50,15 @@ export const useEntradaDoKit = (kit: Kit, inicio: number) => {
 };
 
 // A spoken word with its time in seconds, as in the transcription's palavras.json.
-export type Palavra = {texto: string; inicio: number};
+export type Word = {texto: string; inicio: number};
 
 // Where each caption position sits, as a fraction of the frame height.
-const POSICAO_DA_LEGENDA = {superior: {top: '14%'}, centro: {top: '50%', transform: 'translateY(-50%)'}, inferior: {bottom: '22%'}} as const;
+const CAPTION_POSITION = {superior: {top: '14%'}, centro: {top: '50%', transform: 'translateY(-50%)'}, inferior: {bottom: '22%'}} as const;
 
 // The Projeto's caption style: groups of `palavrasPorVez` words. With the style
 // "palavra-destacada" (the default) the word being spoken takes the highlight color; any
 // other style shows the group in one color. No word appears before it is said.
-export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, palavras}) => {
+export const KitCaptions: React.FC<{kit: Kit; palavras: Word[]}> = ({kit, palavras}) => {
   const frame = useCurrentFrame();
   const {fps, width, height} = useVideoConfig();
   const {legendas, tipografia} = kit;
@@ -74,10 +74,10 @@ export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, pa
     <AbsoluteFill>
       <div
         style={{
-          position: 'absolute', left: '8%', right: '8%', ...POSICAO_DA_LEGENDA[legendas.posicao],
+          position: 'absolute', left: '8%', right: '8%', ...CAPTION_POSITION[legendas.posicao],
           display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.25em',
-          ...estiloDaFonte(tipografia[legendas.fonte]),
-          fontSize: tamanhoNoQuadro(legendas.tamanho, width, height),
+          ...fontStyle(tipografia[legendas.fonte]),
+          fontSize: scaleToFrame(legendas.tamanho, width, height),
           color: legendas.cor,
           textTransform: legendas.caixaAlta ? 'uppercase' : 'none',
           lineHeight: 1.2,
@@ -95,3 +95,17 @@ export const LegendaDoKit: React.FC<{kit: Kit; palavras: Palavra[]}> = ({kit, pa
     </AbsoluteFill>
   );
 };
+
+// Deprecated aliases: the helpers were Portuguese before they were renamed to English. They keep
+// a Vídeo composition written against the old names compiling; new code uses the names above.
+// Removed in a later breaking release, once every Estúdio has refreshed its shared code.
+/** @deprecated Use `fontStyle`. */
+export const estiloDaFonte = fontStyle;
+/** @deprecated Use `useKitFonts`. */
+export const useFontesDoKit = useKitFonts;
+/** @deprecated Use `useKitEntrance`. */
+export const useEntradaDoKit = useKitEntrance;
+/** @deprecated Use `Word`. */
+export type Palavra = Word;
+/** @deprecated Use `KitCaptions`. */
+export const LegendaDoKit = KitCaptions;

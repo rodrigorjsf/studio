@@ -109,3 +109,6 @@ Pages: overview.md, concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Repo root cleaned of upstream leftovers: maintainer CLAUDE.md, upstream folders deleted (ticket #30)
 Pages: overview.md, index.md, concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.
+
+## [2026-09-30] update | Template helpers in English with deprecated aliases (ticket #34)
+Pages: concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.
