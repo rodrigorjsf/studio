@@ -109,17 +109,21 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
   assert.deepEqual(out.errors, []);
   assert.equal(out.perfil.present, true);
   // Vídeos from before the ingest existed: nothing ingested, no briefing section left open, no Plano.
-  const pre = { briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes' };
+  // No Página Notion linked anywhere: zero links is a valid choice.
+  const semNotion = { paginas: 0, resumo: 'sem-paginas' };
+  const pre = {
+    briefing: 'completo', ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', notion: semNotion,
+  };
   assert.deepEqual(out.projetos, [
     {
-      id: 'Minha Empresa', briefing: 'completo', kit: 'ok',
+      id: 'Minha Empresa', briefing: 'completo', kit: 'ok', notion: semNotion,
       videos: [
         { id: 'Dica rápida', status: 'Construção', rodada: null, nivel: 1, ...pre, waitingForCriadora: false },
         { id: 'Lançamento', status: 'Revisão', rodada: 2, nivel: 1, ...pre, waitingForCriadora: true },
       ],
     },
     {
-      id: 'Pessoal', briefing: 'completo', kit: 'ok',
+      id: 'Pessoal', briefing: 'completo', kit: 'ok', notion: semNotion,
       videos: [{ id: 'Receita antiga', status: 'Arquivado', rodada: 1, nivel: 2, ...pre, waitingForCriadora: false }],
     },
   ]);

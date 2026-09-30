@@ -11,6 +11,9 @@
 //     "creditosEstimados": null,         Nível 2 only: Higgsfield credits (a number), else null
 //     "direcoes": [{"rotulo": "A", "resumo": "…", "recomendada": true}, …],   two or three
 //     "pedidosDela": ["…"],              what she asked that the repertoire would not suggest
+//     "resumosNotion": [{"nivel": "projeto", "geradoEm": ISO}, …],   the Resumos Notion the Plano
+//                                        drew on (the Projeto's, the Vídeo's), each by its date;
+//                                        required for every Resumo that exists
 //     "cenas": [{
 //       "tipo": "camera-motion",         a scene of the repertoire (SCENES)
 //       "inicio": 2.6, "fim": 4,         seconds on the Master's clock
@@ -31,6 +34,7 @@ import { nfc } from './estado.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { boxProblem } from './ingest.mjs';
 import { KIT, PALAVRAS, PLANO, PRINTS, VIDEO_DOC, VIDEO_KIT, ZONA_DO_ROSTO } from './layout.mjs';
+import { readNotion } from './notion.mjs';
 import { findVideo, kitGaps, registrarVideo } from './video.mjs';
 
 // The scene repertoire of the editorial direction, by the names the Plano uses.
@@ -134,6 +138,23 @@ function planoProblems(data, nivel) {
   return { problems, labelled };
 }
 
+// The Plano must cite each Resumo Notion the Vídeo relies on (its Projeto's and its own) by the
+// date it was written, so she knows what informed it and a Plano drafted from an older Resumo is
+// caught. Links without a Resumo cite nothing: Notion is never a blocker.
+function notionProblems(citados, dir) {
+  const list = Array.isArray(citados) ? citados : [];
+  const resumos = { projeto: readNotion(path.join(dir, '..', '..')).resumo, video: readNotion(dir).resumo };
+  return Object.entries(resumos).flatMap(([nivel, resumo]) => {
+    const citado = list.find((item) => item?.nivel === nivel);
+    if (!resumo) return citado ? [`resumosNotion cites a Resumo Notion of the ${nivel} that does not exist`] : [];
+    if (!citado) return [`resumosNotion must cite the Resumo Notion of the ${nivel} (geradoEm ${resumo.geradoEm})`];
+    if (citado.geradoEm !== resumo.geradoEm) {
+      return [`resumosNotion cites an older Resumo Notion of the ${nivel} (${citado.geradoEm}); the current one is ${resumo.geradoEm}`];
+    }
+    return [];
+  });
+}
+
 // The problems of the Quadros de estilo: two or three, labelled, each a moment of her video
 // already rendered into the Vídeo folder.
 function quadrosProblems(quadros, dir, duracao, labelled) {
@@ -183,7 +204,11 @@ export function plano(folder, projetoNome, videoNome) {
   const nivel = record.nivel ?? null;
   const cenas = Array.isArray(data.cenas) ? data.cenas : [];
   const whole = planoProblems(data, nivel);
-  const planoProblemList = [...whole.problems, ...cenas.flatMap((cena, i) => sceneProblems(cena, i + 1, context))];
+  const planoProblemList = [
+    ...whole.problems,
+    ...notionProblems(data.resumosNotion, dir),
+    ...cenas.flatMap((cena, i) => sceneProblems(cena, i + 1, context)),
+  ];
   const quadrosProblemList = quadrosProblems(data.quadros, dir, zona.duracao, whole.labelled);
   // One Gate approves the Plano and the Quadros together when the Kit already defines the whole
   // style (no look text field of it left empty); otherwise the look is still open, and the Quadros

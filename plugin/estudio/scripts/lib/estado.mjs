@@ -6,6 +6,7 @@ import { unansweredSections } from './briefing.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
+import { readNotion } from './notion.mjs';
 import { readPerfil } from './perfil.mjs';
 import {
   KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
@@ -72,6 +73,12 @@ export function estado(folder) {
   const errors = [];
   const rel = (file) => nfc(path.relative(folder, file).split(path.sep).join('/'));
   const fail = (file, message) => errors.push({ file: rel(file), message });
+  // The Página Notion links and the Resumo Notion of a Projeto or Vídeo folder, validated.
+  const notion = (dir) => {
+    const { problems, state } = readNotion(dir);
+    problems.forEach((p) => fail(p.file, p.message));
+    return state;
+  };
 
   const readJson = (file) => {
     try {
@@ -130,7 +137,8 @@ export function estado(folder) {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
       const video = {
         id: nfc(videoName), status: null, rodada: null, nivel: null, briefing: 'completo',
-        ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', waitingForCriadora: false,
+        ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes',
+        notion: notion(path.join(dir, VIDEOS, videoName)), waitingForCriadora: false,
       };
       // The ingest, as far as it went: a Vídeo interrupted midway resumes from what is missing.
       const videoFile = (rel) => path.join(dir, VIDEOS, videoName, ...rel.split('/'));
@@ -183,7 +191,7 @@ export function estado(folder) {
       }
       return video;
     });
-    return { id: nfc(name), briefing: briefingState, kit, videos };
+    return { id: nfc(name), briefing: briefingState, kit, notion: notion(dir), videos };
   });
 
   const waiting = projetos.flatMap((projeto) => projeto.videos

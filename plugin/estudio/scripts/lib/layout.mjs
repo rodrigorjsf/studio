@@ -29,11 +29,13 @@
 //                                    pré-corte proposes) and mapa.json (the segment map `precorte` applied)
 //   projetos/<projeto>/videos/<vídeo>/transcricao/original/ the Original's transcript, kept aside when a
 //                                    Pré-corte moves palavras.json onto the new Master's clock
+//   projetos/<projeto>/notion/paginas.json   the Páginas Notion linked to the Projeto (schema: notion.mjs)
+//   projetos/<projeto>/notion/resumo.md      the dated Resumo Notion of those pages (pt-BR, frontmatter)
+//   projetos/<projeto>/videos/<vídeo>/notion/ the same two files for the pages linked to one Vídeo
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
-// Anything else inside a Projeto or Vídeo folder (versions,
-// the Entrega, and the reserved `notion/` folder for Página Notion links and Resumo Notion
-// documents) is left to later stages and never rejected here.
+// Anything else inside a Projeto or Vídeo folder (versions, the Entrega) is left to later
+// stages and never rejected here.
 export const SCHEMA_VERSION = 1;
 export const MARKER = 'estudio.json';
 export const PERFIL = 'perfil.md';
@@ -58,3 +60,5 @@ export const MASTER = 'master';
 export const TRANSCRIPT_MD = 'transcricao/transcript.md';
 export const TRANSCRICAO_ORIGINAL = 'transcricao/original';
 export const PRECORTE_MAPA = 'precorte/mapa.json';
+export const NOTION_PAGINAS = 'notion/paginas.json';
+export const NOTION_RESUMO = 'notion/resumo.md';
