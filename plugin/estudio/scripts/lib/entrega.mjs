@@ -14,10 +14,9 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
-import { parseFrontmatter } from './frontmatter.mjs';
-import { ENTREGA, VIDEO_DOC } from './layout.mjs';
+import { ENTREGA } from './layout.mjs';
 import { durationProblem, measure, PHOTOSENSITIVITY, probe, renderProblems } from './qc.mjs';
-import { findVideo, updateVideoRecord } from './video.mjs';
+import { findVideo, readVideoRecord, updateVideoRecord } from './video.mjs';
 
 const extension = (name) => path.extname(name).toLowerCase();
 const DELIVERABLE = new Set(['.mp4', '.mov']);
@@ -55,12 +54,8 @@ export function entregar(folder, projetoNome, videoNome, ffmpeg, ffprobe) {
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { delivered: false, ...refusal };
   const refuse = (reason, extra = {}) => ({ delivered: false, reason, projeto, video, ...extra });
-  let record;
-  try {
-    record = parseFrontmatter(fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8'));
-  } catch (err) {
-    return refuse('invalid-document', { message: err.message });
-  }
+  const { record, refusal: unreadable } = readVideoRecord({ dir, projeto, video });
+  if (unreadable) return refuse(unreadable.reason, { message: unreadable.message });
   const status = typeof record.status === 'string' ? nfc(record.status) : null;
   if (status !== 'Aprovado') return refuse('not-approved', { status });
 

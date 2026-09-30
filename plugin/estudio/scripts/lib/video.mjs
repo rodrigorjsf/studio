@@ -123,6 +123,17 @@ export function findVideo(folder, projetoNome, videoNome) {
   return { projeto: projeto.id, video: nfc(videoFolder), dir: path.join(videosDir, videoFolder) };
 }
 
+// The Vídeo document of a found Vídeo (findVideo's {dir, projeto, video}): its text and its
+// frontmatter record, or the 'invalid-document' refusal to return when it cannot be read.
+export function readVideoRecord({ dir, projeto, video }) {
+  try {
+    const text = fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8');
+    return { text, record: parseFrontmatter(text) };
+  } catch (err) {
+    return { refusal: { reason: 'invalid-document', projeto, video, message: err.message } };
+  }
+}
+
 // Reads the Vídeo document's record in `dir`, lets `change` edit it in place and writes it back,
 // the pt-BR body kept as is. Returns {data} (the record written) or {message} when the document's
 // frontmatter is malformed, in which case nothing is written.

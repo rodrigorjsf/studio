@@ -18,9 +18,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
-import { parseFrontmatter } from './frontmatter.mjs';
-import { VIDEO_DOC } from './layout.mjs';
-import { findVideo } from './video.mjs';
+import { findVideo, readVideoRecord } from './video.mjs';
 
 const FPS_DA_EDICAO = 30;
 const CANVASES = ['1080x1920', '1920x1080', '1080x1080'];
@@ -154,12 +152,8 @@ export function qc(folder, projetoNome, videoNome, renderPath, ffmpeg, ffprobe) 
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { passed: false, ...refusal };
   const refuse = (reason, extra = {}) => ({ passed: false, reason, projeto, video, ...extra });
-  let record;
-  try {
-    record = parseFrontmatter(fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8'));
-  } catch (err) {
-    return refuse('invalid-document', { message: err.message });
-  }
+  const { record, refusal: unreadable } = readVideoRecord({ dir, projeto, video });
+  if (unreadable) return refuse(unreadable.reason, { message: unreadable.message });
   const renderFile = path.resolve(dir, renderPath);
   if (!fs.existsSync(renderFile)) return refuse('no-render', { render: renderFile });
   const masterFile = typeof record.master === 'string' ? path.join(dir, ...record.master.split('/')) : null;

@@ -21,7 +21,7 @@ import { parseFrontmatter } from './frontmatter.mjs';
 import {
   GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
 } from './layout.mjs';
-import { findVideo, updateVideoRecord } from './video.mjs';
+import { findVideo, readVideoRecord, updateVideoRecord } from './video.mjs';
 import { isNonNegativeNumber, isObject, parseJson, readJson } from './valores.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
@@ -63,12 +63,8 @@ function creditVideo(folder, projetoNome, videoNome) {
   const found = findVideo(folder, projetoNome, videoNome);
   if (found.refusal) return found;
   const { projeto, video, dir } = found;
-  let record;
-  try {
-    record = parseFrontmatter(fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8'));
-  } catch (err) {
-    return { refusal: { reason: 'invalid-document', projeto, video, message: err.message } };
-  }
+  const { record, refusal } = readVideoRecord(found);
+  if (refusal) return { refusal };
   const ownKit = path.join(dir, VIDEO_KIT);
   const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
   const status = typeof record.status === 'string' ? nfc(record.status) : null;

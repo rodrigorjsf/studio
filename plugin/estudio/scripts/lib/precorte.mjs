@@ -5,13 +5,13 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseFrontmatter, replaceFrontmatter } from './frontmatter.mjs';
+import { replaceFrontmatter } from './frontmatter.mjs';
 import { transcriptProblem } from './ingest.mjs';
 import {
   MASTER, PALAVRAS, PRECORTE_MAPA, TRANSCRICAO_ORIGINAL, TRANSCRIPT_MD, VIDEO_DOC,
 } from './layout.mjs';
 import { STATUS_NAMES } from './estado.mjs';
-import { findVideo } from './video.mjs';
+import { findVideo, readVideoRecord } from './video.mjs';
 import { parseJson } from './valores.mjs';
 
 // A silence at least this long (seconds) before the first word, between two words or after the
@@ -33,15 +33,6 @@ function readTranscript(dir) {
 }
 
 // The Vídeo document's record, or the refusal to return.
-function readRecord(dir, projeto, video) {
-  const text = fs.readFileSync(path.join(dir, VIDEO_DOC), 'utf8');
-  try {
-    return { text, record: parseFrontmatter(text) };
-  } catch (err) {
-    return { refusal: { reason: 'invalid-document', projeto, video, message: err.message } };
-  }
-}
-
 // `pausas`: the long pauses of the Master, from its word-timed transcript and its duration, and
 // whether they add up to an untrimmed recording (`semCorte`), so the Diretor warns her and
 // offers the Pré-corte.
@@ -50,7 +41,7 @@ export function pausas(folder, projetoNome, videoNome, ffprobe) {
   if (refusal) return { analyzed: false, ...refusal };
   const words = readTranscript(dir);
   if (!words) return { analyzed: false, reason: 'no-transcript' };
-  const doc = readRecord(dir, projeto, video);
+  const doc = readVideoRecord({ dir, projeto, video });
   if (doc.refusal) return { analyzed: false, ...doc.refusal };
   const media = typeof doc.record.master === 'string' ? probe(ffprobe, at(dir, doc.record.master)) : null;
   if (!media) return { analyzed: false, reason: 'probe-failed', projeto, video };
@@ -138,7 +129,7 @@ export function precorte(folder, projetoNome, videoNome, approvedText, ffmpeg, f
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { cut: false, ...refusal };
 
-  const doc = readRecord(dir, projeto, video);
+  const doc = readVideoRecord({ dir, projeto, video });
   if (doc.refusal) return { cut: false, ...doc.refusal };
   const { record, text: docText } = doc;
   if (typeof record.original !== 'string' || !fs.existsSync(at(dir, record.original))) {

@@ -13,9 +13,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DECISIONS, decisionFile, nfc, versionName, versionNumber, versions } from './estado.mjs';
-import { parseFrontmatter } from './frontmatter.mjs';
-import { NOTAS_MD, QC_INTERNO, REVISAO, VIDEO_DOC } from './layout.mjs';
-import { findVideo, updateVideoRecord } from './video.mjs';
+import { NOTAS_MD, QC_INTERNO, REVISAO } from './layout.mjs';
+import { findVideo, readVideoRecord, updateVideoRecord } from './video.mjs';
 import { parseJson } from './valores.mjs';
 
 // The Statuses a version is built in: after the Plano (Construção), after the internal review
@@ -26,12 +25,8 @@ export const BUILDING = new Set(['Construção', 'QC interno', 'Ajustes']);
 export function locate(folder, projetoNome, videoNome) {
   const found = findVideo(folder, projetoNome, videoNome);
   if (found.refusal) return found;
-  let record;
-  try {
-    record = parseFrontmatter(fs.readFileSync(path.join(found.dir, VIDEO_DOC), 'utf8'));
-  } catch (err) {
-    return { refusal: { reason: 'invalid-document', projeto: found.projeto, video: found.video, message: err.message } };
-  }
+  const { record, refusal } = readVideoRecord(found);
+  if (refusal) return { refusal };
   const latest = versions(found.dir).at(-1) ?? null;
   const pending = latest !== null && !fs.existsSync(decisionFile(found.dir, latest));
   return { ...found, status: typeof record.status === 'string' ? nfc(record.status) : null, gate: record.gate ?? null, latest, pending };
