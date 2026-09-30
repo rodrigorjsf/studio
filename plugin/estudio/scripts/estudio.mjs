@@ -3,28 +3,9 @@
 // WHY   Deterministic logic (state, scaffold, Pré-corte, technical QC) lives behind one tested
 //       command so skills read facts instead of re-deriving them, and regressions are caught
 //       without running a model.
-// WHEN  Skills run it at every session start (`estado`), when the Criadora accepts turning
-//       a folder into an Estúdio (`criar`), and in the Projeto Grilling (`novo-projeto`,
-//       then `aprovar-kit` once she approves the Kit de marca), and when she changes an
-//       approved Kit (`editar-kit`) or opts an existing Vídeo into it (`atualizar-kit-video`);
-//       when a recording starts a Vídeo (`novo-video`), as the Diretor records its Nível, Status,
-//       Gate and counters (`registrar-video`), when the Assistente de edição has measured the
-//       face on every frame (`zona-do-rosto`), when the Diretor checks whether a recording looks
-//       untrimmed (`pausas`), when the Criadora approved the cuts of a Pré-corte (`precorte`), when
-//       the Plano and its Quadros de estilo are checked (`plano`) and when she approves them at
-//       their Gate (`aprovar-plano`), or the Diretor approves a Gate her Autonomia leaves to him
-//       (`aprovar-automatico`); when she links Páginas Notion to a Projeto or Vídeo
-//       (`vincular-notion`), the Diretor records the Resumo Notion it read from them
-//       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
-//       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
-//       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); when the QC técnico holds
-//       a render against the Master (`qc`); when the Diretor records a turn of the three Críticos on a
-//       version, with its cost (`qc-interno`); when the Entrega is rendered and judged (`entregar`);
-//       after it, when she answered the Kit learnings and the Vídeo is archived (`arquivar`);
-//       and in Nível 2, when she approves the credit cost (`aprovar-creditos`) and before each
-//       Higgsfield generation is paid (`gastar-creditos`), and, only on her explicit request, when
-//       she approves a Higgsedit montage's cost (`aprovar-higgsedit`) and before each paid Higgsedit
-//       run (`gastar-higgsedit`).
+// WHEN  Skills run it at every session start (`estado`) and at each step of the Esteira that
+//       reads or writes a fact of the Estúdio folder. Which skill runs which subcommand is in
+//       that skill's SKILL.md; the subcommands themselves are listed once, in COMMANDS below.
 // HOW   node "<plugin root>/scripts/estudio.mjs" <command> "<folder>" [arguments…]
 //       The arguments each command takes are listed once, in COMMANDS below; run it with no
 //       arguments to print them all.
