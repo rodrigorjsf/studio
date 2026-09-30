@@ -367,3 +367,112 @@ test('uninstalling estudio deletes its plugin data folder, where the installer p
   assert.equal(removed.code, 0, removed.out);
   assert.equal(fs.existsSync(data), false, 'the downloaded runtimes must go with the plugin');
 });
+
+// ---- the Preparação's host list (spec #29, ticket #33) ----
+// plugin/estudio/hosts.json is the one list of every host the Preparação reaches, given to the
+// Criadora only when a download is blocked by her cloud workspace's domain allowlist. These
+// static checks keep it true: every URL the installers or the manifest use has its host in the
+// list, and no Hugging Face host is in it (the speech model comes from our own GitHub Release).
+const pluginDir = path.join(repoRoot, 'plugin', 'estudio');
+const readPlugin = (...parts) => fs.readFileSync(path.join(pluginDir, ...parts), 'utf8');
+
+const HUGGING_FACE = /(^|\.)(huggingface\.co|hf\.co)$/i;
+
+// Every literal https host in a text. A URL built from a variable (https://$host/) has no
+// literal host, so it is not a match; the hosts those scripts reach are measured instead.
+function urlHosts(text) {
+  return new Set([...text.matchAll(/https?:\/\/([a-z0-9][a-z0-9.-]*)/gi)].map((m) => m[1].toLowerCase()));
+}
+
+// The problems of one host list against the URLs that must be covered by it.
+function hostListProblems({ list, installers, manifest }) {
+  const listed = new Set(list.hosts.map((h) => h.host.toLowerCase()));
+  const problems = [];
+  for (const host of listed) {
+    if (HUGGING_FACE.test(host.replace(/^\*\./, ''))) problems.push(`the list holds the Hugging Face host ${host}`);
+  }
+  for (const [name, text] of Object.entries(installers)) {
+    for (const host of urlHosts(text)) {
+      if (!listed.has(host)) problems.push(`${name} reaches ${host}, which the list lacks`);
+    }
+  }
+  for (const source of manifest.sources) {
+    for (const file of source.files ?? []) {
+      for (const host of urlHosts(file.url ?? '')) {
+        if (!listed.has(host)) problems.push(`vendor.json ${source.id}/${file.name} uses ${host}, which the list lacks`);
+      }
+    }
+  }
+  return problems;
+}
+
+const hostList = JSON.parse(readPlugin('hosts.json'));
+const manifest = JSON.parse(readPlugin('vendor.json'));
+const installers = { 'instalar.sh': readPlugin('scripts', 'instalar.sh'), 'instalar.ps1': readPlugin('scripts', 'instalar.ps1') };
+
+test('every host the installers and the manifest use is in the Preparação host list, and none is Hugging Face', () => {
+  assert.deepEqual(hostListProblems({ list: hostList, installers, manifest }), []);
+});
+
+test('the host list holds every host the Preparação reaches, each backed by a measurement', () => {
+  const listed = hostList.hosts.map((h) => h.host);
+  for (const host of ['github.com', 'nodejs.org', 'ffmpeg.martin-riedl.de', 'pypi.org', 'files.pythonhosted.org', 'registry.npmjs.org']) {
+    assert.ok(listed.includes(host), `the list lacks ${host}`);
+  }
+  // GitHub Release downloads redirect to another host; the Criadora needs it as well as github.com.
+  assert.ok(listed.some((host) => host.endsWith('githubusercontent.com')), 'the list lacks the host GitHub Release downloads redirect to');
+  assert.equal(new Set(listed).size, listed.length, 'a host is listed twice');
+  assert.match(hostList.measured?.date ?? '', /^\d{4}-\d{2}-\d{2}$/, 'the list says when it was measured');
+  for (const entry of hostList.hosts) {
+    assert.ok(entry.usedFor?.trim(), `${entry.host} says what it is for`);
+    assert.equal(entry.evidence, 'verified', `${entry.host} is backed by a captured run`);
+  }
+});
+
+test('the host check fails on an installer URL whose host the list lacks', () => {
+  const problems = hostListProblems({
+    list: hostList,
+    installers: { 'instalar.sh': 'baixa "https://downloads.example.org/tool.tar.gz" "$TMP/tool"' },
+    manifest,
+  });
+  assert.deepEqual(problems, ['instalar.sh reaches downloads.example.org, which the list lacks']);
+});
+
+test('the host check fails on a manifest URL whose host the list lacks', () => {
+  const problems = hostListProblems({
+    list: hostList,
+    installers,
+    manifest: { sources: [{ id: 'speech-model', files: [{ name: 'model.bin', url: 'https://mirror.example.org/model.bin' }] }] },
+  });
+  assert.deepEqual(problems, ['vendor.json speech-model/model.bin uses mirror.example.org, which the list lacks']);
+});
+
+for (const host of ['huggingface.co', 'cdn-lfs.huggingface.co', 'cas-bridge.xethub.hf.co', '*.hf.co']) {
+  test(`the host check fails when the list holds the Hugging Face host ${host}`, () => {
+    const list = { hosts: [...hostList.hosts, { host, usedFor: 'x', evidence: 'verified' }] };
+    assert.deepEqual(hostListProblems({ list, installers, manifest }), [`the list holds the Hugging Face host ${host}`]);
+  });
+}
+
+// ---- the allowlist guidance for the Diretor (spec #29, ticket #33) ----
+const gettingStarted = readPlugin('skills', 'estudio', 'references', 'getting-started.md');
+const guidanceStart = gettingStarted.search(/^#+ .*blocked/im);
+// From the heading to the next heading of any level: the guidance and nothing after it.
+const guidance = guidanceStart < 0 ? gettingStarted : gettingStarted.slice(guidanceStart).split(/\n(?=#{1,4} )/)[0];
+
+test('the getting-started reference carries the allowlist guidance with both UI labels and the admin note', () => {
+  assert.notEqual(guidance, gettingStarted, 'a heading about a blocked download exists');
+  assert.match(guidance, /Settings → Capabilities/);
+  assert.match(guidance, /Configurações → Recursos/);
+  assert.match(guidance, /Team or Enterprise/);
+  assert.match(guidance, /only an admin/i);
+  assert.match(guidance, /Admin settings → Capabilities/);
+  assert.match(guidance, /hosts\.json/);
+});
+
+test('the guidance is given only after a Preparação download fails, never up front', () => {
+  assert.match(guidance, /only after a Preparação download (has )?fail/i);
+  assert.match(guidance, /never (up front|before)/i);
+  const skill = readPlugin('skills', 'estudio', 'SKILL.md');
+  assert.match(skill, /getting-started\.md#[^)\s]*blocked/, 'the Diretor skill points a failed step to the guidance');
+});

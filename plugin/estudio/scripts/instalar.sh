@@ -38,6 +38,9 @@ mkdir -p "$DADOS" && DADOS=$(cd "$DADOS" && pwd) || { echo "uso: pasta de dados 
 
 . "$AQUI/lib/ferramentas.sh"
 
+# Every host this script reaches (and the ones uv and npm reach for it) is in ../hosts.json,
+# the list the Diretor hands the Criadora when her cloud workspace blocks a download; a test
+# fails when a URL here uses a host that list lacks.
 # Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
 # ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
 # latest release), because neither host keeps a fixed per-version download link.

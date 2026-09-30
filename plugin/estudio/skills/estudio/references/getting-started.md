@@ -48,6 +48,23 @@ About **2 GB in all**, the figure the preparation question states. The model com
 - **If the model is missing when a transcription starts,** `transcrever.py` stops with exit 3 and writes nothing: it never downloads. Offer the Preparação again (it fetches only what is missing).
 - Nothing else is installed: no other plugin, marketplace or skill. What the studio needs from third-party skills ships inside the plugin (section 3).
 
+### If a Preparação download is blocked
+
+Some Criadoras run the studio in Claude's cloud workspace, where the domains a session may reach are an account setting, so a Preparação download can fail because the workspace does not let the session reach that address. On her own computer nothing is blocked.
+
+**Give this guidance only after a Preparação download has failed** (a step of `instalar.sh` or `instalar.ps1` ends with "Não consegui baixar…" and the internet itself works), **never up front**: on her own Mac or PC she must not read instructions she does not need, and do not describe the setting while the Preparação is running fine.
+
+When it fails, tell her in plain pt-BR, in **one message with the whole list** (so she does not come back three times):
+
+1. Open Claude (claude.ai or the app) → **Settings → Capabilities** (pt-BR screen: **Configurações → Recursos**).
+2. Find the network access section, the one about the domains Claude may reach ("Acesso à rede" / allowed domains).
+3. Add every host in the plugin's `hosts.json` (`${CLAUDE_PLUGIN_ROOT}/hosts.json`, the `hosts` list; each entry says in English what it is for, say it in a few plain pt-BR words). Do not shorten the list to the host that failed: the next step would need another one.
+4. Come back and say "tenta de novo". Run the failed step again: what was already downloaded and verified is kept.
+
+**On a Team or Enterprise plan only an admin can change this list**, in **Admin settings → Capabilities**. Tell her she cannot see the setting herself, and give her the message to send: the admin adds the hosts from the list, in the same place. Then wait; do not try workarounds.
+
+The list has no Hugging Face host: the speech model comes from this repository's own GitHub Release (see *the speech model* above), so transcribing never needs one. If a session asks her to allow a Hugging Face address, something in the plugin is wrong; do not ask her to add it.
+
 ## 3. What ships inside the plugin
 
 The plugin carries what the studio needs from two third-party skills, one to watch videos and one with Remotion best practices, so the Criadora installs only `estudio`:

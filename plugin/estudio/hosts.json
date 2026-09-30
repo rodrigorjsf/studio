@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "note": "Every host the Preparação reaches, in one list. The Diretor gives it to the Criadora only after a Preparação download fails because her Claude cloud workspace blocks the host (see skills/estudio/references/getting-started.md). No Hugging Face host is here on purpose: the speech model is served from this repository's own GitHub Release. The repo's tests fail when an installer URL or a vendor.json URL uses a host missing from this list, and when a Hugging Face host is added. GitHub, PyPI and uv change their redirect and download hosts over time: measure again on a real Preparação before editing.",
+  "measured": {
+    "date": "2026-09-30",
+    "method": "A real Preparação (instalar.sh ffmpeg, python, remotion, on Linux) run with HTTPS_PROXY pointing at a logging CONNECT proxy that prints every host a client opens; the Location header of a GitHub Release download read with curl -sIL; the URLs of the node and macOS ffmpeg steps requested through the same proxy.",
+    "redirect": "GitHub Release download: github.com answers 302 with Location: https://release-assets.githubusercontent.com/github-production-release-asset/... (captured for astral-sh/uv, the same path form as this repository's model Release, which is not published yet). martin-riedl: /redirect/latest/... answers with a redirect to /download/macos/arm64/<build>/ffmpeg.zip on the same host."
+  },
+  "hosts": [
+    {
+      "host": "github.com",
+      "usedFor": "The speech model (this repository's GitHub Release), ffmpeg on Linux and Windows (BtbN builds) and uv.",
+      "evidence": "verified"
+    },
+    {
+      "host": "release-assets.githubusercontent.com",
+      "usedFor": "Where every GitHub Release download redirects to, so where the bytes of the speech model, ffmpeg and uv come from.",
+      "evidence": "verified"
+    },
+    {
+      "host": "nodejs.org",
+      "usedFor": "Portable Node.",
+      "evidence": "verified"
+    },
+    {
+      "host": "ffmpeg.martin-riedl.de",
+      "usedFor": "ffmpeg and ffprobe on macOS.",
+      "evidence": "verified"
+    },
+    {
+      "host": "releases.astral.sh",
+      "usedFor": "The Python interpreter uv downloads.",
+      "evidence": "verified"
+    },
+    {
+      "host": "pypi.org",
+      "usedFor": "The package index uv reads to install faster-whisper.",
+      "evidence": "verified"
+    },
+    {
+      "host": "files.pythonhosted.org",
+      "usedFor": "Where the faster-whisper packages are downloaded from.",
+      "evidence": "verified"
+    },
+    {
+      "host": "registry.npmjs.org",
+      "usedFor": "The Remotion dependencies (npm install).",
+      "evidence": "verified"
+    }
+  ]
+}
