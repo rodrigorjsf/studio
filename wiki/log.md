@@ -91,3 +91,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Speech model mirror script and manifest entry (#31)
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Esteira actors, call-chain diagram and Gates table documented once in the README, personas page links to it (ticket #36)
+Pages: entities/studio-personas.md, overview.md, index.md.
