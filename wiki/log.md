@@ -76,3 +76,6 @@ Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, concepts/bran
 
 ## [2026-09-30] update | Repo cleanup and install guide: agent colors, upstream-leftover check, README hub, developer guide (ticket #18)
 Pages: concepts/plugin-architecture.md, overview.md, index.md.
+
+## [2026-09-30] update | Index lines re-dated to their pages' frontmatter (review round 1)
+Pages: index.md.

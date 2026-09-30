@@ -20,9 +20,9 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 ## Concepts
 
 - [Approval gate](concepts/approval-gate.md) — one gate primitive: maker, internal critic, consolidated notes, decision, round counter; review Rodadas in versioned folders; credit Gate and ~20% stop (updated 2026-09-30)
-- [Brand kit per front](concepts/brand-kit-per-front.md) — persisted, enforced identity per creator front under marcas/<front>/ (updated 2026-09-29)
+- [Brand kit per front](concepts/brand-kit-per-front.md) — persisted, enforced identity per Projeto, built as projetos/<projeto>/kit.json (updated 2026-09-30)
 - [Grilling catalogue](concepts/grilling-catalogue.md) — brand vs per-video interview topics translated under locked-final-cut (updated 2026-09-29)
-- [Notion context](concepts/notion-context.md) — read-only Páginas Notion per Projeto/Vídeo, Resumo Notion, Kit wins (updated 2026-09-29)
+- [Notion context](concepts/notion-context.md) — read-only Páginas Notion per Projeto/Vídeo, Resumo Notion, Kit wins (updated 2026-09-30)
 - [Picture lock](concepts/picture-lock.md) — the seam between creative loop and finishing; the Pré-corte cuts once, then the Master locks (updated 2026-09-30)
 - [Plugin architecture](concepts/plugin-architecture.md) — director entry skill, subagents between gates, data locations, surfaces, Pré-corte, build/review/Entrega, technical QC, Nível 2 credits and generated assets, agent colors and the upstream-leftover check (updated 2026-09-30)
 - [Short-form 9:16 rules](concepts/short-form-9x16.md) — 1080×1920 primary, 3 s hook, ~900×1400 safe box, evidence tiers (updated 2026-09-29)
