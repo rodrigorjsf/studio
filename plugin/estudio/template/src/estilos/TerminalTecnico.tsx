@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {CameraFalsa, clamp, useEntrada} from './_comum';
+import {FakeCamera, clamp, useEntrance} from './_comum';
 
 // Estilo "terminal técnico" (16:9): grade fina, fonte mono, texto digitado em tempo real.
 // Layout: conteúdo em tela cheia com a câmera num card (picture-in-picture) no canto direito.
@@ -27,8 +27,8 @@ const Linha: React.FC<(typeof linhas)[number]> = ({t, cor, em}) => {
 };
 
 export const TerminalTecnico: React.FC = () => {
-  const card = useEntrada(0.2, 0.9);
-  const janela = useEntrada(0, 0.5);
+  const card = useEntrance(0.2, 0.9);
+  const janela = useEntrance(0, 0.5);
 
   return (
     <AbsoluteFill style={{background: COR.fundo, fontFamily: MONO}}>
@@ -62,7 +62,7 @@ export const TerminalTecnico: React.FC = () => {
           opacity: card, transform: `translateY(${(1 - card) * 60}px)`,
         }}
       >
-        <CameraFalsa fundo="#1d2b27" cor="#35514a" />
+        <FakeCamera fundo="#1d2b27" cor="#35514a" />
       </div>
     </AbsoluteFill>
   );

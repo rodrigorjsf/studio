@@ -54,8 +54,8 @@ export const Gerado: React.FC<{projeto: string; video: string; arquivo: string; 
   projeto, video, arquivo, style,
 }) => {
   const src = videoFile(projeto, video, arquivo);
-  const estilo: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover', ...style};
-  return <AbsoluteFill>{CLIP_FILE.test(arquivo) ? <Video src={src} muted objectFit="cover" style={estilo} /> : <Img src={src} style={estilo} />}</AbsoluteFill>;
+  const mediaStyle: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover', ...style};
+  return <AbsoluteFill>{CLIP_FILE.test(arquivo) ? <Video src={src} muted objectFit="cover" style={mediaStyle} /> : <Img src={src} style={mediaStyle} />}</AbsoluteFill>;
 };
 
 export const Edicao: React.FC<EdicaoProps & {children?: React.ReactNode}> = ({

@@ -8,8 +8,8 @@ import {projectFile, DEFAULT_KIT, KitProps, scaleToFrame} from '../_shared/kit';
 import {fontStyle, KitCaptions, Word, useKitEntrance, useKitFonts} from '../_shared/marca';
 
 // Sample copy only (pt-BR, what she reads on the preview). Brand values come from the Kit.
-const TITULO = 'Seu título aqui';
-const TEXTO = 'Assim fica o texto dos seus vídeos.';
+const SAMPLE_TITLE = 'Seu título aqui';
+const SAMPLE_TEXT = 'Assim fica o texto dos seus vídeos.';
 const FALA: Word[] = ['Assim', 'ficam', 'as', 'legendas', 'do', 'seu', 'vídeo'].map((texto, i) => ({
   texto,
   inicio: 0.2 + i * 0.3,
@@ -33,11 +33,11 @@ export const PreviaDoKit: React.FC<KitProps> = ({projeto, kit = DEFAULT_KIT}) =>
       >
         {logo ? <Img src={projectFile(projeto, logo)} style={{height: px(120), objectFit: 'contain', alignSelf: 'flex-start'}} /> : null}
         <div style={{...fontStyle(tipografia.titulo), fontSize: px(tipografia.escala.titulo), color: cores.primaria, lineHeight: 1.05}}>
-          {TITULO}
+          {SAMPLE_TITLE}
         </div>
         <div style={{width: px(160), height: px(14), background: cores.destaque}} />
         <div style={{...fontStyle(tipografia.texto), fontSize: px(tipografia.escala.corpo), color: cores.texto, lineHeight: 1.3}}>
-          {TEXTO}
+          {SAMPLE_TEXT}
         </div>
       </AbsoluteFill>
       <KitCaptions kit={kit} palavras={FALA} />
