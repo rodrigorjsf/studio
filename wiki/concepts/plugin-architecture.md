@@ -62,7 +62,7 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 
 ## Built: Plano and Quadros de estilo (ticket #10)
 
-- Skill `plugin/estudio/skills/plano/SKILL.md` (off her menu, `user-invocable: false`; the Diretor routes to it): for a Vídeo in `Planejamento`, the Diretor has the Roteirista-estrategista draft the Plano, checks it, has the Diretor de arte render the Quadros de estilo, and holds the Gate. The Plano and the Quadros share one Gate when the Kit defines the style (no empty look text field of the Kit; `som.*` does not count). Otherwise the Plano has its own Gate and the Quadros a second one. Her requests go to `pedidosDela` and win over the repertoire.
+- Skill `plugin/estudio/skills/plano/SKILL.md` (off her menu, `user-invocable: false`; the Diretor routes to it): for a Vídeo in `Planejamento`, the Diretor has the Roteirista-estrategista draft the Plano, checks it, has the Guardião da marca and the Revisor de plataforma review it (three internal turns at most, then one escalation question), has the Diretor de arte render the Quadros de estilo, which the same two Críticos review, and holds the Gate. The Plano and the Quadros share one Gate when the Kit defines the style (no empty look text field of the Kit; `som.*` does not count). Otherwise the Plano has its own Gate and the Quadros a second one. Her requests go to `pedidosDela` and win over the repertoire.
 - Plano file `videos/<vídeo>/plano.json`, schema in `plugin/estudio/scripts/lib/plano.mjs`. It holds:
   - `tempoEstimadoMin`, plus `creditosEstimados` for Nível 2;
   - 2–3 `direcoes`, exactly one of them `recomendada`;

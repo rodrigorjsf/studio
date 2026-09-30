@@ -82,3 +82,6 @@ Pages: index.md.
 
 ## [2026-09-30] update | plano and edicao skills kept off her menu (user-invocable: false), review round 1
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | The Plano gets its own Crítico review before her Gate, review round 1
+Pages: concepts/plugin-architecture.md.
