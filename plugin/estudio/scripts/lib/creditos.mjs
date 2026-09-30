@@ -16,10 +16,12 @@ import { GERADOS, GERADOS_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT } from './l
 import { findVideo, updateVideoRecord } from './video.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
-export const MARGEM = 0.2;
+const MARGEM = 0.2;
 const isCredits = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
-export const limiteDe = (estimados) => Math.round(estimados * (1 + MARGEM) * 100) / 100;
+// Credits are kept to the cent: quoted costs such as 1.75 per second add up without float noise.
+const toCents = (v) => Math.round(v * 100) / 100;
+const limiteDe = (estimados) => toCents(estimados * (1 + MARGEM));
 
 function readJson(file) {
   try {
@@ -30,7 +32,7 @@ function readJson(file) {
 }
 
 // The JSON input of a command, checked against the keys it accepts (nothing else is written).
-export function readInput(text, accepted, required) {
+function readInput(text, accepted, required) {
   let input;
   try {
     input = JSON.parse(text);
@@ -46,7 +48,7 @@ export function readInput(text, accepted, required) {
 }
 
 // The Vídeo, its record and its Kit (its own Kit snapshot when it has one), or the refusal.
-export function creditVideo(folder, projetoNome, videoNome) {
+function creditVideo(folder, projetoNome, videoNome) {
   const found = findVideo(folder, projetoNome, videoNome);
   if (found.refusal) return found;
   const { projeto, video, dir } = found;
@@ -102,21 +104,25 @@ export function aprovarCreditos(folder, projetoNome, videoNome, inputText) {
   // After a stop, she approves a new total estimate, never below what was already spent; her
   // balance must cover what is still to be spent.
   const gastos = isCredits(record.creditosGastos) ? record.creditosGastos : 0;
-  if (creditosEstimados < gastos) return refuse('abaixo-do-gasto', { creditosEstimados, creditosGastos: gastos });
+  if (creditosEstimados < gastos) return refuse('below-spent', { creditosEstimados, creditosGastos: gastos });
   const { saldo } = input;
-  if (saldo < creditosEstimados - gastos) return refuse('saldo-insuficiente', { saldo, creditosEstimados, creditosGastos: gastos });
+  if (saldo < creditosEstimados - gastos) return refuse('insufficient-balance', { saldo, creditosEstimados, creditosGastos: gastos });
   const orcamento = { porVideo: kit?.creditos?.porVideo ?? null, porMes: kit?.creditos?.porMes ?? null };
   const doMes = orcamento.porMes === null ? 0 : approvedThisMonth(path.join(dir, '..'), path.basename(dir));
   if ((orcamento.porVideo !== null && creditosEstimados > orcamento.porVideo)
     || (orcamento.porMes !== null && doMes + creditosEstimados > orcamento.porMes)) {
-    return refuse('acima-do-orcamento', { creditosEstimados, orcamento, aprovadosNoMes: doMes });
+    return refuse('over-budget', { creditosEstimados, orcamento, aprovadosNoMes: doMes });
   }
 
   const { data, message } = updateVideoRecord(dir, (current) => {
     current.creditosEstimados = creditosEstimados;
     current.creditosGastos = gastos;
     current.creditosAprovadosEm = new Date().toISOString();
-    current.gate = null;
+    // It closes only the Gate its own stop opened, never another Gate of hers still open.
+    if (current.creditosParadosEm) {
+      current.gate = null;
+      delete current.creditosParadosEm;
+    }
     current.gates = (current.gates ?? 0) + 1;
   });
   if (!data) return refuse('invalid-document', { message });
@@ -159,27 +165,31 @@ export function gastarCreditos(folder, projetoNome, videoNome, inputText) {
   if (found.refusal) return { authorized: false, ...found.refusal };
   const { projeto, video, dir, record } = found;
   const refuse = (reason, extra = {}) => ({ authorized: false, reason, projeto, video, ...extra });
-  if (!record.creditosAprovadosEm || !isCredits(record.creditosEstimados)) return refuse('sem-aprovacao');
-  // Stopped after an overrun (or any Gate she has not answered): nothing more until she decides.
-  if (record.gate === 'aberto') return refuse('aguardando-aprovacao');
-  if (!FORBIDS_TEXT.test(input.prompt)) return refuse('prompt-permite-texto');
+  if (!record.creditosAprovadosEm || !isCredits(record.creditosEstimados)) return refuse('no-credit-approval');
+  // Stopped after an overrun, or any Gate she has not answered: nothing more until she decides.
+  // Only her new credit approval lifts the stop; closing the Gate by hand does not.
+  if (record.creditosParadosEm || record.gate === 'aberto') return refuse('awaiting-approval');
+  if (!FORBIDS_TEXT.test(input.prompt)) return refuse('prompt-allows-text');
   const { creditos, saldo } = input;
-  if (saldo < creditos) return refuse('saldo-insuficiente', { saldo, creditos });
+  if (saldo < creditos) return refuse('insufficient-balance', { saldo, creditos });
 
   const ledgerFile = path.join(dir, ...GERADOS_REGISTRO.split('/'));
   const ledger = readJson(ledgerFile) ?? [];
   const arquivo = nfc(input.arquivo);
-  if (ledger.some((entry) => entry.arquivo === arquivo)) return refuse('arquivo-repetido', { arquivo });
+  if (ledger.some((entry) => entry.arquivo === arquivo)) return refuse('duplicate-file', { arquivo });
   const gastos = record.creditosGastos ?? 0;
   const limite = limiteDe(record.creditosEstimados);
   if (gastos + creditos > limite + 1e-9) {
-    const { data, message } = updateVideoRecord(dir, (current) => { current.gate = 'aberto'; });
+    const { data, message } = updateVideoRecord(dir, (current) => {
+      current.gate = 'aberto';
+      current.creditosParadosEm = new Date().toISOString();
+    });
     if (!data) return refuse('invalid-document', { message });
-    return refuse('acima-do-limite', { creditos, creditosGastos: gastos, creditosEstimados: record.creditosEstimados, limite });
+    return refuse('over-limit', { creditos, creditosGastos: gastos, creditosEstimados: record.creditosEstimados, limite });
   }
 
   const { data, message } = updateVideoRecord(dir, (current) => {
-    current.creditosGastos = Math.round((gastos + creditos) * 100) / 100;
+    current.creditosGastos = toCents(gastos + creditos);
   });
   if (!data) return refuse('invalid-document', { message });
   fs.mkdirSync(path.join(dir, GERADOS), { recursive: true });
@@ -194,6 +204,6 @@ export function gastarCreditos(folder, projetoNome, videoNome, inputText) {
     creditosGastos: data.creditosGastos,
     creditosEstimados: record.creditosEstimados,
     limite,
-    restante: Math.round((limite - data.creditosGastos) * 100) / 100,
+    restante: toCents(limite - data.creditosGastos),
   };
 }

@@ -48,6 +48,7 @@ const VIDEO_RECORD = [
   ['creditosEstimados', credits, 'must be a number of credits, 0 or more'],
   ['creditosGastos', credits, 'must be a number of credits, 0 or more'],
   ['creditosAprovadosEm', isoDate, 'must be a date (ISO)'],
+  ['creditosParadosEm', isoDate, 'must be a date (ISO)'],
   ['iniciadoEm', isoDate, 'must be a date (ISO)'],
   ['entregueEm', isoDate, 'must be a date (ISO)'],
 ];

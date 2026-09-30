@@ -90,7 +90,7 @@ test('a balance below the estimate is refused before anything is spent, and noth
   const { dir, video } = videoNivel2({ estimados: 100 });
   const out = aprovar(dir, { saldo: 99 });
   assert.equal(out.approved, false);
-  assert.equal(out.reason, 'saldo-insuficiente');
+  assert.equal(out.reason, 'insufficient-balance');
   assert.equal(out.saldo, 99);
   assert.equal(out.creditosEstimados, 100);
   const record = registro(video);
@@ -110,7 +110,7 @@ test('an estimate above the Kit\'s budget per Vídeo is refused: she set it so s
   const { dir, video } = videoNivel2({ estimados: 100, creditos: { porVideo: 80, porMes: null } });
   const out = aprovar(dir, { saldo: 500 });
   assert.equal(out.approved, false);
-  assert.equal(out.reason, 'acima-do-orcamento');
+  assert.equal(out.reason, 'over-budget');
   assert.deepEqual(out.orcamento, { porVideo: 80, porMes: null });
   assert.equal(registro(video).creditosAprovadosEm, undefined);
   assert.equal(aprovar(videoNivel2({ estimados: 80, creditos: { porVideo: 80, porMes: null } }).dir, { saldo: 500 }).approved, true);
@@ -126,7 +126,7 @@ test('the monthly budget counts the credits her other Vídeos of the Projeto wer
     `---\nstatus: Entregue\nnivel: 2\ncreditosEstimados: 50\ncreditosGastos: 45\ncreditosAprovadosEm: ${agora}\n---\n# Outro vídeo\n`);
   const out = aprovar(dir, { saldo: 500 });
   assert.equal(out.approved, false);
-  assert.equal(out.reason, 'acima-do-orcamento');
+  assert.equal(out.reason, 'over-budget');
   assert.equal(aprovar(dir, { saldo: 500, creditosEstimados: 50 }).approved, true);
 });
 
@@ -140,7 +140,7 @@ test('nothing is generated before her credit Gate', () => {
   const { dir, video } = videoNivel2();
   const out = gastar(dir, geracao('gerados/01_timer.png', 2));
   assert.equal(out.authorized, false);
-  assert.equal(out.reason, 'sem-aprovacao');
+  assert.equal(out.reason, 'no-credit-approval');
   assert.equal(registro(video).creditosGastos, 0);
   assert.equal(fs.existsSync(path.join(video, 'gerados', 'gerados.json')), false);
 });
@@ -169,7 +169,7 @@ test('the balance is read again before each generation: one it does not cover is
   aprovar(dir, { saldo: 500 });
   const out = gastar(dir, geracao('gerados/01_timer.png', 30, 29));
   assert.equal(out.authorized, false);
-  assert.equal(out.reason, 'saldo-insuficiente');
+  assert.equal(out.reason, 'insufficient-balance');
   assert.equal(registro(video).creditosGastos, 0);
 });
 
@@ -178,7 +178,7 @@ test('a prompt that does not forbid text in the image is refused: all text goes 
   aprovar(dir, { saldo: 500 });
   const out = gastar(dir, geracao('gerados/01_timer.png', 2, 500, 'A poster that says "Promoção" in big letters.'));
   assert.equal(out.authorized, false);
-  assert.equal(out.reason, 'prompt-permite-texto');
+  assert.equal(out.reason, 'prompt-allows-text');
   assert.equal(gastar(dir, geracao('gerados/01_timer.png', 2, 500, 'Um timer de papel. Sem texto, sem letras.')).authorized, true);
   assert.equal(registro(video).creditosGastos, 2);
 });
@@ -190,17 +190,17 @@ test('spending up to ~20% over the estimate goes on; the generation that would p
   assert.equal(gastar(dir, geracao('gerados/02_refeito.png', 20)).authorized, true);
   const out = gastar(dir, geracao('gerados/03_broll.mp4', 1));
   assert.equal(out.authorized, false);
-  assert.equal(out.reason, 'acima-do-limite');
+  assert.equal(out.reason, 'over-limit');
   assert.equal(out.creditosGastos, 120);
   assert.equal(out.limite, 120);
   assert.equal(registro(video).creditosGastos, 120);
   // Stopped: the Vídeo waits for her, and even a small generation waits for her new approval.
   const noEstado = run('estado', dir).out.projetos[0].videos[0];
   assert.equal(noEstado.waitingForCriadora, true);
-  assert.equal(gastar(dir, geracao('gerados/03_broll.mp4', 0.5)).reason, 'aguardando-aprovacao');
+  assert.equal(gastar(dir, geracao('gerados/03_broll.mp4', 0.5)).reason, 'awaiting-approval');
 
   // She approves a new estimate, never below what was already spent; the work goes on.
-  assert.equal(aprovar(dir, { saldo: 380, creditosEstimados: 110 }).reason, 'abaixo-do-gasto');
+  assert.equal(aprovar(dir, { saldo: 380, creditosEstimados: 110 }).reason, 'below-spent');
   const nova = aprovar(dir, { saldo: 380, creditosEstimados: 150 });
   assert.equal(nova.approved, true);
   assert.equal(nova.creditosGastos, 120);
@@ -210,7 +210,7 @@ test('spending up to ~20% over the estimate goes on; the generation that would p
 test('an estimate of zero credits lets nothing be spent', () => {
   const { dir } = videoNivel2({ estimados: 0 });
   assert.equal(aprovar(dir, { saldo: 0 }).approved, true);
-  assert.equal(gastar(dir, geracao('gerados/01_timer.png', 1)).reason, 'acima-do-limite');
+  assert.equal(gastar(dir, geracao('gerados/01_timer.png', 1)).reason, 'over-limit');
 });
 
 test('only the generation\'s own fields are written: a secret or any other key is refused unwritten', () => {
@@ -231,7 +231,7 @@ test('each generated file has its own name inside the Vídeo\'s gerados folder, 
     assert.equal(gastar(dir, geracao(arquivo, 2)).reason, 'invalid-input', arquivo);
   }
   assert.equal(gastar(dir, geracao('gerados/01_timer.png', 2)).authorized, true);
-  assert.equal(gastar(dir, geracao('gerados/01_timer.png', 2)).reason, 'arquivo-repetido');
+  assert.equal(gastar(dir, geracao('gerados/01_timer.png', 2)).reason, 'duplicate-file');
 });
 
 test('estado holds the credit Gate\'s date to the Vídeo document\'s schema', () => {
@@ -240,4 +240,20 @@ test('estado holds the credit Gate\'s date to the Vídeo document\'s schema', ()
   fs.writeFileSync(doc, fs.readFileSync(doc, 'utf8').replace('creditosGastos: 0', 'creditosGastos: 0\ncreditosAprovadosEm: ontem'));
   const { errors } = run('estado', dir).out;
   assert.deepEqual(errors.map((e) => e.message), ['creditosAprovadosEm "ontem" must be a date (ISO)']);
+});
+
+test('after a stop, only her new credit approval lets generation go on, and it closes no other Gate', () => {
+  const { dir, video } = videoNivel2({ estimados: 10 });
+  // Another Gate of hers is open (the Quadros'): approving the credits leaves it open.
+  run('registrar-video', dir, PROJETO, VIDEO, '{"gate": "aberto"}');
+  assert.equal(aprovar(dir, { saldo: 500 }).approved, true);
+  assert.equal(registro(video).gate, 'aberto');
+  run('registrar-video', dir, PROJETO, VIDEO, '{"gate": null}');
+
+  assert.equal(gastar(dir, geracao('gerados/01_fundo.png', 13)).reason, 'over-limit');
+  // Closing the Gate by hand ("go on without the missing imagery") does not reopen the spending.
+  run('registrar-video', dir, PROJETO, VIDEO, '{"gate": null}');
+  assert.equal(gastar(dir, geracao('gerados/01_fundo.png', 1)).reason, 'awaiting-approval');
+  assert.equal(aprovar(dir, { saldo: 500, creditosEstimados: 20 }).approved, true);
+  assert.equal(gastar(dir, geracao('gerados/01_fundo.png', 1)).authorized, true);
 });

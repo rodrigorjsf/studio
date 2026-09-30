@@ -65,19 +65,21 @@ At the Plano's Gate the Diretor reads her **balance** (`balance`) and shows it n
 "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" aprovar-creditos "." "<projeto>" "<nome do vídeo>" '{"saldo": <balance>}'
 ```
 
-It refuses, changing nothing: `saldo-insuficiente` (her balance does not cover the estimate), `acima-do-orcamento` (over the Kit's budget per Vídeo, or per month counting the Projeto's other Vídeos approved this month), `plano-not-approved`, `not-nivel-2`. Autonomia never approves credits for her.
+It refuses, changing nothing: `insufficient-balance` (her balance does not cover the estimate), `over-budget` (over the Kit's budget per Vídeo, or per month counting the Projeto's other Vídeos approved this month), `plano-not-approved`, `not-nivel-2`. Autonomia never approves credits for her.
 
 ### The images and clips are generated
 The **Artista generativo** (the `artista-generativo` agent) generates them before the Motion designer builds. Before paying for each one it reads her balance and clears it with `gastar-creditos` (the file, the quoted cost, the balance, the model and the prompt):
 
 - the prompt must forbid text in the image (`no text` or `sem texto`): **generated images and clips carry no text**; every word is drawn at the montage;
 - her balance must cover it;
-- the credits spent must stay within the approved estimate plus **~20%** (`limite`). The generation that would pass it is refused (`acima-do-limite`): **the work stops**, the Vídeo waits for her (`estado` shows it), and nothing more is generated until she approves a new estimate, never below what was already spent (`aprovar-creditos` with `"creditosEstimados"`).
+- the credits spent must stay within the approved estimate plus **~20%** (`limite`). The generation that would pass it is refused (`over-limit`): **the work stops**, the Vídeo waits for her (`estado` shows it), and nothing more is generated until she approves a new estimate, never below what was already spent (`aprovar-creditos` with `"creditosEstimados"`).
 
 Images first, in batch, then animate them into clips (sound off). The results are downloaded into the Vídeo's `gerados/` folder. The Motion designer shows them in the edit with `<Gerado>` from the template's `src/_shared/edicao.tsx` (a clip is always muted: her original audio stays the only sound).
 
 ### Higgsedit, only on request
-Higgsedit, Higgsfield's own cloud editor, is **not** used to assemble the edit. When she explicitly asks for an effect only Higgsedit has, say what it is and what it costs, and treat it as a scope change with its own credit Gate (`aprovar-creditos` with the new total estimate) before anything runs.
+Higgsedit, Higgsfield's own cloud editor, is **not** used to assemble the edit. When she explicitly asks for an effect only Higgsedit has, it is a scope change with its own cost approval before anything runs.
+
+*Pending: Higgsedit on request arrives in ticket #16.*
 
 ## 4. Reference models and costs
 
@@ -150,6 +152,6 @@ Generate the images directly in 9:16 (do not crop from 16:9). Keep the main subj
 - [ ] `palavras.json` generated and checked
 - [ ] her guidance reflected in the Plano, with `creditosEstimados`
 - [ ] her balance read and the cost approved (`aprovar-creditos`) before generating
-- [ ] every generation cleared by `gastar-creditos`; stopped at `acima-do-limite`
+- [ ] every generation cleared by `gastar-creditos`; stopped at `over-limit`
 - [ ] images and clips without text, saved in `gerados/`, redone when not legible
 - [ ] the edit assembled in Remotion with `<Gerado>`, then reviewed and delivered as in Nível 1

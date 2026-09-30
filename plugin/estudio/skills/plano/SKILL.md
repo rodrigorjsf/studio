@@ -86,7 +86,7 @@ With `gate: "unico"`, first have the Quadros rendered (step 5, "The Quadros are 
      "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" aprovar-creditos "." "<projeto>" "<nome do vídeo>" '{"saldo": <balance>}'
      ```
 
-     It records the estimate and counts the Gate. It refuses, changing nothing: `saldo-insuficiente` (tell her how many credits are missing; she tops up or the Roteirista cuts generated scenes), `acima-do-orcamento` (over her Kit's budget per Vídeo or per month: the Roteirista cuts, or she raises the budget with `/estudio:editar-projeto`). **Autonomia never approves credits for her.** Details: [level-2-higgsfield.md](../estudio/references/level-2-higgsfield.md#the-credit-gate-approval-point).
+     It records the estimate and counts the Gate. It refuses, changing nothing: `insufficient-balance` (tell her how many credits are missing; she tops up or the Roteirista cuts generated scenes), `over-budget` (over her Kit's budget per Vídeo or per month: the Roteirista cuts, or she raises the budget with `/estudio:editar-projeto`). **Autonomia never approves credits for her.** Details: [level-2-higgsfield.md](../estudio/references/level-2-higgsfield.md#the-credit-gate-approval-point).
    - *another direction* or *changes*: hand her notes, consolidated into one list, back to the Roteirista (step 2), then check again (step 3) and hold the Gate again. When a change is a new idea rather than a fix (a new concept, new footage, another version), tell her so in one sentence: it costs more time.
    - Record what she asked for in her own words: the Roteirista adds it to `pedidosDela`. Her request wins over the editorial repertoire, always.
 

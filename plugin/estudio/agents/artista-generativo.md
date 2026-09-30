@@ -43,12 +43,12 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
    ```
 
    Generate only on `"authorized": true`, with exactly that model and prompt. Any refusal changes nothing and is final for this run:
-   - `acima-do-limite`: this generation would take the spending past the approved estimate plus ~20%. **Stop all generation** and report what is done and what is still missing, with its cost. The Vídeo now waits for her new approval.
-   - `aguardando-aprovacao`: the Vídeo already waits for her decision. Stop and report.
-   - `saldo-insuficiente`: her balance does not cover it. Stop and report.
-   - `prompt-permite-texto`: the prompt lacks the no-text clause. Add it and clear it again.
-   - `arquivo-repetido`: that file was already paid for. Use a new name for a redo (`03_broll_v2.mp4`).
-   - `sem-aprovacao`, `invalid-input`: stop and report the message word for word.
+   - `over-limit`: this generation would take the spending past the approved estimate plus ~20%. **Stop all generation** and report what is done and what is still missing, with its cost. The Vídeo now waits for her new approval.
+   - `awaiting-approval`: the Vídeo already waits for her decision. Stop and report.
+   - `insufficient-balance`: her balance does not cover it. Stop and report.
+   - `prompt-allows-text`: the prompt lacks the no-text clause. Add it and clear it again.
+   - `duplicate-file`: that file was already paid for. Use a new name for a redo (`03_broll_v2.mp4`).
+   - `no-credit-approval`, `invalid-input`: stop and report the message word for word.
 4. **Generate**: images first, in batch; then animate the approved images into clips (sound off, `generate_audio: false` where the model has it). Wait for the jobs.
 5. **Download** each result to `destino` from the authorization, with the program from the computer check:
 
