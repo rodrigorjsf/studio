@@ -28,7 +28,9 @@ if ($Passo -notin @('node', 'ffmpeg', 'python', 'remotion', 'tudo') -or -not $Da
 }
 . (Join-Path $PSScriptRoot 'lib\ferramentas.ps1')
 
-# Pinned versions: a re-run months later installs the same, tested programs.
+# Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
+# ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
+# latest release), because neither host keeps a fixed per-version download link.
 $NodeVersao = 'v22.23.3'
 $UvVersao = '0.12.21'
 $PythonVersao = '3.12'

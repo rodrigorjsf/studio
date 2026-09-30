@@ -27,31 +27,27 @@ no_path() {
   command -v "$1" 2>/dev/null || true
 }
 
+SISTEMA=$(uname -s)
+
+# acha <version flag> <candidate>…: prints the first candidate that works, or nothing.
+acha() {
+  flag=$1; shift
+  for candidato in "$@"; do
+    if funciona "$candidato" "$flag"; then echo "$candidato"; return; fi
+  done
+}
+
 # Each acha_* prints the path of a working program (portable first, then the computer's
 # own) or nothing.
-acha_node() {
-  for candidato in "$NODE_PORTATIL" "$(no_path node)"; do
-    if funciona "$candidato" --version; then echo "$candidato"; return; fi
-  done
-}
-
-acha_ffmpeg() {
-  for candidato in "$FFMPEG_PORTATIL" "$(no_path ffmpeg)"; do
-    if funciona "$candidato" -version; then echo "$candidato"; return; fi
-  done
-}
-
-acha_ffprobe() {
-  for candidato in "$FFPROBE_PORTATIL" "$(no_path ffprobe)"; do
-    if funciona "$candidato" -version; then echo "$candidato"; return; fi
-  done
-}
+acha_node() { acha --version "$NODE_PORTATIL" "$(no_path node)"; }
+acha_ffmpeg() { acha -version "$FFMPEG_PORTATIL" "$(no_path ffmpeg)"; }
+acha_ffprobe() { acha -version "$FFPROBE_PORTATIL" "$(no_path ffprobe)"; }
 
 # Python counts only with faster-whisper installed. On macOS /usr/bin/python3 is a stub
 # that opens a system window offering the developer tools, so it is never touched.
 acha_python() {
   for candidato in "$PYTHON_PORTATIL" "$(no_path python3)" "$(no_path python)"; do
-    if [ "$(uname -s)" = Darwin ] && [ "$candidato" = /usr/bin/python3 ]; then continue; fi
+    if [ "$SISTEMA" = Darwin ] && [ "$candidato" = /usr/bin/python3 ]; then continue; fi
     if funciona "$candidato" -c 'import importlib.util, sys; sys.exit(importlib.util.find_spec("faster_whisper") is None)'; then
       echo "$candidato"; return
     fi

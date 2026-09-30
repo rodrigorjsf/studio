@@ -148,22 +148,24 @@ test('a folder that is not an Estúdio yet does not report the Remotion dependen
 
 // The command exactly as hooks/hooks.json registers it, with the plugin root substituted
 // the way Claude Code does, run by bash as Claude Code runs hooks on Mac and Linux.
-function hookCommand() {
+function hookCommand(data) {
   const hooks = JSON.parse(fs.readFileSync(path.join(pluginRoot, 'hooks', 'hooks.json'), 'utf8'));
   const [entry] = hooks.hooks.SessionStart;
   const [hook] = entry.hooks;
   assert.equal(hook.type, 'command');
-  return hook.command.replaceAll('${CLAUDE_PLUGIN_ROOT}', pluginRoot);
+  return hook.command.replaceAll('${CLAUDE_PLUGIN_ROOT}', pluginRoot).replaceAll('${CLAUDE_PLUGIN_DATA}', data);
 }
 
-function runHook(env, cwd) {
-  const r = spawnSync('/bin/bash', ['-c', hookCommand()], { encoding: 'utf8', env, cwd });
+// The data folder reaches the hook only through inline substitution: CLAUDE_PLUGIN_DATA is
+// deliberately absent from the environment here.
+function runHook(data, env, cwd) {
+  const r = spawnSync('/bin/bash', ['-c', hookCommand(data)], { encoding: 'utf8', env, cwd });
   return { code: r.status, out: r.stdout, err: r.stderr };
 }
 
 test('the session-start hook reports what is missing, in words the model can act on, and never installs', () => {
   const m = freshMachine();
-  const r = runHook({ ...m.env, CLAUDE_PLUGIN_DATA: m.data, CLAUDE_PROJECT_DIR: m.estudio }, m.root);
+  const r = runHook(m.data, { ...m.env, CLAUDE_PROJECT_DIR: m.estudio }, m.root);
   assert.equal(r.code, 0, r.err);
   for (const tool of ['node', 'ffmpeg', 'ffprobe', 'python', 'remotion']) assert.match(r.out, new RegExp(tool));
   assert.match(r.out, /nothing was installed/i);
@@ -176,7 +178,7 @@ test('the session-start hook stays silent when nothing is missing', () => {
   const m = freshMachine();
   portableRuntimes(m.data);
   const estudio = estudioFolder(tempRoot(), { remotion: true });
-  const r = runHook({ ...m.env, CLAUDE_PLUGIN_DATA: m.data, CLAUDE_PROJECT_DIR: estudio }, m.root);
+  const r = runHook(m.data, { ...m.env, CLAUDE_PROJECT_DIR: estudio }, m.root);
   assert.equal(r.code, 0, r.err);
   assert.equal(r.out, '');
 });
@@ -277,9 +279,8 @@ test('on Windows a real install fills the plugin data folder, the check finds no
 
 test('on Windows without Git Bash the same hook command runs in PowerShell and reports what is missing', hasWindows ? {} : { skip: 'powershell.exe not available' }, () => {
   const winRoot = spawnSync('wslpath', ['-w', pluginRoot], { encoding: 'utf8' }).stdout.trim();
-  const command = hookCommand().replaceAll(pluginRoot, winRoot);
-  const r = spawnSync('powershell.exe', ['-NoProfile', '-Command',
-    `$env:CLAUDE_PLUGIN_DATA = "$env:TEMP\\estúdio sem dados ${process.pid}"; $env:CLAUDE_PROJECT_DIR = $env:TEMP; ${command}`],
+  const command = hookCommand(`$env:TEMP\\estúdio sem dados ${process.pid}`).replaceAll(pluginRoot, winRoot);
+  const r = spawnSync('powershell.exe', ['-NoProfile', '-Command', `$env:CLAUDE_PROJECT_DIR = $env:TEMP; ${command}`],
   { encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /nothing was installed\): missing .*python/i);

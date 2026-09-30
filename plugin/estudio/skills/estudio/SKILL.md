@@ -31,7 +31,7 @@ If `missing` is empty, go on to reading the Estúdio. Otherwise ask the preparat
 
 #### The preparation question
 
-Ask **one** question (`AskUserQuestion` when available), in these words: **"Posso preparar seu computador para editar vídeos? (~10 min, grátis)"**. In one or two plain pt-BR sentences, say what it means: you download the programs the studio uses into the studio's own folder on her computer; it needs no password and opens no window; if she ever removes the studio, they go with it. Offer "sim" and "agora não".
+Ask **one** question (`AskUserQuestion` when available), in these words: **"Posso preparar seu computador para editar vídeos? (~10 min, grátis)"**. In one or two plain pt-BR sentences, say what it means: you download the programs the studio uses into a folder reserved for the studio's programs (not her Estúdio, where her videos live); it needs no password and opens no window; if she ever removes the studio, they go with it. Offer "sim" and "agora não".
 
 - **On "sim"**, run the installer once per missing item, in this order, with a 10-minute timeout per step: `node`, then `ffmpeg` (covers `ffmpeg` and `ffprobe`), then `python`, then `remotion`. Skip the steps that are not missing. On macOS or Linux:
 

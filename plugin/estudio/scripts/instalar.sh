@@ -28,10 +28,14 @@ case "$PASSO" in
   *) echo "uso: instalar.sh <node|ffmpeg|python|remotion|tudo> \"<pasta de dados>\" [\"<pasta do Estúdio>\"]" >&2; exit 2 ;;
 esac
 if [ -z "$DADOS" ]; then echo "uso: falta a pasta de dados do plugin" >&2; exit 2; fi
+# Absolute, so the paths still resolve after the Remotion step changes folder.
+mkdir -p "$DADOS" && DADOS=$(cd "$DADOS" && pwd) || { echo "uso: pasta de dados inválida" >&2; exit 2; }
 
 . "$AQUI/lib/ferramentas.sh"
 
-# Pinned versions: a re-run months later installs the same, tested programs.
+# Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
+# ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
+# latest release), because neither host keeps a fixed per-version download link.
 NODE_VERSAO=v22.23.3
 UV_VERSAO=0.12.21
 PYTHON_VERSAO=3.12
@@ -59,15 +63,20 @@ novo_tmp() {
   rm -rf "$TMP/$1" && mkdir -p "$TMP/$1"
 }
 
+# guarda <finished folder> <name>: moves it into runtime/, replacing a broken earlier attempt.
+guarda() {
+  rm -rf "$RUNTIME/$2" && mkdir -p "$RUNTIME" && mv "$1" "$RUNTIME/$2"
+}
+
 instala_node() {
   if [ -n "$(acha_node)" ]; then echo "Node: já estava pronto."; return; fi
   echo "Node (o programa que monta as animações): baixando cerca de 50 MB…"
-  if [ "$(uname -s)" = Darwin ]; then so=darwin; else so=linux; fi
+  if [ "$SISTEMA" = Darwin ]; then so=darwin; else so=linux; fi
   if [ -n "$ARM" ]; then arq=arm64; else arq=x64; fi
   novo_tmp node || falha "preparar o Node"
   baixa "https://nodejs.org/dist/$NODE_VERSAO/node-$NODE_VERSAO-$so-$arq.tar.gz" "$TMP/node.tar.gz" || falha "baixar o Node"
   tar -xzf "$TMP/node.tar.gz" -C "$TMP/node" --strip-components=1 || falha "abrir o Node"
-  rm -rf "$RUNTIME/node" && mkdir -p "$RUNTIME" && mv "$TMP/node" "$RUNTIME/node" || falha "guardar o Node"
+  guarda "$TMP/node" node || falha "guardar o Node"
   funciona "$NODE_PORTATIL" --version || falha "fazer o Node funcionar"
   echo "Node: pronto."
 }
@@ -76,7 +85,7 @@ instala_ffmpeg() {
   if [ -n "$(acha_ffmpeg)" ] && [ -n "$(acha_ffprobe)" ]; then echo "ffmpeg: já estava pronto."; return; fi
   echo "ffmpeg (o programa que lê e grava vídeo): baixando cerca de 100 MB…"
   novo_tmp ffmpeg || falha "preparar o ffmpeg"
-  if [ "$(uname -s)" = Darwin ]; then
+  if [ "$SISTEMA" = Darwin ]; then
     if [ -n "$ARM" ]; then arq=arm64; else arq=amd64; fi
     for programa in ffmpeg ffprobe; do
       baixa "https://ffmpeg.martin-riedl.de/redirect/latest/macos/$arq/release/$programa.zip" "$TMP/$programa.zip" || falha "baixar o ffmpeg"
@@ -92,7 +101,7 @@ instala_ffmpeg() {
     mv "$TMP/ffmpeg-pacote/ffmpeg" "$TMP/ffmpeg-pacote/ffprobe" "$TMP/ffmpeg/" || falha "abrir o ffmpeg"
   fi
   chmod +x "$TMP/ffmpeg/ffmpeg" "$TMP/ffmpeg/ffprobe" || falha "abrir o ffmpeg"
-  rm -rf "$RUNTIME/ffmpeg" && mkdir -p "$RUNTIME" && mv "$TMP/ffmpeg" "$RUNTIME/ffmpeg" || falha "guardar o ffmpeg"
+  guarda "$TMP/ffmpeg" ffmpeg || falha "guardar o ffmpeg"
   funciona "$FFMPEG_PORTATIL" -version && funciona "$FFPROBE_PORTATIL" -version || falha "fazer o ffmpeg funcionar"
   echo "ffmpeg: pronto."
 }
@@ -102,12 +111,12 @@ instala_python() {
   echo "Python com faster-whisper (a transcrição das suas falas): baixando cerca de 150 MB…"
   UV="$RUNTIME/uv/uv"
   if ! funciona "$UV" --version; then
-    if [ "$(uname -s)" = Darwin ]; then so=apple-darwin; else so=unknown-linux-gnu; fi
+    if [ "$SISTEMA" = Darwin ]; then so=apple-darwin; else so=unknown-linux-gnu; fi
     if [ -n "$ARM" ]; then arq=aarch64; else arq=x86_64; fi
     novo_tmp uv || falha "preparar o Python"
     baixa "https://github.com/astral-sh/uv/releases/download/$UV_VERSAO/uv-$arq-$so.tar.gz" "$TMP/uv.tar.gz" || falha "baixar o Python"
     tar -xzf "$TMP/uv.tar.gz" -C "$TMP/uv" --strip-components=1 || falha "abrir o Python"
-    rm -rf "$RUNTIME/uv" && mkdir -p "$RUNTIME" && mv "$TMP/uv" "$RUNTIME/uv" || falha "guardar o Python"
+    guarda "$TMP/uv" uv || falha "guardar o Python"
   fi
   # Everything uv downloads or caches stays in the plugin data folder.
   export UV_CACHE_DIR="$DADOS/cache/uv"

@@ -21,13 +21,12 @@ AQUI=$(dirname "$0")
 
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*)
-    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$AQUI/verificar.ps1" ${JSON:+-Json} -Dados "$DADOS" -Estudio "$ESTUDIO"
+    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$AQUI/verificar.ps1" ${JSON:+-Json} ${DADOS:+-Dados} ${DADOS:+"$DADOS"} -Estudio "$ESTUDIO"
     ;;
-  Darwin) SISTEMA=mac ;;
-  *) SISTEMA=linux ;;
 esac
 
 . "$AQUI/lib/ferramentas.sh"
+if [ "$SISTEMA" = Darwin ]; then SO=mac; else SO=linux; fi
 
 NODE=$(acha_node)
 FFMPEG=$(acha_ffmpeg)
@@ -50,7 +49,7 @@ if [ -n "$JSON" ]; then
   LISTA=
   for item in $FALTANDO; do LISTA="$LISTA${LISTA:+, }\"$item\""; done
   printf '{"os": "%s", "missing": [%s], "tools": {"node": %s, "ffmpeg": %s, "ffprobe": %s, "python": %s}, "remotion": "%s"}\n' \
-    "$SISTEMA" "$LISTA" "$(json_texto "$NODE")" "$(json_texto "$FFMPEG")" "$(json_texto "$FFPROBE")" "$(json_texto "$PYTHON")" "$REMOTION"
+    "$SO" "$LISTA" "$(json_texto "$NODE")" "$(json_texto "$FFMPEG")" "$(json_texto "$FFPROBE")" "$(json_texto "$PYTHON")" "$REMOTION"
 elif [ -n "$FALTANDO" ]; then
   echo "Estúdio setup check (nothing was installed): missing$FALTANDO. Before editing, the estudio skill asks the Criadora its one preparation question; never install anything without her yes."
 fi
