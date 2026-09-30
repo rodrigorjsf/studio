@@ -19,10 +19,10 @@ import { findVideo, updateVideoRecord } from './video.mjs';
 
 // The Statuses a version is built in: after the Plano (Construção), after the internal review
 // (QC interno) and after she asked for changes (Ajustes).
-const BUILDING = new Set(['Construção', 'QC interno', 'Ajustes']);
+export const BUILDING = new Set(['Construção', 'QC interno', 'Ajustes']);
 
-// The Vídeo's folder, Status and latest version, or the refusal to return.
-function locate(folder, projetoNome, videoNome) {
+// The Vídeo's folder, Status, Gate and latest version, or the refusal to return.
+export function locate(folder, projetoNome, videoNome) {
   const found = findVideo(folder, projetoNome, videoNome);
   if (found.refusal) return found;
   let record;
@@ -33,7 +33,7 @@ function locate(folder, projetoNome, videoNome) {
   }
   const latest = versions(found.dir).at(-1) ?? null;
   const pending = latest !== null && !fs.existsSync(decisionFile(found.dir, latest));
-  return { ...found, status: typeof record.status === 'string' ? nfc(record.status) : null, latest, pending };
+  return { ...found, status: typeof record.status === 'string' ? nfc(record.status) : null, gate: record.gate ?? null, latest, pending };
 }
 
 export function novaVersao(folder, projetoNome, videoNome) {

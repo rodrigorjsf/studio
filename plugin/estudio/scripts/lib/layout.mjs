@@ -35,7 +35,8 @@
 //   projetos/<projeto>/videos/<vídeo>/revisao/vNN/          one folder per version of the edit (v01, v02…):
 //                                    the key stills she reviews, then decisao.json (her decision and her
 //                                    notes consolidated), notas.md (the same list, in pt-BR, for her) and,
-//                                    after an approval with small changes, ajustes/ (the stills they changed)
+//                                    after an approval with small changes, ajustes/ (the stills they changed);
+//                                    qc-interno.json holds the internal Crítico turns on it (`qc-interno`)
 //   projetos/<projeto>/videos/<vídeo>/entrega/              the Entrega: the final MP4 (9:16 by default; 16:9
 //                                    or transparent MOV overlays on request), checked by `entregar`
 //   projetos/<projeto>/videos/<vídeo>/gerados/             Nível 2: the images and clips generated on
@@ -71,6 +72,7 @@ export const PRECORTE_MAPA = 'precorte/mapa.json';
 export const REVISAO = 'revisao';
 export const DECISAO = 'decisao.json';
 export const NOTAS_MD = 'notas.md';
+export const QC_INTERNO = 'qc-interno.json';
 export const ENTREGA = 'entrega';
 export const NOTION_PAGINAS = 'notion/paginas.json';
 export const NOTION_RESUMO = 'notion/resumo.md';

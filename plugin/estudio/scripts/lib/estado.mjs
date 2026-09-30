@@ -34,8 +34,9 @@ const STATUSES = new Map([
 export const NIVEIS = new Set([1, 2]);
 // Her three decisions on a version of the edit, at the review Gate.
 export const DECISIONS = ['aprovar', 'aprovar-com-ajustes', 'pedir-mudancas'];
-// The Vídeo document's metric counters: questions asked, Gates opened, Gates Autonomia approved.
-export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas'];
+// The Vídeo document's metric counters: questions asked, Gates opened, Gates Autonomia approved,
+// and the internal Crítico loop's turns with what they cost (tokens and seconds of persona runs).
+export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas', 'turnosInternos', 'tokensInternos', 'segundosInternos'];
 export const STATUS_NAMES = [...STATUSES.keys()];
 export const wholeCount = (v) => Number.isInteger(v) && v >= 0;
 const credits = (v) => typeof v === 'number' && v >= 0;

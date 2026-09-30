@@ -17,7 +17,8 @@
 //       (`resumo-notion`), and before the Plano checks whether a page changed (`conferir-notion`);
 //       when the Motion designer builds a version of the edit (`nova-versao`), her review of it
 //       opens (`abrir-revisao`) and she decides on it (`decidir-revisao`); when the QC técnico holds
-//       a render against the Master (`qc`); when the Entrega is rendered and judged (`entregar`);
+//       a render against the Master (`qc`); when the Diretor records a turn of the three Críticos on a
+//       version, with its cost (`qc-interno`); when the Entrega is rendered and judged (`entregar`);
 //       and in Nível 2, when she approves the credit cost (`aprovar-creditos`) and before each
 //       Higgsfield generation is paid (`gastar-creditos`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
@@ -41,6 +42,7 @@
 //       node "<plugin root>/scripts/estudio.mjs" decidir-revisao "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" entregar "<folder>" "<projeto>" "<vídeo>" "<ffmpeg>" "<ffprobe>"
 //       node "<plugin root>/scripts/estudio.mjs" qc "<folder>" "<projeto>" "<vídeo>" "<render>" "<ffmpeg>" "<ffprobe>"
+//       node "<plugin root>/scripts/estudio.mjs" qc-interno "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" gastar-creditos "<folder>" "<projeto>" "<vídeo>" '<json>'
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
@@ -57,6 +59,7 @@ import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
 import { aprovarPlano, plano } from './lib/plano.mjs';
 import { pausas, precorte } from './lib/precorte.mjs';
 import { qc } from './lib/qc.mjs';
+import { qcInterno } from './lib/qc-interno.mjs';
 import { abrirRevisao, decidirRevisao, novaVersao } from './lib/revisao.mjs';
 import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
@@ -83,6 +86,7 @@ const COMMANDS = {
   'decidir-revisao': { run: decidirRevisao, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   entregar: { run: entregar, args: ['"<projeto>"', '"<vídeo>"', '"<ffmpeg>"', '"<ffprobe>"'] },
   qc: { run: qc, args: ['"<projeto>"', '"<vídeo>"', '"<render>"', '"<ffmpeg>"', '"<ffprobe>"'] },
+  'qc-interno': { run: qcInterno, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   'aprovar-creditos': { run: aprovarCreditos, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
   'gastar-creditos': { run: gastarCreditos, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
 };
