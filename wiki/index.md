@@ -30,7 +30,7 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 - [Picture lock](concepts/picture-lock.md) — the seam between creative loop and finishing; the Pré-corte cuts once, then the Master locks (updated 2026-09-30)
 - [Plugin architecture](concepts/plugin-architecture.md) — director entry skill, subagents between gates, data locations, surfaces, Pré-corte, build/review/Entrega, technical QC, Nível 2 credits and generated assets, agent colors, the upstream-leftover check, the speech model mirrored on our GitHub Release and fetched by the Preparação's `modelo` step, offline transcription (exit 3 when the model is missing), the host list with allowlist guidance, and the repo root cleaned of upstream leftovers (updated 2026-09-30)
 - [Short-form 9:16 rules](concepts/short-form-9x16.md) — 1080×1920 primary, 3 s hook, ~900×1400 safe box, evidence tiers (updated 2026-09-30)
-- [Texto do post](concepts/post-copy.md) — planned post text by the Social media; bundled dated rules; Crítico on official rules only (updated 2026-09-30)
+- [Texto do post](concepts/post-copy.md) — post text by the Social media (built, ticket #44); bundled dated rules; Crítico on official rules only (updated 2026-09-30)
 - [Technical vs editorial QC](concepts/qc-technical-vs-editorial.md) — automatable checks vs independent critic checks (updated 2026-09-29)
 
 ## Analyses

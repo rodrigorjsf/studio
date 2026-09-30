@@ -105,6 +105,24 @@ test('a skill on a model alias instead of a pinned model ID is rejected', () => 
   );
 });
 
+// The Social media (ticket #44) follows the rules every persona follows: a pinned model and effort,
+// a tools allowlist and a display color.
+test('the Social media persona, pinned to Sonnet 5.5 at medium effort with a color, passes', () => {
+  const { code, verdict } = check(fixture({
+    'plugin/estudio/agents/social-media.md': persona({ name: 'social-media', model: 'claude-sonnet-5-5', effort: 'medium', tools: 'Bash, Read, Write', color: 'cyan' }),
+  }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+test('the Social media persona without a pinned model, effort or color is rejected', () => {
+  const pinned = { name: 'social-media', model: 'claude-sonnet-5-5', effort: 'medium', tools: 'Bash, Read, Write', color: 'cyan' };
+  for (const [missing, fragment] of [['model', 'missing "model"'], ['effort', 'missing "effort"'], ['color', 'missing "color"']]) {
+    const { [missing]: _removed, ...fields } = pinned;
+    assertRejected(fixture({ 'plugin/estudio/agents/social-media.md': persona(fields) }), `social-media.md: ${fragment}`);
+  }
+});
+
 // Every persona declares its display color in the task list and transcript (ticket #18); the
 // eight values are the only ones Claude Code accepts.
 test('a persona without a color is rejected', () => {
@@ -449,7 +467,7 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
   // Críticos: QC técnico, Guardião da marca and Revisor de plataforma.
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
   for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano', 'edicao']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
-  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador', 'qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma', 'artista-generativo', 'montador-higgsedit']) {
+  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador', 'qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma', 'artista-generativo', 'montador-higgsedit', 'social-media']) {
     assert.match(details.out, new RegExp(`Agents \\(\\d+\\)[\\s\\S]*${agent}`), details.out);
   }
 

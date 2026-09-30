@@ -124,3 +124,6 @@ Pages: concepts/brand-kit-per-front.md, overview.md.
 
 ## [2026-09-30] update | Rascunhos de issue with the Criadora's consent Gate: `rascunho-issue` command, `estado` pending drafts, `evolucao-proposta` in every persona prompt, README Gates table (ticket #43)
 Pages: concepts/caderno.md, concepts/approval-gate.md, overview.md, index.md.
+
+## [2026-09-30] update | Social media persona and the `texto-do-post` check: the Texto do post beside the Finalizador (ticket #44)
+Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.

@@ -16,7 +16,7 @@ const FORMATOS = ['9:16', '16:9', '1:1'];
 // no-app: she adds the music herself in Instagram/TikTok (trending audio, no copyright mute).
 const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
 // The platforms a Projeto posts on; the Social media writes a Texto do post for each of them.
-const PLATAFORMAS = ['reels', 'tiktok', 'shorts'];
+export const PLATAFORMAS = ['reels', 'tiktok', 'shorts'];
 
 // The platforms of a Kit. A Kit without the field (made before it existed) posts on all three.
 export const plataformasDoKit = (kit) => [...(kit?.plataformas ?? PLATAFORMAS)];
