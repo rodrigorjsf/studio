@@ -16,7 +16,7 @@ import path from 'node:path';
 import { nfc, subfolders } from './estado.mjs';
 import { documentBody, parseFrontmatter, replaceFrontmatter, writeDocument } from './frontmatter.mjs';
 import { ISSUES, MARKER, PROJETOS, VIDEOS } from './layout.mjs';
-import { isObject, parseJson } from './valores.mjs';
+import { oneLine, parseJsonObject } from './valores.mjs';
 
 // The repository every Rascunho de issue is for; nothing else is ever offered.
 export const REPOSITORY = 'rodrigorjsf/studio';
@@ -25,7 +25,6 @@ export const TIPOS = ['bug', 'evolucao'];
 export const DECISOES = ['publicado', 'link-entregue', 'recusado'];
 const ISSUE_URL = new RegExp(`^https://github\\.com/${REPOSITORY}/issues/\\d+$`);
 
-const oneLine = (text) => text.replace(/\s+/g, ' ').trim();
 const FILE = /^(\d+)-.+\.md$/;
 
 // The draft files of the issues folder, by identifier: [{id, file}].
@@ -92,13 +91,6 @@ function privateContent(folder, titulo, corpo) {
   return ownedNames(folder).filter(({ valor }) => canon(valor) !== '' && text.includes(canon(valor)));
 }
 
-function readInput(text) {
-  const { value: input, problem } = parseJson(text);
-  if (problem) return { problem };
-  if (!isObject(input)) return { problem: 'must be a JSON object with acao' };
-  return { input };
-}
-
 const ACOES = ['salvar', 'link', 'decidir'];
 const refused = (reason, extra = {}) => ({ written: false, reason, ...extra });
 
@@ -134,7 +126,7 @@ function decidir(draft, input) {
 }
 
 export function rascunhoIssue(folder, inputText) {
-  const { input, problem } = readInput(inputText);
+  const { value: input, problem } = parseJsonObject(inputText, 'acao');
   if (problem) return refused('invalid-input', { message: problem });
   if (!fs.existsSync(path.join(folder, MARKER))) return refused('not-estudio');
   if (!ACOES.includes(input.acao)) return refused('invalid-input', { message: `acao must be one of: ${ACOES.join(', ')}` });

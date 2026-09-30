@@ -20,7 +20,7 @@ import path from 'node:path';
 import { CADERNO, MARKER, PROJETOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
 import { nfc } from './estado.mjs';
-import { isObject, parseJson } from './valores.mjs';
+import { oneLine, parseJsonObject } from './valores.mjs';
 import { findVideo } from './video.mjs';
 
 export const CAMADAS = ['estudio', 'projeto'];
@@ -28,7 +28,6 @@ export const CAMADAS = ['estudio', 'projeto'];
 export const SECOES = { elogios: 'Elogios', queixas: 'Queixas', solucoes: 'Soluções' };
 
 const entryLine = (id, texto, persona, video, data) => `- **#${id}** ${texto} — _${[persona, video, data].filter(Boolean).join(', ')}_`;
-const oneLine = (text) => text.replace(/\s+/g, ' ').trim();
 
 function skeleton(title) {
   return [`# ${title}`, '', ...Object.values(SECOES).flatMap((heading) => [`## ${heading}`, ''])].join('\n');
@@ -60,13 +59,6 @@ function withCounter(text, next) {
   if (COUNTER.test(text)) return text.replace(COUNTER, line);
   const [title, ...rest] = text.split('\n');
   return [title, line, ...rest].join('\n');
-}
-
-function readInput(text) {
-  const { value: input, problem } = parseJson(text);
-  if (problem) return { problem };
-  if (!isObject(input)) return { problem: 'must be a JSON object with acao, camada, secao, texto and persona' };
-  return { input };
 }
 
 // The Caderno file the input points at, and the Vídeo it names (as `estado` spells it), or the
@@ -106,7 +98,7 @@ function changeEntry(text, id, line) {
 const ACOES = ['anexar', 'substituir', 'remover'];
 
 export function caderno(folder, inputText) {
-  const { input, problem } = readInput(inputText);
+  const { value: input, problem } = parseJsonObject(inputText, 'acao, camada, secao, texto and persona');
   if (problem) return { written: false, reason: 'invalid-input', message: problem };
   if (!ACOES.includes(input.acao)) return { written: false, reason: 'invalid-input', message: `acao must be one of: ${ACOES.join(', ')}` };
   if (!CAMADAS.includes(input.camada)) return { written: false, reason: 'unknown-layer', camada: input.camada ?? null };
