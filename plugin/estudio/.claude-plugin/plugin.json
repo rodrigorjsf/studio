@@ -1,0 +1,10 @@
+{
+  "name": "estudio",
+  "version": "0.1.0",
+  "description": "Estúdio de edição de vídeo: o Diretor conduz cada vídeo do briefing à entrega, com Remotion (grátis) e Higgsfield (opcional).",
+  "author": {
+    "name": "Rodrigo França"
+  },
+  "repository": "https://github.com/rodrigorjsf/studio",
+  "license": "MIT"
+}
