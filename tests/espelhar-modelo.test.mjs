@@ -131,3 +131,13 @@ test('a file the upstream cannot serve fails the run before anything is publishe
   assert.notEqual(r.status, 0);
   assert.deepEqual(sb.ghCalls(), []);
 });
+
+test('there is no option to reuse files already on disk: every run hashes a fresh download of the pinned upstream', () => {
+  const sb = sandbox();
+  const stale = path.join(sb.root, 'stale');
+  fs.mkdirSync(stale);
+  fs.writeFileSync(path.join(stale, 'model.bin'), 'tampered\n');
+  const r = run(sb.env, ['--dry-run', '--dir', stale]);
+  assert.equal(r.status, 2, r.stderr);
+  assert.equal(r.stdout, '');
+});

@@ -13,14 +13,14 @@
 #       use --dry-run to hash the files and print the manifest without touching GitHub.
 #       Safe to re-run: an existing Release is kept, and only assets that are missing or differ in
 #       size are uploaded (replaced with --clobber, never duplicated). --force uploads all five
-#       again, for an asset that is corrupt but has the right size.
-# HOW   sh scripts/espelhar-modelo.sh [--dry-run] [--force] [--dir <download folder>]
+#       again, for an asset that is corrupt but has the right size. Every run downloads the
+#       pinned upstream files afresh into a temporary folder (removed at the end): no file already
+#       on disk is ever trusted, so a stale or tampered local copy can never be hashed and published.
+# HOW   sh scripts/espelhar-modelo.sh [--dry-run] [--force]
 #       Needs: curl, sha256sum (or shasum), and for a real run the GitHub CLI `gh`, logged in with
 #       write access to the repository. Progress goes to stderr, the manifest JSON to stdout, so
 #       `sh scripts/espelhar-modelo.sh > files.json` keeps only the entries. Copy them into the
 #       `files` array of the `speech-model` source in plugin/estudio/vendor.json.
-#       --dir keeps the ~1.6 GB download for the next run (default: a temporary folder, removed).
-#       A file already in --dir is trusted as is: delete the folder if it may be stale.
 #       Hosts this machine must reach (add them to a sandbox allowlist for the first run):
 #         Hugging Face: huggingface.co, cdn-lfs.huggingface.co, *.hf.co
 #         GitHub (real run): github.com, api.github.com, uploads.github.com
@@ -39,40 +39,29 @@ FILES="model.bin config.json tokenizer.json vocabulary.json preprocessor_config.
 
 DRY=
 FORCE=
-DIR=
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1 ;;
     --force) FORCE=1 ;;
-    --dir) shift; DIR=${1:-}; [ -n "$DIR" ] || { echo "usage: --dir needs a folder" >&2; exit 2; } ;;
-    *) echo "usage: espelhar-modelo.sh [--dry-run] [--force] [--dir <download folder>]" >&2; exit 2 ;;
+    *) echo "usage: espelhar-modelo.sh [--dry-run] [--force]" >&2; exit 2 ;;
   esac
   shift
 done
 
-if [ -z "$DIR" ]; then
-  DIR=$(mktemp -d)
-  trap 'rm -rf "$DIR"' EXIT
-fi
-mkdir -p "$DIR"
+DIR=$(mktemp -d)
+trap 'rm -rf "$DIR"' EXIT
 
 hash_of() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi
 }
 size_of() { wc -c < "$1" | tr -d ' '; }
 
-# 1. Download every file first, so a failure publishes nothing. A file already in --dir is reused.
+# 1. Download every file first, so a failure publishes nothing.
 for name in $FILES; do
-  if [ -s "$DIR/$name" ]; then
-    echo "already downloaded: $name" >&2
-  else
-    echo "downloading $name ..." >&2
-    if ! curl -fL --retry 3 --silent --show-error -o "$DIR/$name.part" "$UPSTREAM/$name" || [ ! -s "$DIR/$name.part" ]; then
-      rm -f "$DIR/$name.part"
-      echo "download failed: $name (from $UPSTREAM)" >&2
-      exit 1
-    fi
-    mv "$DIR/$name.part" "$DIR/$name"
+  echo "downloading $name ..." >&2
+  if ! curl -fL --retry 3 --silent --show-error -o "$DIR/$name" "$UPSTREAM/$name" || [ ! -s "$DIR/$name" ]; then
+    echo "download failed: $name (from $UPSTREAM)" >&2
+    exit 1
   fi
 done
 
