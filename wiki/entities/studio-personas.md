@@ -42,3 +42,5 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 Who calls whom, what each persona hands back, what it does on approval and on rejection, the top-down call-chain diagram and the table of every Gate are documented once, in pt-BR, in the [README section "Quem trabalha em cada etapa"](../../README.md#quem-trabalha-em-cada-etapa) (ticket #36). This page keeps only the cast and its models; it does not repeat those tables.
 
 Added after the grilling: **Montador Higgsedit** (subagent, Sonnet 5.5 · high, `plugin/estudio/agents/montador-higgsedit.md`, ticket #16). It montages a stretch or the whole Vídeo in Higgsedit only on her explicit request, behind its own cost Gate; the cast is now 13 personas.
+
+Planned (2026-09-30 grilling, not built): **Social media** (subagent, Sonnet 5.5 · medium). It writes the [Texto do post](../concepts/post-copy.md) beside the Finalizador and is judged by the Revisor de plataforma. Every persona may also originate [Caderno](../concepts/caderno.md) entries in its report ([source](../sources/grilling-caderno-and-social-media-2026-09-30.md)).

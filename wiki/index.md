@@ -13,6 +13,9 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 - [Spec — Estúdio plugin v1](sources/spec-estudio-plugin-v1.md) — 86 user stories, test seams, out of scope; issue #1 (rev 1.1), tickets #2–#20, follow-up #21 (updated 2026-09-29)
 - [Grilling record — Notion context (2026-09-29)](sources/grilling-notion-context-2026-09-29.md) — nine decisions for read-only Notion context (updated 2026-09-29)
 
+- [Research — post copy and hashtags (2026)](sources/post-copy-and-hashtags-2026.md) — what post text and hashtags do on Reels/TikTok/Shorts; Instagram 5-tag cap, YouTube 60 (updated 2026-09-30)
+- [Grilling record — Caderno and Social media (2026-09-30)](sources/grilling-caderno-and-social-media-2026-09-30.md) — 17 planned decisions: feedback memory, issue drafts, Texto do post (updated 2026-09-30)
+
 ## Entities
 
 - [Studio personas](entities/studio-personas.md) — ~15 studio roles in four families and the compressed solo-creator chain; the README section "Quem trabalha em cada etapa" holds the actors and Gates tables (updated 2026-09-30)
@@ -21,11 +24,13 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 
 - [Approval gate](concepts/approval-gate.md) — one gate primitive: maker, internal critic, consolidated notes, decision, round counter; review Rodadas in versioned folders; credit Gate and ~20% stop (updated 2026-09-30)
 - [Brand kit per front](concepts/brand-kit-per-front.md) — persisted, enforced identity per Projeto, built as projetos/<projeto>/kit.json (updated 2026-09-30)
+- [Caderno](concepts/caderno.md) — planned two-layer memory of Elogios, Queixas, Soluções; Diretor sole writer; issue drafts on consent (updated 2026-09-30)
 - [Grilling catalogue](concepts/grilling-catalogue.md) — brand vs per-video interview topics translated under locked-final-cut (updated 2026-09-29)
 - [Notion context](concepts/notion-context.md) — read-only Páginas Notion per Projeto/Vídeo, Resumo Notion, Kit wins (updated 2026-09-30)
 - [Picture lock](concepts/picture-lock.md) — the seam between creative loop and finishing; the Pré-corte cuts once, then the Master locks (updated 2026-09-30)
 - [Plugin architecture](concepts/plugin-architecture.md) — director entry skill, subagents between gates, data locations, surfaces, Pré-corte, build/review/Entrega, technical QC, Nível 2 credits and generated assets, agent colors, the upstream-leftover check, the speech model mirrored on our GitHub Release and fetched by the Preparação's `modelo` step, offline transcription (exit 3 when the model is missing), the host list with allowlist guidance, and the repo root cleaned of upstream leftovers (updated 2026-09-30)
-- [Short-form 9:16 rules](concepts/short-form-9x16.md) — 1080×1920 primary, 3 s hook, ~900×1400 safe box, evidence tiers (updated 2026-09-29)
+- [Short-form 9:16 rules](concepts/short-form-9x16.md) — 1080×1920 primary, 3 s hook, ~900×1400 safe box, evidence tiers (updated 2026-09-30)
+- [Texto do post](concepts/post-copy.md) — planned post text by the Social media; bundled dated rules; Crítico on official rules only (updated 2026-09-30)
 - [Technical vs editorial QC](concepts/qc-technical-vs-editorial.md) — automatable checks vs independent critic checks (updated 2026-09-29)
 
 ## Analyses
