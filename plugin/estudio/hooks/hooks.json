@@ -1,0 +1,16 @@
+{
+  "description": "At session start, report which editing tools are missing on this computer. Never installs. The command is valid in bash (macOS, Linux, Windows with Git Bash) and in PowerShell (Windows without Git Bash): bash runs verificar.sh and exits; PowerShell reads everything from <# to #> as a comment and runs verificar.ps1.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "set -- `# <#` ; sh \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.sh\" ; exit 0 ; #> ; powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1\" ; exit 0",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

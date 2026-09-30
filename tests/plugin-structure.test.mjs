@@ -205,3 +205,20 @@ test('estudio installs from the local marketplace via the CLI, with its skill an
     );
   }
 });
+
+test('uninstalling estudio deletes its plugin data folder, where the installer puts every runtime', needsClaude, () => {
+  const configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'estudio-uninstall-'));
+  fixtureRoots.push(configDir);
+  const env = { ...process.env, CLAUDE_CONFIG_DIR: configDir };
+  assert.equal(claude(['plugin', 'marketplace', 'add', repoRoot], env).code, 0);
+  assert.equal(claude(['plugin', 'install', 'estudio@studio'], env).code, 0);
+
+  // ${CLAUDE_PLUGIN_DATA} for estudio@studio, holding what instalar.sh / instalar.ps1 download.
+  const data = path.join(configDir, 'plugins', 'data', 'estudio-studio');
+  fs.mkdirSync(path.join(data, 'runtime', 'node', 'bin'), { recursive: true });
+  fs.writeFileSync(path.join(data, 'runtime', 'node', 'bin', 'node'), 'stand-in');
+
+  const removed = claude(['plugin', 'uninstall', 'estudio@studio'], env);
+  assert.equal(removed.code, 0, removed.out);
+  assert.equal(fs.existsSync(data), false, 'the downloaded runtimes must go with the plugin');
+});
