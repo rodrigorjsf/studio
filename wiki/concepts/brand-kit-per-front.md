@@ -16,3 +16,10 @@ Why: the repo's guide 5 names "identidade permanente" vs per-video "dialeto" but
 Related: [grilling-catalogue](grilling-catalogue.md).
 
 > **Settled (grilling 2026-09-29):** the research's "front" is called **Projeto**; the kit lives at `projetos/<slug>/marca/` (`tokens.json` + `assets/`), not `marcas/<front>/`.
+
+## Built: Kit de marca schema and approval Gate (ticket #6)
+
+- As built, the Kit lives at `projetos/<projeto>/kit.json` with its assets in `projetos/<projeto>/kit/`. This supersedes the `marca/tokens.json` layout above, which ticket #3's layout contract (`plugin/estudio/scripts/lib/layout.mjs`) had already changed.
+- The schema is enforced in code by `plugin/estudio/scripts/lib/kit.mjs`. `estado` reports each bad field, for example `cores.destaque must be a color like "#1A2B3C"`. Asset paths must exist inside `kit/`. The field-by-field description the Entrevistador follows is `plugin/estudio/skills/novo-projeto/references/kit-schema.md`.
+- Defaults are written by `novo-projeto`: Formato `9:16` and `musica.politica: "no-app"` (she adds the music in the app).
+- Approval Gate: a valid Kit reads `aguardando-aprovacao` in `estado` until `aprovar-kit` stamps `aprovadoEm`, which refuses an invalid Kit. Only then is the Kit `ok` and the Projeto usable. Tests: `tests/projeto.test.mjs`.

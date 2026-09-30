@@ -4,11 +4,12 @@
 //   estudio.json                     marker: {"schemaVersion": 1, "createdAt": ISO}
 //   perfil.md                        the Perfil (pt-BR, frontmatter schema in perfil.mjs)
 //   projetos/<projeto>/projeto.md    the Projeto briefing (pt-BR, frontmatter)
-//   projetos/<projeto>/kit.json      the machine-readable Kit de marca
+//   projetos/<projeto>/kit.json      the machine-readable Kit de marca (schema: kit.mjs)
+//   projetos/<projeto>/kit/          the Kit's assets: logos, fonts, end card, reference images
 //   projetos/<projeto>/videos/<vídeo>/video.md   the Vídeo document (frontmatter: status, rodada, nivel…)
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
-// Anything else inside a Projeto or Vídeo folder (the Kit assets, the Original, versions,
+// Anything else inside a Projeto or Vídeo folder (the Original, versions,
 // the Entrega, and the reserved `notion/` folder for Página Notion links and Resumo Notion
 // documents) is left to later stages and never rejected here.
 export const SCHEMA_VERSION = 1;
@@ -17,5 +18,6 @@ export const PERFIL = 'perfil.md';
 export const PROJETOS = 'projetos';
 export const PROJETO_DOC = 'projeto.md';
 export const KIT = 'kit.json';
+export const KIT_ASSETS = 'kit';
 export const VIDEOS = 'videos';
 export const VIDEO_DOC = 'video.md';

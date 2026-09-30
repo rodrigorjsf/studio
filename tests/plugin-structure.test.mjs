@@ -182,7 +182,7 @@ test('claude plugin validate --strict accepts the marketplace and the package', 
   }
 });
 
-test('estudio installs from the local marketplace via the CLI, with its skill and references', needsClaude, () => {
+test('estudio installs from the local marketplace via the CLI, with its skills and references', needsClaude, () => {
   // An isolated config dir: the maintainer's own ~/.claude is never touched.
   const configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'estudio-install-'));
   fixtureRoots.push(configDir);
@@ -194,9 +194,9 @@ test('estudio installs from the local marketplace via the CLI, with its skill an
   assert.equal(installed.code, 0, installed.out);
 
   const details = claude(['plugin', 'details', 'estudio@studio'], env);
-  // The entry skill and the Perfil interview (/estudio:perfil).
+  // The entry skill, the Perfil interview (/estudio:perfil) and the Projeto interview (/estudio:novo-projeto).
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
-  for (const skill of ['estudio', 'perfil']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
+  for (const skill of ['estudio', 'perfil', 'novo-projeto']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
 
   const [plugin] = JSON.parse(claude(['plugin', 'list', '--json'], env).out);
   assert.equal(plugin.id, 'estudio@studio');

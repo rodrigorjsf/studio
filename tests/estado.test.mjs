@@ -110,14 +110,14 @@ test('a valid Estúdio reports each Projeto and Vídeo, what waits for the Criad
   assert.equal(out.perfil.present, true);
   assert.deepEqual(out.projetos, [
     {
-      id: 'Minha Empresa', kit: 'ok',
+      id: 'Minha Empresa', briefing: 'completo', kit: 'ok',
       videos: [
         { id: 'Dica rápida', status: 'Construção', rodada: null, nivel: 1, waitingForCriadora: false },
         { id: 'Lançamento', status: 'Revisão', rodada: 2, nivel: 1, waitingForCriadora: true },
       ],
     },
     {
-      id: 'Pessoal', kit: 'ok',
+      id: 'Pessoal', briefing: 'completo', kit: 'ok',
       videos: [{ id: 'Receita antiga', status: 'Arquivado', rodada: 1, nivel: 2, waitingForCriadora: false }],
     },
   ]);
