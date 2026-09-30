@@ -11,6 +11,7 @@
 #   runtime/uv-python/             the Python interpreter uv downloads
 #   runtime/python/bin/python      a virtual environment holding faster-whisper
 #   modelos/large-v3-turbo/        the speech model's files, downloaded by the Preparação
+#   partial/speech-model/          a model file cut halfway, continued by the next Preparação
 #   cache/uv, cache/npm            download caches
 #   tmp/                           partial downloads, removed after each step
 
@@ -25,6 +26,7 @@ PORTABLE_PYTHON="$RUNTIME/python/bin/python"
 # ESTUDIO_MODEL_MANIFEST override points at another manifest, so tests can serve local files.
 MODEL_NAME=large-v3-turbo
 MODEL_DIR="$DATA_DIR/modelos/$MODEL_NAME"
+MODEL_PARTIAL_DIR="$DATA_DIR/partial/speech-model"
 MODEL_MANIFEST=${ESTUDIO_MODEL_MANIFEST:-$SCRIPT_DIR/../vendor.json}
 
 # works <program> <args…>: the program exists and runs successfully.

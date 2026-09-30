@@ -23,6 +23,7 @@ $PortablePython = Join-Path $Runtime 'python\Scripts\python.exe'
 # ESTUDIO_MODEL_MANIFEST override points at another manifest, so tests can serve local files.
 $ModelName = 'large-v3-turbo'
 $ModelDir = Join-Path $DataDir "modelos\$ModelName"
+$ModelPartialDir = Join-Path $DataDir 'partial\speech-model' # a model file cut halfway, continued by the next run
 $ModelManifest = if ($env:ESTUDIO_MODEL_MANIFEST) { $env:ESTUDIO_MODEL_MANIFEST } else { Join-Path $PSScriptRoot '..\..\vendor.json' }
 
 # The program exists and runs successfully.

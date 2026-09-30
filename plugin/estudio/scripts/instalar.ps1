@@ -14,10 +14,14 @@
 #       -ExecutionPolicy Bypass applies to this one process only and needs no admin rights.
 #       `modelo` downloads the speech model's files listed in ..\vendor.json into
 #       <plugin data folder>\modelos\large-v3-turbo\, verifies each sha256, deletes and reports
-#       any file that fails, and skips files already verified. ESTUDIO_MODEL_MANIFEST points
-#       it at another manifest (tests serve local file:// URLs); real downloads need the network.
+#       any file that fails, and skips files already verified. While a file downloads it prints
+#       how many MB arrived every 15 s (ESTUDIO_PROGRESS_SECONDS changes the interval), and a
+#       file cut halfway is continued by the next run instead of starting again.
+#       ESTUDIO_MODEL_MANIFEST points it at another manifest (tests serve local file:// URLs);
+#       real downloads need the network.
 #       Prints progress in plain Portuguese. Exit 0 when ready, 1 when a step failed
-#       (nothing half-installed stays behind), 2 on a usage error.
+#       (nothing half-installed stays behind; only a model file cut halfway waits in partial\
+#       for the next run to continue it), 2 on a usage error.
 param(
   [string]$Step,
   [string]$DataDir,
@@ -46,6 +50,7 @@ $FfmpegBranch = '9.0' # BtbN release branch n9.0
 $Arm = $env:PROCESSOR_ARCHITECTURE -eq 'ARM64'
 
 $Tmp = Join-Path $DataDir 'tmp'
+$ProgressSeconds = if ($env:ESTUDIO_PROGRESS_SECONDS) { [int]$env:ESTUDIO_PROGRESS_SECONDS } else { 15 }
 
 function Fail([string]$What) {
   "Não consegui $What. Confira a internet e tente de novo: o que já estava pronto continua pronto."
@@ -147,9 +152,61 @@ function InstallPython {
   'Python com faster-whisper: pronto.'
 }
 
+# Downloads Url into Partial, continuing the partial file an interrupted run left, and prints a
+# progress line every $ProgressSeconds so a download of minutes never looks frozen. file:// (how
+# the tests serve fixtures) is read the same way, from the same offset. A server that cannot
+# continue (HTTP 416) restarts the file once. Progress goes straight to the console, because
+# anything a function outputs would become part of its return value.
+function FetchModelFile([string]$Url, [string]$Partial, [bool]$Again = $false) {
+  $name = Split-Path -Leaf $Partial
+  $offset = 0L
+  if (Test-Path -LiteralPath $Partial -PathType Leaf) { $offset = (Get-Item -LiteralPath $Partial).Length }
+  $response = $null; $in = $null; $out = $null
+  try {
+    $append = $false
+    if ($Url -like 'file:*') {
+      $in = [IO.File]::OpenRead(([Uri]$Url).LocalPath)
+      if ($offset -gt 0 -and $offset -le $in.Length) { [void]$in.Seek($offset, [IO.SeekOrigin]::Begin); $append = $true }
+    } else {
+      $request = [Net.HttpWebRequest]::Create($Url)
+      if ($offset -gt 0) { $request.AddRange($offset) }
+      try { $response = $request.GetResponse() }
+      catch {
+        $e = $_.Exception
+        while ($e -and -not ($e -is [Net.WebException])) { $e = $e.InnerException }
+        if (-not $Again -and $e -and $e.Response -and [int]$e.Response.StatusCode -eq 416) {
+          Remove-Item -LiteralPath $Partial -Force -ErrorAction SilentlyContinue
+          return (FetchModelFile $Url $Partial $true)
+        }
+        return $false
+      }
+      $append = $offset -gt 0 -and [int]$response.StatusCode -eq 206
+      $in = $response.GetResponseStream()
+    }
+    $mode = if ($append) { [IO.FileMode]::Append } else { [IO.FileMode]::Create }
+    $out = [IO.File]::Open($Partial, $mode, [IO.FileAccess]::Write)
+    $buffer = New-Object byte[] 1048576
+    $clock = [Diagnostics.Stopwatch]::StartNew()
+    while (($read = $in.Read($buffer, 0, $buffer.Length)) -gt 0) {
+      $out.Write($buffer, 0, $read)
+      if ($clock.Elapsed.TotalSeconds -ge $ProgressSeconds) {
+        [Console]::Out.WriteLine("    ${name}: $([math]::Floor($out.Length / 1MB)) MB baixados até agora…")
+        $clock.Restart()
+      }
+    }
+    $true
+  } catch { $false }
+  finally {
+    if ($out) { $out.Dispose() }
+    if ($in) { $in.Dispose() }
+    if ($response) { $response.Close() }
+  }
+}
+
 # The speech model comes from our own GitHub Release, never from Hugging Face. Each file lands in
-# the model folder only after its sha256 matches the manifest, so an interrupted run leaves only
-# verified files and the next run fetches the rest.
+# the model folder only after its sha256 matches the manifest. A download cut halfway waits in
+# partial\speech-model\ and the next run continues it from where it stopped, so a slow link that
+# needs several runs still gets through the ~1.6 GB model.bin.
 function InstallModel {
   $files = @(ModelFiles)
   if ($files.Count -eq 0) { Fail 'ler a lista de arquivos do modelo de fala' }
@@ -159,24 +216,32 @@ function InstallModel {
   })
   if ($pending.Count -eq 0) { 'Modelo de fala: já estava pronto.'; return }
   'Modelo de fala (o que entende as suas falas, baixado uma só vez): baixando cerca de 1,6 GB, pode levar alguns minutos…'
-  $t = NewTmp 'modelo'
-  try { New-Item -ItemType Directory -Path $ModelDir -Force | Out-Null } catch { Fail 'preparar o modelo de fala' }
+  try {
+    New-Item -ItemType Directory -Path $ModelDir -Force | Out-Null
+    New-Item -ItemType Directory -Path $ModelPartialDir -Force | Out-Null
+  } catch { Fail 'preparar o modelo de fala' }
+  $partialRoot = Split-Path -Parent $ModelPartialDir
   $n = 0
   foreach ($file in $pending) {
     $n++
-    "  ($n de $($pending.Count)) baixando $($file.name)…"
+    $partial = Join-Path $ModelPartialDir $file.name
+    $started = (Test-Path -LiteralPath $partial -PathType Leaf) -and (Get-Item -LiteralPath $partial).Length -gt 0
+    if ($started) { "  ($n de $($pending.Count)) continuando $($file.name) de onde parou…" }
+    else { "  ($n de $($pending.Count)) baixando $($file.name)…" }
     $destination = Join-Path $ModelDir $file.name
     Remove-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue
-    $partial = Join-Path $t $file.name
-    if (-not (Download $file.url $partial)) { Fail "baixar o arquivo $($file.name) do modelo de fala" }
+    if (-not $started -or (Sha256Of $partial) -ne $file.sha256) {
+      if (-not (FetchModelFile $file.url $partial)) { Fail "baixar o arquivo $($file.name) do modelo de fala" }
+    }
     if ((Sha256Of $partial) -ne $file.sha256) {
-      Remove-Item -LiteralPath $partial -Force -ErrorAction SilentlyContinue
+      Remove-Item -LiteralPath $partialRoot -Recurse -Force -ErrorAction SilentlyContinue # only this file was waiting there
       "O arquivo $($file.name) do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
       Remove-Item -LiteralPath $Tmp -Recurse -Force -ErrorAction SilentlyContinue
       exit 1
     }
     try { Move-Item -LiteralPath $partial -Destination $destination } catch { Fail "guardar o arquivo $($file.name) do modelo de fala" }
   }
+  Remove-Item -LiteralPath $partialRoot -Recurse -Force -ErrorAction SilentlyContinue # empty: every file moved in
   'Modelo de fala: pronto.'
 }
 
