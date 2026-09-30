@@ -32,7 +32,7 @@ import { readJson } from './valores.mjs';
 
 // Each platform of the Kit: the heading the Social media writes and the names a heading may carry
 // (matched on its letters and digits alone, in lower case). One row per platform of `PLATAFORMAS`.
-const PLATFORMS = {
+const SECTION_HEADINGS = {
   reels: { heading: 'Reels', names: ['reels', 'instagram', 'instagramreels'] },
   tiktok: { heading: 'TikTok', names: ['tiktok'] },
   shorts: { heading: 'Shorts', names: ['shorts', 'youtube', 'youtubeshorts'] },
@@ -51,7 +51,7 @@ const TITLE_LINE = /^\s*\*{0,2}T[íi]tulo\*{0,2}\s*:\s*\*{0,2}\s*(.*?)\s*$/iu;
 
 const hashtagsOf = (text) => [...text.matchAll(HASHTAG)].map((m) => m[1].toLowerCase());
 const slugOf = (heading) => heading.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-const platformOf = (heading) => PLATAFORMAS.find((p) => PLATFORMS[p].names.includes(slugOf(heading))) ?? null;
+const platformOf = (heading) => PLATAFORMAS.find((p) => SECTION_HEADINGS[p].names.includes(slugOf(heading))) ?? null;
 
 // The `## ` sections of the text: [{heading, lines}], in order. Text before the first section (the
 // file's own `# ` title) belongs to none.
@@ -131,7 +131,7 @@ export function textoDoPost(folder, projetoNome, videoNome) {
     }
   }
   for (const platform of plataformas.filter((p) => !seen.has(p))) {
-    problemas.push(`${platform}: has no section ("## ${PLATFORMS[platform].heading}"), the Kit posts there`);
+    problemas.push(`${platform}: has no section ("## ${SECTION_HEADINGS[platform].heading}"), the Kit posts there`);
   }
   return { checked: true, projeto, video, plataformas, problemas, pronto: problemas.length === 0 };
 }
