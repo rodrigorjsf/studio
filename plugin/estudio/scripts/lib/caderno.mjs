@@ -19,9 +19,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { CADERNO, MARKER, PROJETOS } from './layout.mjs';
 import { findProjeto } from './projeto.mjs';
+import { nfc } from './estado.mjs';
 import { isObject, parseJson } from './valores.mjs';
 import { findVideo } from './video.mjs';
-import { nfc } from './estado.mjs';
 
 export const CAMADAS = ['estudio', 'projeto'];
 // Section ids as the Diretor passes them, and the heading each one has in the file.
@@ -37,7 +37,7 @@ function skeleton(title) {
 // `text` with `line` added at the end of the section `heading`; a section the file lost is re-created.
 function withEntry(text, heading, line) {
   const lines = text.split(/\r?\n/);
-  let start = lines.indexOf(`## ${heading}`);
+  let start = lines.findIndex((l) => nfc(l.trimEnd()) === `## ${heading}`);
   if (start === -1) {
     lines.push('', `## ${heading}`);
     start = lines.length - 1;
@@ -48,7 +48,19 @@ function withEntry(text, heading, line) {
   return [...lines.slice(0, start + 1), '', ...body, line, '', ...lines.slice(end)].join('\n').replace(/\n+$/, '\n');
 }
 
-const nextId = (text) => 1 + Math.max(0, ...[...text.matchAll(/^- \*\*#(\d+)\*\* /gm)].map((m) => Number(m[1])));
+// Identifiers are never reused: the next one is kept in a comment under the title (`<!-- proximo: 4 -->`),
+// so an id the Diretor saw earlier never points to a different entry after a removal.
+const COUNTER = /^<!-- proximo: (\d+) -->$/m;
+const nextId = (text) => Math.max(
+  Number(COUNTER.exec(text)?.[1] ?? 1),
+  1 + Math.max(0, ...[...text.matchAll(/^- \*\*#(\d+)\*\* /gm)].map((m) => Number(m[1]))),
+);
+function withCounter(text, next) {
+  const line = `<!-- proximo: ${next} -->`;
+  if (COUNTER.test(text)) return text.replace(COUNTER, line);
+  const [title, ...rest] = text.split('\n');
+  return [title, line, ...rest].join('\n');
+}
 
 function readInput(text) {
   const { value: input, problem } = parseJson(text);
@@ -76,16 +88,16 @@ function locate(folder, input) {
   return { file: path.join(folder, PROJETOS, projetoDir, CADERNO), title: `Caderno do Projeto ${nfc(projetoDir)}`, video: videoName };
 }
 
-const ENTRY = (id) => new RegExp(`^- \\*\\*#${id}\\*\\* `);
+const entryPattern = (id) => new RegExp(`^- \\*\\*#${id}\\*\\* `);
 
 // `text` without the entry `id`, or with `line` in its place: {text, secao} (the section heading
 // it sat under), or null when no such entry is there.
 function changeEntry(text, id, line) {
   const lines = text.split(/\r?\n/);
-  const at = lines.findIndex((l) => ENTRY(id).test(l));
+  const at = lines.findIndex((l) => entryPattern(id).test(l));
   if (at === -1) return null;
   const heading = lines.slice(0, at).findLast((l) => l.startsWith('## '))?.slice(3) ?? null;
-  const secao = Object.keys(SECOES).find((key) => SECOES[key] === heading) ?? null;
+  const secao = Object.keys(SECOES).find((key) => SECOES[key] === nfc(heading ?? '').trimEnd()) ?? null;
   if (line === null) lines.splice(at, 1);
   else lines[at] = line;
   return { text: lines.join('\n'), secao };
@@ -98,7 +110,7 @@ export function caderno(folder, inputText) {
   if (problem) return { written: false, reason: 'invalid-input', message: problem };
   if (!ACOES.includes(input.acao)) return { written: false, reason: 'invalid-input', message: `acao must be one of: ${ACOES.join(', ')}` };
   if (!CAMADAS.includes(input.camada)) return { written: false, reason: 'unknown-layer', camada: input.camada ?? null };
-  if (input.acao === 'anexar' && !Object.hasOwn(SECOES, input.secao)) return { written: false, reason: 'unknown-section', secao: input.secao ?? null };
+  if ((input.acao === 'anexar' || input.secao !== undefined) && !Object.hasOwn(SECOES, input.secao)) return { written: false, reason: 'unknown-section', secao: input.secao ?? null };
   if (!fs.existsSync(path.join(folder, MARKER))) return { written: false, reason: 'not-estudio' };
   const texto = oneLine(String(input.texto ?? ''));
   const persona = oneLine(String(input.persona ?? ''));
@@ -108,13 +120,15 @@ export function caderno(folder, inputText) {
   const where = locate(folder, input);
   if (where.refusal) return { written: false, ...where.refusal };
   const { file, title, video } = where;
-  const data = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  // Her local date, not UTC: from the evening in Brazil UTC is already tomorrow.
+  const data = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n, i) => String(n).padStart(i === 0 ? 4 : 2, '0')).join('-');
   const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : skeleton(title);
   const base = { written: true, acao: input.acao, camada: input.camada, data, caminho: file };
 
   if (input.acao === 'anexar') {
     const id = nextId(before);
-    fs.writeFileSync(file, withEntry(before, SECOES[input.secao], entryLine(id, texto, persona, video, data)));
+    fs.writeFileSync(file, withCounter(withEntry(before, SECOES[input.secao], entryLine(id, texto, persona, video, data)), id + 1));
     return { ...base, secao: input.secao, id };
   }
   const line = input.acao === 'remover' ? null : entryLine(input.id, texto, persona, video, data);

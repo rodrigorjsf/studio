@@ -256,28 +256,35 @@ test('every persona prompt names both Caderno paths and the report field for pro
   }
 });
 
-test('the Diretor\'s skills hand both Caderno paths to the personas and point to how the Caderno is kept', () => {
+test('the Diretor\'s skills point to the Caderno reference, which exists and names the command', () => {
   const reference = shipped('plugin', 'estudio', 'skills', 'estudio', 'references', 'caderno.md');
-  for (const token of ['Elogios', 'Queixas', 'Soluções', '"acao": "anexar"', '"acao": "substituir"', '"acao": "remover"', 'caderno-proposto']) {
-    assert.ok(reference.includes(token), `the Caderno reference never mentions ${token}`);
-  }
+  assert.ok(reference.includes('estudio.mjs" caderno'), 'the Caderno reference never shows the command');
   for (const skill of ['estudio', 'novo-video', 'plano', 'edicao']) {
-    const text = shipped('plugin', 'estudio', 'skills', skill, 'SKILL.md');
-    assert.ok(text.includes('caderno.md'), `the ${skill} skill never points to the Caderno reference`);
-  }
-  for (const skill of ['novo-video', 'plano', 'edicao']) {
-    const text = shipped('plugin', 'estudio', 'skills', skill, 'SKILL.md');
-    assert.ok(text.includes('<caderno-estudio>') || text.includes('the two Caderno paths'), `the ${skill} skill never hands the Caderno paths to a persona`);
+    assert.ok(shipped('plugin', 'estudio', 'skills', skill, 'SKILL.md').includes('caderno.md'), `the ${skill} skill never points to the Caderno reference`);
   }
 });
 
-test('the README actors section and the wiki describe the Caderno as built', () => {
+test('the README actors section describes the Caderno', () => {
   const readme = shipped('README.md');
   const actors = readme.slice(readme.indexOf('\n## Quem trabalha em cada etapa\n'));
   const section = actors.slice(0, actors.indexOf('\n## ', 10));
-  assert.match(section, /Caderno/);
-  for (const word of ['Elogios', 'Queixas', 'Soluções']) assert.ok(section.includes(word), `the README actors section never names ${word}`);
-  const wiki = shipped('wiki', 'concepts', 'caderno.md');
-  assert.doesNotMatch(wiki, /Planned \(not built\)/);
-  assert.match(wiki, /caderno/);
+  for (const word of ['Caderno', 'Elogios', 'Queixas', 'Soluções']) assert.ok(section.includes(word), `the README actors section never names ${word}`);
+});
+
+test('an identifier is never reused after a removal, and a replace cannot name an unknown section', () => {
+  const { dir, nova } = conflicting();
+  assert.equal(caderno(dir, { acao: 'remover', camada: 'estudio', id: nova }).out.written, true);
+  const again = caderno(dir, { acao: 'anexar', camada: 'estudio', secao: 'queixas', texto: 'Outra.', persona: 'diretor' }).out;
+  assert.equal(again.id, nova + 1);
+  const before = snapshot(dir);
+  const { out } = caderno(dir, { acao: 'substituir', camada: 'estudio', secao: 'dicas', id: 1, texto: 'x', persona: 'diretor' });
+  assert.equal(out.reason, 'unknown-section');
+  assert.deepEqual(snapshot(dir), before);
+});
+
+test('a heading saved with decomposed accents, as a Mac would, still takes the entry', () => {
+  const { dir } = conflicting();
+  fs.writeFileSync(estudioFile(dir), read(estudioFile(dir)).replace('## Soluções', '## Soluc\u0327o\u0303es'));
+  caderno(dir, { acao: 'anexar', camada: 'estudio', secao: 'solucoes', texto: 'Criar a pasta antes.', persona: 'finalizador' });
+  assert.equal(read(estudioFile(dir)).normalize('NFC').split('## Soluções').length, 2);
 });

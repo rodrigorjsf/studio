@@ -27,7 +27,7 @@ It is separate from the Kit learnings (`aprendizados.json`), which change her Ki
 ```
 
 - `projeto` is required for the `projeto` layer; `video` is optional and needs its `projeto`. `persona` is the agent name (`motion-designer`, …) or `diretor` for what you noticed yourself. The command stamps the date.
-- Each entry has an identifier (`id`, in the answer and as `#n` in the file). `substituir` keeps the entry's place and gives it new text and a new stamp; `remover` deletes it.
+- Each entry has an identifier (`id`, in the answer and as `#n` in the file). `substituir` keeps the entry's place and gives it new text and a new stamp (pass `persona` and `video` again: the old stamp is not kept); identifiers are never reused; `remover` deletes it.
 - It refuses, changing nothing: `unknown-layer`, `unknown-section`, `unknown-projeto`, `unknown-video`, `unknown-entry` (no entry with that `id` there), `invalid-input` (fix the JSON), `not-estudio`. Fix the input and call again; never edit the file by hand to get around a refusal.
 
 ## Capture: what she says

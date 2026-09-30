@@ -133,7 +133,7 @@ It moves the Vídeo to **Revisão**, sets `rodada` to the version's number and o
 
 The studio gets better at her style one Vídeo at a time: what this Vídeo taught becomes part of the Kit de marca, **only when she approves it**.
 
-1. **Propose.** From this Vídeo's record — her notes in each `revisao/vNN/notas.md`, her requests in the Plano (`pedidosDela`), what she changed from the Kit (**O que muda do Kit** in `video.md`), the Críticos' rejections in `qc-interno.json` — pick at most **three** learnings that would hold for her next Vídeos of this Projeto, not one-off choices. Each is one pt-BR sentence for her and the Kit fields it changes, as `editar-kit` takes them: objects merge field by field; a list (`fazer`, `evitar`, `glossario`, …) is replaced whole, so give the full new list. Nothing worth keeping → no proposal.
+1. **Propose.** From this Vídeo's record — her notes in each `revisao/vNN/notas.md`, her requests in the Plano (`pedidosDela`), what she changed from the Kit (**O que muda do Kit** in `video.md`), the Críticos' rejections in `qc-interno.json` — pick at most **three** learnings that would hold for her next Vídeos of this Projeto, not one-off choices. Each is one pt-BR sentence for her and the Kit fields it changes, as `editar-kit` takes them: objects merge field by field; a list (`fazer`, `evitar`, `glossario`, …) is replaced whole, so give the full new list. A Queixa she voiced in this Vídeo that contradicts her Kit is one to propose here (see the [caderno reference](../estudio/references/caderno.md)). Nothing worth keeping → no proposal.
 2. **Ask her once** (`AskUserQuestion` with `multiSelect` when available): which of them go into the Kit, each with "antes → depois" in plain words, plus "nenhum". Tell her it applies to her **next** Vídeos; the ones in progress keep their Kit unless she asks (`/estudio:editar-projeto`). "Decide você" approves none: a learning reaches her Kit only on her yes, whatever her Autonomia. This question comes after the Entrega, so it is not counted in the Vídeo's metrics.
 3. **Record and archive**, with every proposal and her answer (no proposal: `{"aprendizados": []}`):
 
@@ -142,7 +142,7 @@ The studio gets better at her style one Vídeo at a time: what this Vídeo taugh
    ```
 
    It applies only the approved ones to the Projeto's Kit (re-validated and re-approved, as `editar-kit` does; existing Vídeos keep their Kit), keeps every proposal in the Vídeo's `aprendizados.json` and moves the Vídeo to **Arquivado**. It refuses, changing nothing: `invalid-learning` (with `errors`: the change would break the Kit; fix it and ask again only if the meaning changed), `invalid-input`, `not-delivered` (the Vídeo is not `Entregue`), `kit-not-approved`.
-4. **The Caderno, at the close.** A Queixa she voiced in this Vídeo that contradicts her Kit is a Kit learning to offer in the question above; the personas' `caderno-proposto` lines from this Vídeo are written, or skipped, as the [caderno reference](../estudio/references/caderno.md) says. Only you write the Caderno.
+4. **The Caderno, at the close.** The personas' `caderno-proposto` lines from this Vídeo are written, or skipped, as the [caderno reference](../estudio/references/caderno.md) says. Only you write the Caderno.
 5. Tell her in one line what went into the Kit (`aplicados`), and what she can ask now: a 16:9 version, the overlays, another Vídeo (`/estudio:novo-video`).
 
 ## Rules
