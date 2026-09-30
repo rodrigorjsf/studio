@@ -30,27 +30,28 @@ function choice(key, value) {
 }
 
 // Returns the Perfil's reported fields and the validation messages (empty when valid).
+// A choice that fails validation is reported as null; callers act only when `errors` is empty.
 export function readPerfil(data) {
   const messages = [];
-  for (const key of FREE_TEXT) {
-    if (typeof data[key] !== 'string' || data[key].trim() === '') messages.push(`missing answer "${key}"`);
+  const answered = (key) => data[key] != null && String(data[key]).trim() !== '';
+  for (const key of PERFIL_QUESTIONS) {
+    if (!answered(key)) messages.push(`missing answer "${key}"`);
   }
   const values = {};
   for (const [key, options] of Object.entries(CHOICES)) {
     values[key] = choice(key, data[key]);
-    if (data[key] == null) messages.push(`missing answer "${key}"`);
-    else if (!values[key]) messages.push(`${key} ${JSON.stringify(data[key])} must be one of: ${options.join(', ')}`);
+    if (answered(key) && !values[key]) messages.push(`${key} ${JSON.stringify(data[key])} must be one of: ${options.join(', ')}`);
   }
-  const decideVoce = data['decide-voce'] ?? [];
+  let decideVoce = data['decide-voce'] ?? [];
   if (!Array.isArray(decideVoce)) {
     messages.push('decide-voce must be a list of question keys');
-  } else {
-    for (const key of decideVoce) {
-      if (!PERFIL_QUESTIONS.includes(key)) messages.push(`decide-voce names an unknown question ${JSON.stringify(key)}`);
-    }
+    decideVoce = [];
+  }
+  for (const key of decideVoce) {
+    if (!PERFIL_QUESTIONS.includes(key)) messages.push(`decide-voce names an unknown question ${JSON.stringify(key)}`);
   }
   return {
     messages,
-    perfil: { autonomia: values.autonomia, tom: values.tom, decideVoce: Array.isArray(decideVoce) ? decideVoce : [] },
+    fields: { autonomia: values.autonomia, tom: values.tom, nivelTecnico: values['nivel-tecnico'], decideVoce },
   };
 }

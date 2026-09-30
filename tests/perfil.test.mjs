@@ -35,7 +35,7 @@ function estado(dir) {
 test('a complete Perfil is valid and reports Autonomia, tone and the answers left to the Diretor', () => {
   const out = estado(estudio());
   assert.deepEqual(out.errors, []);
-  assert.deepEqual(out.perfil, { present: true, autonomia: 'média', tom: 'explicar mais', decideVoce: ['tom', 'autonomia'] });
+  assert.deepEqual(out.perfil, { present: true, autonomia: 'média', tom: 'explicar mais', nivelTecnico: 'iniciante', decideVoce: ['tom', 'autonomia'] });
 });
 
 const writePerfil = (dir, frontmatter) =>
@@ -65,7 +65,7 @@ test('a Perfil with every question answered by her has nothing left to the Diret
   writePerfil(dir, COMPLETE.join('\n'));
   const out = estado(dir);
   assert.deepEqual(out.errors, []);
-  assert.deepEqual(out.perfil, { present: true, autonomia: 'alta', tom: 'decidir mais', decideVoce: [] });
+  assert.deepEqual(out.perfil, { present: true, autonomia: 'alta', tom: 'decidir mais', nivelTecnico: 'intermediário', decideVoce: [] });
 });
 
 test('an unanswered question or an answer outside the options is a validation error to fix first', () => {
@@ -109,4 +109,5 @@ test('choices typed without accents or in capitals, or saved decomposed on a Mac
   assert.deepEqual(out.errors, []);
   assert.equal(out.perfil.autonomia, 'média');
   assert.equal(out.perfil.tom, 'explicar mais');
+  assert.equal(out.perfil.nivelTecnico, 'avançado');
 });

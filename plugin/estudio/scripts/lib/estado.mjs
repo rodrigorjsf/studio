@@ -76,9 +76,9 @@ export function estado(folder) {
   let perfil = { present: fs.existsSync(perfilFile) };
   const perfilData = perfil.present ? readDoc(perfilFile) : null;
   if (perfilData) {
-    const read = readPerfil(perfilData);
-    read.messages.forEach((message) => fail(perfilFile, message));
-    perfil = { ...perfil, ...read.perfil };
+    const { messages, fields } = readPerfil(perfilData);
+    messages.forEach((message) => fail(perfilFile, message));
+    perfil = { ...perfil, ...fields };
   }
 
   const projetos = subfolders(path.join(folder, PROJETOS)).map((name) => {
