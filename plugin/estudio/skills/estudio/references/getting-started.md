@@ -14,7 +14,7 @@ This tutorial takes you from zero to the first edit. It takes about 20 minutes, 
 |---|---|---|
 | **Claude** with Claude Code access (Pro or Max plan) | it is your video director | yes |
 | **Node.js** (LTS version) | runs Remotion | yes |
-| **Python** 3.10 or newer | transcription and the `watch` skill | yes |
+| **Python** 3.10 or newer | transcription and the frame sampler | yes |
 | **FFmpeg** | reads and converts video | yes |
 | **Git** | download and update this repository | recommended |
 | **Higgsfield** account with credits | Nível 2 only | no |
@@ -25,7 +25,7 @@ You can use Claude in three ways. All of them work with this repository:
 - **Claude Code in VS Code** (extension);
 - **Claude Code in the terminal** (`claude` command).
 
-> The `watch` skill **does not work in Cowork or in the regular Claude chat**. Always use a **Code** session.
+> The studio **does not work in Cowork or in the regular Claude chat**: it runs programs on her computer. Always use a **Code** session.
 
 ## 2. Prepare the computer (the plugin's installer)
 
@@ -42,36 +42,25 @@ The plugin replaces the upstream install ritual (package managers, cloning, `npm
 - Claude Code deletes the plugin data folder when the plugin is uninstalled, so the runtimes leave with it. `node_modules/` is part of her Estúdio folder, like her videos, and stays.
 - Every step is safe to repeat: a program that already works — the studio's own or one already on the computer — is not downloaded again.
 - The programs the studio downloads are **not** on the computer's PATH. Run them by the full path the computer check prints (`tools.node`, `tools.ffmpeg`, `tools.ffprobe`, `tools.python`).
-- The `watch` and `remotion-best-practices` skills from the upstream setup are not installed by this step.
+- Nothing else is installed: no other plugin, marketplace or skill. What the upstream setup took from two external skills now ships inside the plugin (section 3).
 
-## 3. About the free skills
+## 3. What ships inside the plugin
 
-Skills are knowledge packages that Claude loads when it needs them. Upstream, `npm run instalar` installed both; the plugin's installer (section 2) does not:
+Upstream, `npm run instalar` also installed two third-party skills, one to watch videos and one with Remotion best practices. The plugin carries what the studio needs from them instead, so the Criadora installs only `estudio`:
 
-- **`watch`**: watches videos, extracts frames and transcribes ([bradautomates/claude-video](https://github.com/bradautomates/claude-video));
-- **`remotion-best-practices`**: Remotion best practices ([remotion-dev/skills](https://github.com/remotion-dev/skills)).
+- **The frame sampler** (`scripts/frames/amostrar.py`): samples frames of her video in two modes, an overview and a face-zone pass over the whole clip. It needs only the Python and ffmpeg from section 2, runs locally, sends nothing anywhere and asks for no key. How to use it: [watching a video](watching-a-video.md).
+- **The Remotion rules** ([references/remotion/](remotion/index.md)): short rulebooks per topic, written for the Remotion version the Estúdio template pins.
+- **Transcription** stays local and free with faster-whisper (section 2); no cloud transcription service or API key is used.
 
-Using only Claude Desktop, without the `claude` terminal command? `watch` is declared in the project (`.claude/settings.json`), so Claude offers to install it when you open the folder: accept. If it does not show up, install it by hand at **Personalizar → Plugins → Adicionar → Adicionar marketplace → Adicionar de um repositório** (Customize → Plugins → Add → Add marketplace → Add from a repository), paste `https://github.com/bradautomates/claude-video`, click **Sincronizar** (Sync) and install **Watch**.
+Where each piece comes from, with its license, is in the plugin's `THIRD_PARTY.md`.
 
-## 4. (Optional) Free Groq key
-
-`watch` can use Groq to transcribe quickly. It is free within a generous limit.
-
-1. Create the key at [console.groq.com/keys](https://console.groq.com/keys).
-2. Save it as an environment variable:
-   - Windows: `[Environment]::SetEnvironmentVariable("GROQ_API_KEY", "sua-chave", "User")`
-   - Mac: add `export GROQ_API_KEY="sua-chave"` to `~/.zshrc`.
-3. Reopen Claude.
-
-Without this key everything works the same: `tools/transcrever.py` transcribes locally, for free.
-
-## 5. (Nível 2 only) Connect Higgsfield
+## 4. (Nível 2 only) Connect Higgsfield
 
 Follow the section [Connect Higgsfield to Claude](level-2-higgsfield.md#1-connect-higgsfield-to-claude). Summary: in Claude Desktop, **Configurações → Conectores → Adicionar conector personalizado** (Settings → Connectors → Add custom connector), URL `https://mcp.higgsfield.ai/mcp`, and log in to your account.
 
 ---
 
-## 6. Understanding the folders
+## 5. Understanding the folders
 
 ```text
 studio/
@@ -84,7 +73,7 @@ studio/
 │  └─ 001. meu-video/
 │     ├─ video/        the recorded video, already cut (never altered)
 │     ├─ prints/       screenshots and images of what you want animated
-│     ├─ frames/       (generated) frames Claude "watched"
+│     ├─ frames/       (generated) frames sampled from the video
 │     ├─ transcricao/  (generated) text with the timing of each word
 │     ├─ hf/           (Nível 2) images and videos generated on Higgsfield
 │     ├─ plano.md      (generated) the edit plan you approve
@@ -106,7 +95,7 @@ Rule of thumb: **you only touch `projetos/`** (to hand in material) **and `edico
 
 The whole `projetos/` folder is kept out of Git (`.gitignore`), except for the example. That way your videos and prints do not end up on GitHub by accident if you publish a fork.
 
-## 7. Your first edit
+## 6. Your first edit
 
 1. Create the folder `projetos/001. meu-video/video/` and put your video there (MP4 or MOV, already cut).
 2. Create `projetos/001. meu-video/prints/` and save screenshots of everything you mention in the video: websites, news, tool screens.
@@ -122,7 +111,7 @@ The whole `projetos/` folder is kept out of Git (`.gitignore`), except for the e
 
 Do not know what to ask for? Ask Claude itself: "o que dá para fazer com esse vídeo?" (what can be done with this video?). It was instructed to suggest options.
 
-## 8. Quick glossary
+## 7. Quick glossary
 
 | Term | Meaning |
 |---|---|

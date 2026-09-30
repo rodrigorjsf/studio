@@ -40,3 +40,6 @@ Pages: concepts/brand-kit-per-front.md, overview.md.
 
 ## [2026-09-29] update | Remotion template compositions read the Kit de marca (ticket #8)
 Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-29] update | Frame sampler and Remotion rules incorporated; external skills removed (ticket #23)
+Pages: concepts/plugin-architecture.md, overview.md.
