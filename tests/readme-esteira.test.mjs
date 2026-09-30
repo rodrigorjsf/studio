@@ -14,30 +14,24 @@ const readme = read('README.md');
 const SECTION_HEADING = '## Quem trabalha em cada etapa';
 const SECTION_ANCHOR = '#quem-trabalha-em-cada-etapa';
 
-function section() {
-  const start = readme.indexOf(`\n${SECTION_HEADING}\n`);
-  assert.notEqual(start, -1, `README has no "${SECTION_HEADING}" section`);
-  const rest = readme.slice(start + 1);
-  const next = rest.indexOf('\n## ', SECTION_HEADING.length);
+const H3 = '\n### ';
+
+// The text from `heading` up to the next heading of the same level (or the end of `text`).
+function slice(text, heading, level) {
+  const start = text.indexOf(heading);
+  assert.notEqual(start, -1, `README has no "${heading.trim()}"`);
+  const rest = text.slice(start + 1);
+  const next = rest.indexOf(level, heading.length);
   return next === -1 ? rest : rest.slice(0, next);
 }
 
-function h3(body, title) {
-  const start = body.indexOf(`\n### ${title}`);
-  assert.notEqual(start, -1, `section has no "### ${title}" part`);
-  const rest = body.slice(start + 1);
-  const next = rest.indexOf('\n### ', 5);
-  return next === -1 ? rest : rest.slice(0, next);
-}
+const section = () => slice(readme, `\n${SECTION_HEADING}\n`, '\n## ');
+const h3 = (body, title) => slice(body, `${H3}${title}`, H3);
 
-function tableRows(part) {
-  return part.split('\n').filter((l) => l.startsWith('|')).slice(2)
-    .map((l) => l.replace(/^\||\|$/g, '').split('|').map((c) => c.trim()));
-}
-
-function tableHeader(part) {
-  return part.split('\n').find((l) => l.startsWith('|')).replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
-}
+const cells = (line) => line.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+const tableLines = (part) => part.split('\n').filter((l) => l.startsWith('|'));
+const tableHeader = (part) => cells(tableLines(part)[0]);
+const tableRows = (part) => tableLines(part).slice(2).map(cells);
 
 const agentSlugs = fs.readdirSync(path.join(repoRoot, 'plugin/estudio/agents'))
   .filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''));
@@ -58,11 +52,10 @@ test('the actors table has one row per skill persona and per plugin agent', () =
   const rows = tableRows(part);
   for (const row of rows) assert.equal(row.length, 9, `row "${row[0]}" has ${row.length} cells`);
   const text = rows.map((r) => r.join(' ')).join('\n');
-  assert.equal(agentSlugs.length, 11);
   for (const slug of [...agentSlugs, 'estudio', 'perfil']) {
     assert.ok(text.includes(`\`${slug}\``), `no actors-table row names \`${slug}\``);
   }
-  assert.equal(rows.length, 13);
+  assert.equal(rows.length, agentSlugs.length + 2, 'one row per agent plus the Diretor and the Entrevistador');
   for (const row of rows) for (const cell of row) assert.notEqual(cell, '', `an empty cell in the row of ${row[0]}`);
   for (const row of rows) assert.match(row[8], /^(1|2|1 e 2)$/, `Nível of ${row[0]}`);
 });
