@@ -24,7 +24,9 @@ const SOURCE_FILE = /\.(ts|tsx)$/;
 const VIDEO_FILE = /\.(ts|tsx|js|jsx|mjs|cjs|css)$/;
 
 const HEX_COLOR = /(?<![\w&#])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![\w])/g;
-const STRING_FONT_FAMILY = /fontFamily\s*:\s*['"`]/;
+// `fontFamily: 'Inter'`, `{'fontFamily': "Inter"}`, `fontFamily="Inter"` (JSX) or a template literal
+// with no `${…}`. A template literal that interpolates the Kit (`${kit.tipografia.titulo.familia}`) passes.
+const STRING_FONT_FAMILY = /['"]?\bfontFamily['"]?\s*[:=]\s*\{?\s*(?:['"]|`(?![^`]*\$\{))/;
 
 function collect(directory, pattern) {
   if (!fs.existsSync(directory)) return [];
@@ -39,26 +41,31 @@ const relativeTo = (base, file) => path.relative(base, file).split(path.sep).joi
 const readLines = (file) => fs.readFileSync(file, 'utf8').split(/\r?\n/);
 
 // Blanks out comments, keeping every line in place, so a note like "see #123" is not code.
+// Knows about strings, so `'image/*'` does not open a comment. ponytail: a regex literal holding a
+// quote can still confuse it; an AST parser if that ever matters.
 function withoutComments(lines) {
   let inBlock = false;
+  let quote = null; // only a template literal (`) survives a line break
   return lines.map((line) => {
     let code = '';
-    for (let at = 0; at < line.length;) {
+    if (quote !== '`') quote = null;
+    for (let at = 0; at < line.length; at++) {
+      const char = line[at];
+      const pair = line.slice(at, at + 2);
       if (inBlock) {
-        const end = line.indexOf('*/', at);
-        if (end === -1) return code;
-        inBlock = false;
-        at = end + 2;
+        if (pair === '*/') { inBlock = false; at++; }
         continue;
       }
-      const start = line.indexOf('/*', at);
-      const lineComment = /(^|\s)\/\//.exec(line.slice(at));
-      const lineAt = lineComment ? at + lineComment.index + lineComment[1].length : -1;
-      if (lineAt !== -1 && (start === -1 || lineAt < start)) return code + line.slice(at, lineAt);
-      if (start === -1) return code + line.slice(at);
-      code += line.slice(at, start);
-      inBlock = true;
-      at = start + 2;
+      if (quote) {
+        code += char;
+        if (char === '\\') code += line[++at] ?? '';
+        else if (char === quote) quote = null;
+        continue;
+      }
+      if (pair === '//') break;
+      if (pair === '/*') { inBlock = true; at++; continue; }
+      if (char === "'" || char === '"' || char === '`') quote = char;
+      code += char;
     }
     return code;
   });
@@ -107,7 +114,16 @@ export function checkBrandValues(srcRoot) {
   return violations;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Real paths on both sides: Node resolves symlinks in import.meta.url but not in argv[1] (macOS /tmp).
+const invokedDirectly = () => {
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+
+if (process.argv[1] && invokedDirectly()) {
   const srcRoot = path.join(estudioRoot, 'src');
   const violations = [...checkSplitLayouts(srcRoot), ...checkBrandValues(srcRoot)];
   for (const { file, line, reason } of violations) console.error(`src/${file}:${line}: ${reason}`);

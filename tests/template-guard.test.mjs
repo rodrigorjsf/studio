@@ -139,3 +139,45 @@ test('the repo-side split-layout check passes on the template it ships', () => {
   const result = spawnSync(process.execPath, [path.join(repoRoot, 'scripts', 'check-split-layouts.mjs')], { encoding: 'utf8', cwd: repoRoot });
   assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
 });
+
+test('the guard passes a fontFamily template literal built from the Kit', () => {
+  const estudio = scaffold();
+  write(estudio, 'src/videos/minha-empresa-dica/Interpolada.tsx', [
+    "import React from 'react';",
+    "import {DEFAULT_KIT} from '../../_shared/kit';",
+    'export const Interpolada: React.FC = () => (',
+    '  <div style={{fontFamily: `"${DEFAULT_KIT.tipografia.titulo.familia}", serif`}}>Oi</div>',
+    ');',
+  ]);
+  const { status, output } = guard(estudio);
+  assert.equal(status, 0, output);
+});
+
+test('the guard catches a quoted fontFamily key, a JSX fontFamily attribute and a hex after "/*" in a string', () => {
+  const estudio = scaffold();
+  write(estudio, 'src/videos/minha-empresa-dica/Escapes.tsx', [
+    "import React from 'react';",
+    "const aceita = 'image/*';",
+    'export const Escapes: React.FC = () => (',
+    "  <div style={{'fontFamily': 'Inter'}}>",
+    '    <svg><text fontFamily="Inter">Oi</text></svg>',
+    "    <span style={{color: '#ff0066'}} />",
+    '  </div>',
+    ');',
+  ]);
+  const { status, output } = guard(estudio);
+  assert.notEqual(status, 0, output);
+  assert.match(output, /^src\/videos\/minha-empresa-dica\/Escapes\.tsx:4: .*fontFamily/m);
+  assert.match(output, /^src\/videos\/minha-empresa-dica\/Escapes\.tsx:5: .*fontFamily/m);
+  assert.match(output, /^src\/videos\/minha-empresa-dica\/Escapes\.tsx:6: .*#ff0066/m);
+});
+
+test('the guard still runs when called through a symlinked path', { skip: process.platform === 'win32' }, () => {
+  const estudio = scaffold();
+  write(estudio, 'src/videos/minha-empresa-dica/Cor.tsx', ["export const COR = '#ff0066';"]);
+  const link = path.join(path.dirname(estudio), 'atalho');
+  fs.symlinkSync(estudio, link);
+  const result = spawnSync(process.execPath, [path.join(link, ...GUARD.split('/'))], { encoding: 'utf8' });
+  assert.notEqual(result.status, 0, `${result.stdout}${result.stderr}`);
+  assert.match(result.stderr, /Cor\.tsx:1: .*#ff0066/);
+});
