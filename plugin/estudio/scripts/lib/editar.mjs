@@ -4,10 +4,10 @@
 // gets a copy of the Kit it started with (its Kit snapshot, `videos/<vídeo>/kit.json`).
 import fs from 'node:fs';
 import path from 'node:path';
-import { estado, isFinished, subfolders } from './estado.mjs';
+import { estado, isFinished, nfc, subfolders } from './estado.mjs';
 import { validateKit } from './kit.mjs';
 import { KIT, PROJETOS, VIDEO_KIT, VIDEOS } from './layout.mjs';
-import { findProjeto } from './projeto.mjs';
+import { findProjeto, freezeVideoKits } from './projeto.mjs';
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -41,13 +41,13 @@ function parseEdit(editText) {
 // The approved Projeto named `nome`, with its folder on disk, or the refusal to return.
 function approvedProjeto(folder, nome) {
   const state = estado(folder);
-  const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nome.normalize('NFC'));
+  const projeto = state.isEstudio && state.projetos?.find((p) => p.id === nfc(nome));
   if (!projeto) return { refusal: { reason: 'unknown-projeto' } };
   if (projeto.kit !== 'ok') return { refusal: { reason: 'kit-not-approved', projeto: projeto.id, kit: projeto.kit } };
   return { projeto, dir: path.join(folder, PROJETOS, findProjeto(folder, nome)) };
 }
 
-// Applies her change to an approved Kit. The Diretor runs it only after she confirmed the
+// Applies her change to an approved Kit. The Entrevistador runs it only after she confirmed the
 // change, so the new Kit is stamped approved. An edit that breaks the Kit changes nothing.
 export function editarKit(folder, nome, editText) {
   const { edit, problem } = parseEdit(editText);
@@ -59,19 +59,14 @@ export function editarKit(folder, nome, editText) {
   const errors = validateKit(kit, dir);
   if (errors.length > 0) return { edited: false, reason: 'invalid', projeto: projeto.id, errors };
 
-  // Freeze first: every Vídeo that has no Kit of its own keeps the one it started with.
-  const videos = subfolders(path.join(dir, VIDEOS));
-  for (const video of videos) {
-    const own = path.join(dir, VIDEOS, video, VIDEO_KIT);
-    if (!fs.existsSync(own)) fs.copyFileSync(kitFile, own);
-  }
+  const videosKeepingTheirKit = freezeVideoKits(dir);
   kit.aprovadoEm = new Date().toISOString();
   fs.writeFileSync(kitFile, `${JSON.stringify(kit, null, 2)}\n`);
   return {
     edited: true,
     projeto: projeto.id,
     aprovadoEm: kit.aprovadoEm,
-    videosKeepingTheirKit: videos.map((video) => video.normalize('NFC')),
+    videosKeepingTheirKit,
   };
 }
 
@@ -80,12 +75,12 @@ export function editarKit(folder, nome, editText) {
 export function atualizarKitVideo(folder, nome, videoNome) {
   const { projeto, dir, refusal } = approvedProjeto(folder, nome);
   if (refusal) return { updated: false, ...refusal };
-  const video = projeto.videos.find((v) => v.id === videoNome.normalize('NFC'));
+  const video = projeto.videos.find((v) => v.id === nfc(videoNome));
   if (!video) return { updated: false, reason: 'unknown-video', projeto: projeto.id };
   if (isFinished(video.status)) {
     return { updated: false, reason: 'finished', projeto: projeto.id, video: video.id, status: video.status };
   }
-  const videoDir = subfolders(path.join(dir, VIDEOS)).find((name) => name.normalize('NFC') === video.id);
+  const videoDir = subfolders(path.join(dir, VIDEOS)).find((name) => nfc(name) === video.id);
   const kitFile = path.join(dir, KIT);
   fs.copyFileSync(kitFile, path.join(dir, VIDEOS, videoDir, VIDEO_KIT));
   const { aprovadoEm } = JSON.parse(fs.readFileSync(kitFile, 'utf8'));

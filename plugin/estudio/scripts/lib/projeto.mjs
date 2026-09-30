@@ -4,9 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { briefingTemplate, unansweredSections } from './briefing.mjs';
-import { estado } from './estado.mjs';
+import { estado, nfc, subfolders } from './estado.mjs';
 import { defaultKit } from './kit.mjs';
-import { KIT, KIT_ASSETS, MARKER, PROJETO_DOC, PROJETOS } from './layout.mjs';
+import { KIT, KIT_ASSETS, MARKER, PROJETO_DOC, PROJETOS, VIDEO_KIT, VIDEOS } from './layout.mjs';
 
 // A Projeto is a folder named as she calls it ("Minha Empresa"), so the name must be a
 // single, portable folder name on Mac and Windows.
@@ -17,8 +17,6 @@ function nameProblem(nome) {
   if (FORBIDDEN.test(nome)) return 'contains a character a folder name cannot hold';
   return null;
 }
-
-const nfc = (name) => name.normalize('NFC');
 
 // The Projeto's folder name as stored on disk (a Mac may store it decomposed), or null.
 export function findProjeto(folder, nome) {
@@ -49,6 +47,18 @@ export function novoProjeto(folder, nome) {
   return { created: true, ...(existing && { resumed: true }), projeto, path: `${PROJETOS}/${projeto}` };
 }
 
+// Before an approved Kit changes, every Vídeo of the Projeto that has no Kit of its own gets
+// a copy of the current one, so it keeps the Kit it started with. Returns every Vídeo that
+// now follows its own Kit.
+export function freezeVideoKits(projetoDir) {
+  const videos = subfolders(path.join(projetoDir, VIDEOS));
+  for (const video of videos) {
+    const own = path.join(projetoDir, VIDEOS, video, VIDEO_KIT);
+    if (!fs.existsSync(own)) fs.copyFileSync(path.join(projetoDir, KIT), own);
+  }
+  return videos.map(nfc);
+}
+
 // Closes the Kit approval Gate: stamps `aprovadoEm` only on a Projeto whose documents
 // `estado` finds valid and whose briefing has every section answered.
 export function aprovarKit(folder, nome) {
@@ -68,6 +78,7 @@ export function aprovarKit(folder, nome) {
 
   const kitFile = path.join(dir, KIT);
   const kit = JSON.parse(fs.readFileSync(kitFile, 'utf8'));
+  if (kit.aprovadoEm) freezeVideoKits(dir);
   kit.aprovadoEm = new Date().toISOString();
   fs.writeFileSync(kitFile, `${JSON.stringify(kit, null, 2)}\n`);
   return { approved: true, projeto: projeto.id, aprovadoEm: kit.aprovadoEm };

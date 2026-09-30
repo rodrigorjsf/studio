@@ -168,3 +168,27 @@ test('a delivered Vídeo, an unknown Vídeo or an unapproved Kit is never pushed
     { updated: false, reason: 'kit-not-approved', projeto: 'Pessoal', kit: 'aguardando-aprovacao' });
   assert.equal(fs.existsSync(kitFile(dir, 'Pessoal', 'Rascunho')), false);
 });
+
+test('estado validates a Vídeo\'s own Kit like the Projeto\'s, and reports a broken one', () => {
+  const dir = estudioAprovado();
+  addVideo(dir, 'Minha Empresa', 'Lançamento', 'Construção');
+  run('editar-kit', dir, 'Minha Empresa', '{"fazer": ["logo no fim"]}');
+  assert.deepEqual(run('estado', dir).out.errors, []);
+
+  const own = readJson(kitFile(dir, 'Minha Empresa', 'Lançamento'));
+  own.cores.destaque = 'amarelo';
+  fs.writeFileSync(kitFile(dir, 'Minha Empresa', 'Lançamento'), JSON.stringify(own));
+  const { out } = run('estado', dir);
+  assert.deepEqual(out.errors, [
+    { file: 'projetos/Minha Empresa/videos/Lançamento/kit.json', message: 'cores.destaque must be a color like "#1A2B3C"' },
+  ]);
+  assert.deepEqual(out.nextStep, { action: 'corrigir-erros' });
+});
+
+test('re-approving an approved Kit also leaves existing Vídeos on the Kit they started with', () => {
+  const dir = estudioAprovado();
+  addVideo(dir, 'Minha Empresa', 'Lançamento', 'Planejamento');
+  const before = readJson(kitFile(dir, 'Minha Empresa'));
+  assert.equal(run('aprovar-kit', dir, 'Minha Empresa').out.approved, true);
+  assert.deepEqual(readJson(kitFile(dir, 'Minha Empresa', 'Lançamento')), before);
+});

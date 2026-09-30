@@ -6,7 +6,7 @@ import { unansweredSections } from './briefing.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
 import { validateKit } from './kit.mjs';
 import { readPerfil } from './perfil.mjs';
-import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEOS } from './layout.mjs';
+import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
 const IGNORABLE = new Set(['Thumbs.db', 'desktop.ini']);
@@ -33,7 +33,7 @@ export const isFinished = (status) => STATUSES.get(status)?.finished === true;
 
 // Mac file systems hand back decomposed accents (NFD); report every name composed (NFC)
 // so "Lançamento" is the same string on Mac, Windows and Linux.
-const nfc = (name) => name.normalize('NFC');
+export const nfc = (name) => name.normalize('NFC');
 const byName = (a, b) => a.localeCompare(b, 'pt-BR');
 
 // A folder's subfolders (Projetos, Vídeos), hidden and system ones left out, in pt-BR order.
@@ -110,6 +110,10 @@ export function estado(folder) {
     const videos = subfolders(path.join(dir, VIDEOS)).map((videoName) => {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
       const video = { id: nfc(videoName), status: null, rodada: null, nivel: null, waitingForCriadora: false };
+      // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
+      const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
+      const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;
+      if (ownKitData !== null) validateKit(ownKitData, dir).forEach((message) => fail(ownKit, message));
       if (!fs.existsSync(doc)) {
         fail(doc, 'missing: every Vídeo needs its document');
         return video;

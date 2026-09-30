@@ -21,6 +21,8 @@ Each command prints JSON. Its output is your only source of truth about the Est�
 
 **A change applies only to new Vídeos, unless she asks otherwise.** Each Vídeo already started keeps the Kit it started with: before the Projeto's Kit changes, `editar-kit` gives every existing Vídeo its own copy of the current Kit (its Kit snapshot). A Vídeo in progress moves to the new Kit only when she opts in, one Vídeo at a time. A delivered Vídeo (`Entregue`, `Arquivado`) never changes.
 
+The briefing has no per-Vídeo copy: it is prose context, so a briefing change informs the next Plano of any Vídeo, while a Plano she already approved stays as she approved it. Tell her so when she changes the briefing while a Vídeo is in progress.
+
 ## 1. Which Projeto
 
 Run `estado`.
@@ -61,7 +63,7 @@ Her "aplicar" is her approval of the changed Kit. Never apply a change she did n
 "<node>" "${CLAUDE_PLUGIN_ROOT}/scripts/estudio.mjs" editar-kit "." "<projeto>" '{"legendas": {"cor": "#00FF88"}, "fazer": ["logo no fim"]}'
 ```
 
-Objects merge field by field, so `{"legendas": {"cor": …}}` keeps every other caption field. Any other value replaces the old one whole: a list is the **complete new list**, so to add one item to `fazer`, send the old items plus the new one. Write an apostrophe inside a text as `'`. Never send `aprovadoEm` or `schemaVersion`.
+Objects merge field by field, so `{"legendas": {"cor": …}}` keeps every other caption field. Any other value replaces the old one whole: a list is the **complete new list**, so to add one item to `fazer`, send the old items plus the new one. Write an apostrophe inside a text as the JSON escape `\u0027`, never as a bare `'`, which would end the quoted argument. Never send `aprovadoEm` or `schemaVersion`.
 
 | Result | What to do |
 |---|---|
