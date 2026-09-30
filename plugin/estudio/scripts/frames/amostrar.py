@@ -42,7 +42,7 @@ FACE_ZONE_FPS = 1.0     # one frame per second is enough to follow the face
 FACE_ZONE_CAP = 600     # 10 min at 1 fps; longer clips get a lower rate, never a shorter span
 
 
-def use_programs(ffmpeg: str | None, ffprobe: str | None) -> None:
+def put_programs_on_path(ffmpeg: str | None, ffprobe: str | None) -> None:
     """frames.py calls `ffmpeg`/`ffprobe` by name: put the given ones first on PATH."""
     for program in (ffprobe, ffmpeg):
         if program:
@@ -50,6 +50,12 @@ def use_programs(ffmpeg: str | None, ffprobe: str | None) -> None:
     for name in ("ffmpeg", "ffprobe"):
         if shutil.which(name) is None:
             raise SystemExit(f"{name} not found: pass --{name} with the path from the computer check (tools.{name}).")
+
+
+def selection(engine: str, candidates: int, deduped: int, selected: int, fallback: bool) -> dict:
+    """The selection summary both modes print, so their JSON keeps one shape."""
+    return {"engine": engine, "candidate_count": candidates, "deduped_count": deduped,
+            "selected_count": selected, "fallback": fallback}
 
 
 def overview(args, meta: dict, start, end) -> dict:
@@ -67,7 +73,7 @@ def overview(args, meta: dict, start, end) -> dict:
             args.video, args.out_dir, parse_timestamps(args.cues), resolution=args.resolution,
             max_frames=cap, start_seconds=start, end_seconds=end)
     budget = cap - len(cues)
-    frames, frame_meta = [], {"engine": "none", "candidate_count": 0, "deduped_count": 0, "selected_count": 0, "fallback": False}
+    frames, frame_meta = [], selection("none", 0, 0, 0, False)
     if budget > 0:
         frames, frame_meta = extract_scene_or_uniform(
             args.video, args.out_dir, fps=fps, target_frames=target, resolution=args.resolution,
@@ -80,8 +86,8 @@ def face_zone(args, start, end) -> dict:
     frames = extract(
         args.video, args.out_dir, fps=fps, resolution=args.resolution,
         max_frames=args.max_frames or FACE_ZONE_CAP, start_seconds=start, end_seconds=end)
-    return {"dedup": False, "fps": fps, "engine": "uniform", "candidate_count": len(frames),
-            "deduped_count": 0, "selected_count": len(frames), "fallback": False, "cues": None, "frames": frames}
+    return {"dedup": False, "fps": fps, **selection("uniform", len(frames), 0, len(frames), False),
+            "cues": None, "frames": frames}
 
 
 def main() -> None:
@@ -102,7 +108,7 @@ def main() -> None:
     if args.cues and args.modo != "visao-geral":
         ap.error("--cues works only with --modo visao-geral")
 
-    use_programs(args.ffmpeg, args.ffprobe)
+    put_programs_on_path(args.ffmpeg, args.ffprobe)
     start, end = parse_time(args.start), parse_time(args.end)
     validate_controls(args.resolution, args.max_frames, start, end, args.fps)
     meta = get_metadata(args.video)

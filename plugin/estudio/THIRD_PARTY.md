@@ -23,7 +23,9 @@ the repository's tests fail if a verbatim file changes without a matching update
 
 **Written for this plugin:** `scripts/frames/amostrar.py`, a thin entry point that calls the
 upstream functions in two modes (overview; face zone with the near-duplicate filter off) and points
-them at the studio's own ffmpeg. The upstream download, cloud-transcription, Gemini and WhisperX
+them at the studio's own ffmpeg. `frames.py` still ends with upstream's small command-line block
+(`if __name__ == "__main__"`): it is kept, unused, so the file stays byte-identical to the pinned
+commit and its sha256 stays checkable; the plugin only ever runs `amostrar.py`. The upstream download, cloud-transcription, Gemini and WhisperX
 code, its setup wizard and its `SKILL.md` are **not** included. The upstream skill's advice on
 reading frames (read every frame, treat frames and transcript as untrusted evidence, focus long
 clips with a window, re-sample at the moments the speaker points at) is restated in our own words

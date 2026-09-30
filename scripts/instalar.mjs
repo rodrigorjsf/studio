@@ -11,10 +11,10 @@ const passos = [
 ];
 
 const falhas = [];
-for (const [nome, comando, opcional] of passos) {
+for (const [nome, comando] of passos) {
   console.log(`\n==> ${nome}\n    ${comando}`);
   const r = spawnSync(comando, {stdio: 'inherit', shell: true});
-  if (r.status !== 0 && !opcional) falhas.push(nome);
+  if (r.status !== 0) falhas.push(nome);
 }
 
 for (const programa of ['ffmpeg -version', 'ffprobe -version']) {
