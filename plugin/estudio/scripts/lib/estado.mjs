@@ -8,7 +8,7 @@ import { transcriptProblem, zonaProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readPerfil } from './perfil.mjs';
 import {
-  KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
+  DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
@@ -31,6 +31,8 @@ const STATUSES = new Map([
   ['Arquivado', { waitsForCriadora: false, finished: true }],
 ]);
 export const NIVEIS = new Set([1, 2]);
+// Her three decisions on a version of the edit, at the review Gate.
+export const DECISIONS = ['aprovar', 'aprovar-com-ajustes', 'pedir-mudancas'];
 // The Vídeo document's metric counters: questions asked, Gates opened, Gates Autonomia approved.
 export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas'];
 export const STATUS_NAMES = [...STATUSES.keys()];
@@ -63,6 +65,18 @@ export function subfolders(dir) {
     .map((entry) => entry.name)
     .sort((a, b) => byName(nfc(a), nfc(b)));
 }
+
+// The versions of a Vídeo's edit, `revisao/v01`, `revisao/v02`…, oldest first.
+const VERSION = /^v(\d{2,})$/;
+export function versions(videoDir) {
+  return subfolders(path.join(videoDir, REVISAO))
+    .filter((name) => VERSION.test(name))
+    .sort((a, b) => Number(VERSION.exec(a)[1]) - Number(VERSION.exec(b)[1]));
+}
+export const versionNumber = (name) => Number(VERSION.exec(name)[1]);
+export const versionName = (n) => `v${String(n).padStart(2, '0')}`;
+// The file holding her decision on the version `name` (absent while her review is pending).
+export const decisionFile = (videoDir, name) => path.join(videoDir, REVISAO, name, DECISAO);
 
 export function estado(folder) {
   const isEmpty = fs.readdirSync(folder).filter((name) => !isIgnorable(name)).length === 0;
@@ -130,7 +144,7 @@ export function estado(folder) {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
       const video = {
         id: nfc(videoName), status: null, rodada: null, nivel: null, briefing: 'completo',
-        ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', waitingForCriadora: false,
+        ingest: { transcricao: false, zonaDoRosto: false }, plano: 'ausente', quadros: 'ausentes', versao: null, waitingForCriadora: false,
       };
       // The ingest, as far as it went: a Vídeo interrupted midway resumes from what is missing.
       const videoFile = (rel) => path.join(dir, VIDEOS, videoName, ...rel.split('/'));
@@ -151,6 +165,14 @@ export function estado(folder) {
         video.plano = planoData.aprovadoEm ? 'aprovado' : 'rascunho';
         if (planoData.quadrosAprovadosEm) video.quadros = 'aprovados';
         else if (Array.isArray(planoData.quadros) && planoData.quadros.length > 0) video.quadros = 'rascunho';
+      }
+      // The latest version of the edit and her decision on it (null while her review is pending).
+      const latest = versions(path.join(dir, VIDEOS, videoName)).at(-1);
+      if (latest) {
+        const file = decisionFile(path.join(dir, VIDEOS, videoName), latest);
+        const decided = fs.existsSync(file) ? readJson(file) : null;
+        if (decided !== null && !DECISIONS.includes(decided?.decisao)) fail(file, `decisao must be one of: ${DECISIONS.join(', ')}`);
+        video.versao = { nome: latest, decisao: DECISIONS.includes(decided?.decisao) ? decided.decisao : null };
       }
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);

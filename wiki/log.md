@@ -52,3 +52,6 @@ Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.
 
 ## [2026-09-30] update | Pré-corte built: untrimmed warning, Editor de pré-corte, `precorte` (ticket #14)
 Pages: concepts/plugin-architecture.md, concepts/picture-lock.md, overview.md.
+
+## [2026-09-30] update | Build, review Rodadas and Entrega built (ticket #11)
+Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, overview.md.

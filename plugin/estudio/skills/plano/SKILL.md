@@ -104,7 +104,7 @@ Write the look she chose into the section **O que muda do Kit** of `video.md` (o
 
 ## 6. Ready for the build
 
-When `aprovar-plano` returns `status: "Construção"`, close in one sentence: the Plano and the look are approved, and the next step is building the edit. *Pending: the build arrives in ticket #11.* Say what she can ask now: add Prints, change a scene of the Plano, start another Vídeo.
+When `aprovar-plano` returns `status: "Construção"`, close in one sentence: the Plano and the look are approved, and the next step is building the edit, in the [edicao skill](../edicao/SKILL.md). Say what she can ask now: add Prints, change a scene of the Plano, start another Vídeo.
 
 ## Rules
 

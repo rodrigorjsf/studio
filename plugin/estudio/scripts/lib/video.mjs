@@ -120,6 +120,23 @@ export function findVideo(folder, projetoNome, videoNome) {
   return { projeto: projeto.id, video: nfc(videoFolder), dir: path.join(videosDir, videoFolder) };
 }
 
+// Reads the Vídeo document's record in `dir`, lets `change` edit it in place and writes it back,
+// the pt-BR body kept as is. Returns {data} (the record written) or {message} when the document's
+// frontmatter is malformed, in which case nothing is written.
+export function updateVideoRecord(dir, change) {
+  const doc = path.join(dir, VIDEO_DOC);
+  const text = fs.readFileSync(doc, 'utf8');
+  let data;
+  try {
+    data = parseFrontmatter(text);
+  } catch (err) {
+    return { message: err.message };
+  }
+  change(data);
+  fs.writeFileSync(doc, replaceFrontmatter(text, data));
+  return { data };
+}
+
 export function registrarVideo(folder, projetoNome, videoNome, recordText) {
   let record;
   try {
@@ -132,19 +149,13 @@ export function registrarVideo(folder, projetoNome, videoNome, recordText) {
   const { projeto, video, dir, refusal } = findVideo(folder, projetoNome, videoNome);
   if (refusal) return { recorded: false, ...refusal };
 
-  const doc = path.join(dir, VIDEO_DOC);
-  const text = fs.readFileSync(doc, 'utf8');
-  let data;
-  try {
-    data = parseFrontmatter(text);
-  } catch (err) {
-    return { recorded: false, reason: 'invalid-document', projeto, video, message: err.message };
-  }
-  if ('nivel' in record) data.nivel = record.nivel;
-  if ('status' in record) data.status = record.status;
-  if ('gate' in record) data.gate = record.gate;
-  for (const [key, value] of Object.entries(record.somar ?? {})) data[key] = (data[key] ?? 0) + value;
-  fs.writeFileSync(doc, replaceFrontmatter(text, data));
+  const { data, message } = updateVideoRecord(dir, (current) => {
+    if ('nivel' in record) current.nivel = record.nivel;
+    if ('status' in record) current.status = record.status;
+    if ('gate' in record) current.gate = record.gate;
+    for (const [key, value] of Object.entries(record.somar ?? {})) current[key] = (current[key] ?? 0) + value;
+  });
+  if (!data) return { recorded: false, reason: 'invalid-document', projeto, video, message };
   const counters = Object.fromEntries(COUNTERS.map((key) => [key, data[key] ?? 0]));
   return { recorded: true, projeto, video, status: data.status, nivel: data.nivel, gate: data.gate ?? null, ...counters };
 }

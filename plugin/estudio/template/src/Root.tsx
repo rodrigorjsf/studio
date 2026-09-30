@@ -6,6 +6,7 @@ import {VerticalDados} from './estilos/VerticalDados';
 import {VerticalLegendas} from './estilos/VerticalLegendas';
 import {VerticalPrint} from './estilos/VerticalPrint';
 import {calcularMetadadosDoKit, DIMENSOES, PropsDoKit} from './_shared/kit';
+import {calcularMetadadosDaEdicao, EdicaoComLegendas, FPS_DA_EDICAO, PropsDaEdicaoComLegendas} from './_shared/edicao';
 import {PreviaDoKit} from './kit/PreviaDoKit';
 import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro, QuadroDeEstilo} from './quadro/QuadroDeEstilo';
 
@@ -53,8 +54,24 @@ export const RemotionRoot: React.FC = () => (
       <Composition id="VerticalDados" component={VerticalDados} width={1080} height={1920} fps={FPS} durationInFrames={SEIS_SEGUNDOS} />
     </Folder>
 
+    {/* A edição mais simples de um Vídeo: o Master inteiro, com o áudio original uma única vez, e as legendas do Kit.
+        "video" = pasta do Vídeo, "master" = o campo master do video.md, "duracao" = segundos do Master (ffprobe). */}
+    <Folder name="Edicao">
+      <Composition
+        id="EdicaoComLegendas"
+        component={EdicaoComLegendas}
+        {...DIMENSOES['9:16']}
+        fps={FPS_DA_EDICAO}
+        durationInFrames={FPS_DA_EDICAO}
+        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, legenda: []} satisfies PropsDaEdicaoComLegendas}
+        calculateMetadata={calcularMetadadosDaEdicao}
+      />
+    </Folder>
+
     {/* Seus vídeos entram aqui: um <Folder name="projeto-slug"> por Projeto, com o código em src/videos/<slug>/.
-        Cada composição de Vídeo lê o Kit do Projeto como a PreviaDoKit: calculateMetadata={calcularMetadadosDoKit},
-        props {projeto, formato} e as peças de src/_shared/marca.tsx. Nenhuma cor, fonte ou estilo de legenda no código. */}
+        Cada composição de Vídeo é construída sobre <Edicao> de src/_shared/edicao.tsx (o Master contínuo, com o
+        áudio original uma única vez), registrada com calculateMetadata={calcularMetadadosDaEdicao} e as props
+        {projeto, formato, video, master, duracao}, e usa as peças de src/_shared/marca.tsx. Nenhuma cor, fonte ou
+        estilo de legenda no código: tudo vem do Kit. */}
   </>
 );

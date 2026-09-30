@@ -196,11 +196,12 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
   const details = claude(['plugin', 'details', 'estudio@studio'], env);
   // The entry skill, the Perfil interview (/estudio:perfil), the Projeto interview (/estudio:novo-projeto),
   // the Projeto list (/estudio:projetos), the Projeto edit (/estudio:editar-projeto), the new Vídeo
-  // (/estudio:novo-video) and its Plano (/estudio:plano), plus the Assistente de edição, the
-  // Roteirista-estrategista, the Diretor de arte and the Editor de pré-corte personas.
+  // (/estudio:novo-video), its Plano (/estudio:plano) and its edit (/estudio:edicao), plus the Assistente
+  // de edição, the Roteirista-estrategista, the Diretor de arte, the Editor de pré-corte, the Motion
+  // designer and the Finalizador personas.
   const skills = /Skills \(\d+\)([\s\S]*?)\n\s*Agents \(/.exec(details.out)?.[1] ?? '';
-  for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
-  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte']) {
+  for (const skill of ['estudio', 'perfil', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'plano', 'edicao']) assert.match(skills, new RegExp(`\\b${skill}\\b`), details.out);
+  for (const agent of ['assistente-de-edicao', 'roteirista-estrategista', 'diretor-de-arte', 'editor-de-pre-corte', 'motion-designer', 'finalizador']) {
     assert.match(details.out, new RegExp(`Agents \\(\\d+\\)[\\s\\S]*${agent}`), details.out);
   }
 
