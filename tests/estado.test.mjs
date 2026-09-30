@@ -234,3 +234,31 @@ test('a Kit that is not valid JSON is reported as invalid, not ok', () => {
   assert.equal(out.projetos.find((p) => p.id === 'Empresa').kit, 'invalido');
   assert.equal(out.projetos.find((p) => p.id === 'Sem briefing').kit, 'ok');
 });
+
+// The bundled platform reference (spec #39, ticket #42): `estado` says whether its newest
+// `sourced:` date is more than 6 months old. The clock is ESTUDIO_AGORA so a test can put today on
+// either side of the line; the date itself is read from the shipped reference.
+const referenceFile = path.join(repoRoot, 'plugin', 'estudio', 'skills', 'estudio', 'references', 'platform-rules.md');
+const newestSourced = [...fs.readFileSync(referenceFile, 'utf8').matchAll(/sourced:\s*(\d{4}-\d{2}-\d{2})/g)].map((m) => m[1]).sort().at(-1);
+const plusMonths = (date, months, days = 0) => {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString();
+};
+function referenceOn(today) {
+  const r = spawnSync(process.execPath, [cli, 'estado', folder('valido')], { encoding: 'utf8', env: { ...process.env, ESTUDIO_AGORA: today } });
+  assert.equal(r.stderr, '', `stderr: ${r.stderr}`);
+  return JSON.parse(r.stdout).referenciaDePlataforma;
+}
+
+test('estado reports the platform reference as current before its newest date is 6 months old', () => {
+  assert.match(newestSourced, /^\d{4}-\d{2}-\d{2}$/);
+  assert.deepEqual(referenceOn(plusMonths(newestSourced, 0)), { presente: true, maisRecente: newestSourced, desatualizada: false });
+  assert.equal(referenceOn(plusMonths(newestSourced, 6)).desatualizada, false, 'exactly 6 months is not more than 6 months');
+});
+
+test('estado reports the platform reference as stale once its newest date is more than 6 months old', () => {
+  assert.deepEqual(referenceOn(plusMonths(newestSourced, 6, 1)), { presente: true, maisRecente: newestSourced, desatualizada: true });
+  assert.equal(referenceOn(plusMonths(newestSourced, 24)).desatualizada, true);
+});

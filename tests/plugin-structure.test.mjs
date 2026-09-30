@@ -300,6 +300,66 @@ test('the root package.json drops the upstream scripts and the root tsconfig no 
   assert.deepEqual(include.filter((pattern) => pattern.startsWith('src/') || pattern === 'remotion.config.ts'), []);
 });
 
+// The bundled platform reference (spec #39, ticket #42, ADR 0008): every rule in it carries its
+// source label (official, study or marketing), a `sourced:` date and a platform URL, so the
+// maintainer can refresh it quarterly and see what is official and what is marketing.
+const REFERENCE = 'plugin/estudio/skills/estudio/references/platform-rules.md';
+const rule = (label = '[official]', sourced = 'sourced: 2026-09-30', url = '<https://support.google.com/youtube/answer/6390658>') =>
+  `- ${[label, 'YouTube ignores every hashtag past 60.', sourced, url].filter(Boolean).join(' ')}\n`;
+const reference = (...rules) => `# Platform rules\n\nEach rule is a bullet.\n\n## YouTube\n\n${rules.join('')}`;
+
+test('a platform reference whose every rule has its label, date and URL passes', () => {
+  const { code, verdict } = check(fixture({
+    [REFERENCE]: reference(rule(), rule('[study]'), rule('[marketing]')),
+  }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+for (const [label, bad, fragment] of [
+  ['its source label', rule(''), 'lacks its source label'],
+  ['a known source label', rule('[rumour]'), 'lacks its source label'],
+  ['its sourced: date', rule('[official]', ''), 'lacks its sourced: date'],
+  ['a real sourced: date', rule('[official]', 'sourced: 2026-13-45'), 'lacks its sourced: date'],
+  ['its URL', rule('[official]', 'sourced: 2026-09-30', ''), 'lacks its URL'],
+  ['an https URL', rule('[official]', 'sourced: 2026-09-30', 'support.google.com/youtube'), 'lacks its URL'],
+]) {
+  test(`a platform rule without ${label} is rejected`, () => {
+    assertRejected(fixture({ [REFERENCE]: reference(rule(), bad) }), fragment);
+  });
+}
+
+test('a platform reference with no rule at all is rejected', () => {
+  assertRejected(fixture({ [REFERENCE]: '# Platform rules\n\nNothing here.\n' }), 'has no rule');
+});
+
+test('a bullet inside a code fence is not a rule', () => {
+  const { verdict } = check(fixture({ [REFERENCE]: `${reference(rule())}\n\`\`\`\n- an example bullet with nothing\n\`\`\`\n` }));
+  assert.deepEqual(verdict.errors, []);
+});
+
+test('a platform reference that links out of the package is still rejected', () => {
+  assertRejected(
+    fixture({ [REFERENCE]: `${reference(rule())}\nSee [the research](../../../../../raw/research/findings.md).\n` }),
+    'link leaves the package',
+  );
+});
+
+test('the shipped platform reference keeps the source labels the research gave its claims', () => {
+  const text = fs.readFileSync(path.join(repoRoot, 'plugin/estudio/skills/estudio/references/platform-rules.md'), 'utf8');
+  const labelOf = (pattern) => {
+    const lines = text.split('\n').filter((line) => line.startsWith('- ') && pattern.test(line));
+    assert.equal(lines.length, 1, `exactly one rule matches ${pattern}`);
+    return /\[(official|study|marketing)\]/.exec(lines[0])?.[1];
+  };
+  assert.equal(labelOf(/Instagram allows at most 5 hashtags/), 'official');
+  assert.equal(labelOf(/more than 60 hashtags/), 'official');
+  assert.equal(labelOf(/Never ask for likes/), 'official');
+  assert.equal(labelOf(/24\.36 million/), 'study');
+  assert.equal(labelOf(/3 to 5 relevant hashtags on TikTok/), 'marketing');
+  assert.equal(labelOf(/visible before the cutoff/i), 'marketing');
+});
+
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
 const hasClaude = spawnSync('claude', ['--version'], { encoding: 'utf8' }).status === 0;
 // Notion is read-only and reached only through her own connector (ticket #20): the package
