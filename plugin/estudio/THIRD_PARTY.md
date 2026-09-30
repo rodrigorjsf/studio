@@ -127,7 +127,7 @@ SOFTWARE.
 |---|---|
 | Model | Whisper `large-v3-turbo`, converted to CTranslate2 (faster-whisper) form, weights in FP16 |
 | Original model | https://huggingface.co/openai/whisper-large-v3-turbo (OpenAI Whisper), MIT, Copyright (c) 2022 OpenAI |
-| Conversion | https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo (Mobius Labs; now served as `dropbox-dash/faster-whisper-large-v3-turbo`), MIT |
+| Conversion | https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo (Mobius Labs; now served as `dropbox-dash/faster-whisper-large-v3-turbo`), MIT per its model card. That repository ships no LICENSE file and names no copyright holder for the conversion, so the license text below carries the original model's copyright line. |
 | Pinned commit | `0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf` |
 | Mirror | Release `modelo-large-v3-turbo-0a363e9` of https://github.com/rodrigorjsf/studio |
 | In this plugin | nothing is bundled. The Preparação downloads the five files from the Release into the plugin data folder and checks each sha256 recorded in `vendor.json` (source `speech-model`, mode `mirrored`). |
@@ -135,7 +135,7 @@ SOFTWARE.
 The five files (`model.bin`, `config.json`, `tokenizer.json`, `vocabulary.json`,
 `preprocessor_config.json`) are redistributed unmodified, byte for byte, so that the Criadora's
 computer never has to reach Hugging Face (its download hosts change over time). The maintainer
-refreshes the mirror with `scripts/espelhar-modelo.sh`. The MIT license text, which applies to the
+refreshes the mirror with the repository's `scripts/espelhar-modelo.sh` (not part of this package). The MIT license text, which applies to the
 model:
 
 ```text

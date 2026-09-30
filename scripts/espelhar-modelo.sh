@@ -12,19 +12,22 @@
 #       asset). PUBLISHING IS AN OUTWARD ACTION: run it for real only after the maintainer agrees;
 #       use --dry-run to hash the files and print the manifest without touching GitHub.
 #       Safe to re-run: an existing Release is kept, and only assets that are missing or differ in
-#       size are uploaded (replaced with --clobber, never duplicated).
-# HOW   sh scripts/espelhar-modelo.sh [--dry-run] [--dir <download folder>]
+#       size are uploaded (replaced with --clobber, never duplicated). --force uploads all five
+#       again, for an asset that is corrupt but has the right size.
+# HOW   sh scripts/espelhar-modelo.sh [--dry-run] [--force] [--dir <download folder>]
 #       Needs: curl, sha256sum (or shasum), and for a real run the GitHub CLI `gh`, logged in with
 #       write access to the repository. Progress goes to stderr, the manifest JSON to stdout, so
 #       `sh scripts/espelhar-modelo.sh > files.json` keeps only the entries. Copy them into the
 #       `files` array of the `speech-model` source in plugin/estudio/vendor.json.
 #       --dir keeps the ~1.6 GB download for the next run (default: a temporary folder, removed).
+#       A file already in --dir is trusted as is: delete the folder if it may be stale.
 #       Hosts this machine must reach (add them to a sandbox allowlist for the first run):
 #         Hugging Face: huggingface.co, cdn-lfs.huggingface.co, *.hf.co
 #         GitHub (real run): github.com, api.github.com, uploads.github.com
 #       Overrides, for tests: MIRROR_UPSTREAM_BASE (default: the pinned Hugging Face resolve URL),
 #       MIRROR_REPO (default: rodrigorjsf/studio).
-#       Exit 0 when done, 1 when a download or a GitHub step failed, 2 on a usage error.
+#       Exit 0 when done, 1 when a download failed, 2 on a usage error; a failing `gh` step ends
+#       the run with gh's own non-zero status.
 
 set -eu
 
@@ -35,12 +38,14 @@ UPSTREAM=${MIRROR_UPSTREAM_BASE:-https://huggingface.co/dropbox-dash/faster-whis
 FILES="model.bin config.json tokenizer.json vocabulary.json preprocessor_config.json"
 
 DRY=
+FORCE=
 DIR=
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1 ;;
+    --force) FORCE=1 ;;
     --dir) shift; DIR=${1:-}; [ -n "$DIR" ] || { echo "usage: --dir needs a folder" >&2; exit 2; } ;;
-    *) echo "usage: espelhar-modelo.sh [--dry-run] [--dir <download folder>]" >&2; exit 2 ;;
+    *) echo "usage: espelhar-modelo.sh [--dry-run] [--force] [--dir <download folder>]" >&2; exit 2 ;;
   esac
   shift
 done
@@ -92,7 +97,7 @@ if [ -z "$DRY" ]; then
   fi
   HAVE=$(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[] | "\(.name) \(.size)"')
   for name in $FILES; do
-    if printf '%s\n' "$HAVE" | grep -qx "$name $(size_of "$DIR/$name")"; then
+    if [ -z "$FORCE" ] && printf '%s\n' "$HAVE" | grep -qx "$name $(size_of "$DIR/$name")"; then
       echo "asset up to date: $name" >&2
     else
       echo "uploading $name ..." >&2

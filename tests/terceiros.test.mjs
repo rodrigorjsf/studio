@@ -15,7 +15,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, 'vendor.json')
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
 test('every verbatim-vendored file still matches the sha256 its manifest records', () => {
-  const verbatim = manifest.sources.filter((source) => source.mode === 'vendored-subset').flatMap((source) => source.files);
+  const verbatim = manifest.sources.filter((source) => source.mode === 'vendored-subset').flatMap((source) => source.files ?? []);
   assert.ok(verbatim.length >= 3, 'the sampler, its runtime helper and the MIT LICENSE are vendored verbatim');
   for (const file of verbatim) {
     const local = path.join(pluginRoot, file.path);
@@ -55,7 +55,9 @@ test('the third-party notice carries the model\'s MIT attribution', () => {
   const notice = fs.readFileSync(path.join(pluginRoot, 'THIRD_PARTY.md'), 'utf8');
   assert.match(notice, /mobiuslabsgmbh\/faster-whisper-large-v3-turbo/);
   assert.ok(notice.includes('0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf'), 'names the pinned commit');
-  assert.match(notice, /large-v3-turbo[\s\S]{0,1500}MIT/, 'names the MIT license for the model');
+  const section = notice.slice(notice.indexOf('## 4. Speech model'));
+  assert.match(section, /Copyright \(c\) 2022 OpenAI/, 'carries the copyright line of the original model');
+  assert.match(section, /Permission is hereby granted, free of charge/, 'carries the MIT license text');
 });
 
 // ---- independence: the Criadora installs only estudio ----

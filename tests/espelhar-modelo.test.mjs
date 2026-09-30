@@ -114,6 +114,16 @@ test('a re-run uploads only the assets that are missing or differ in size', () =
   assert.ok(uploaded.every((c) => c.includes('--clobber')), 'a differing asset is replaced, not duplicated');
 });
 
+test('--force replaces every asset even when its size already matches', () => {
+  const probe = sandbox();
+  const same = FILES.map((n) => `${n} ${Buffer.byteLength(probe.content[n])}`);
+  const sb = sandbox({ releaseExists: true, existingAssets: same });
+  const r = run(sb.env, ['--force']);
+  assert.equal(r.status, 0, r.stderr);
+  const uploaded = sb.ghCalls().filter((c) => c.startsWith('release upload'));
+  for (const name of FILES) assert.ok(uploaded.some((c) => c.includes(`/${name}`) && c.includes('--clobber')), `${name} replaced`);
+});
+
 test('a file the upstream cannot serve fails the run before anything is published', () => {
   const sb = sandbox();
   fs.rmSync(path.join(sb.root, 'upstream', 'vocabulary.json'));
