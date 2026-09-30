@@ -89,6 +89,8 @@ Act on `nextStep.action`:
 
 Whatever the action, when `aprendizadosPendentes` is not empty, offer each Vídeo's Kit learnings in one line ([edicao skill](../edicao/SKILL.md) step 6); she can leave them for later. The same goes for `rascunhosPendentes`: offer them at that close, in the same moment; they are never published without her yes, whatever her Autonomia.
 
+When she asks for the **Texto do post** of a Vídeo already delivered or archived (`Entregue` or `Arquivado` in `estado`), follow [the edicao skill](../edicao/SKILL.md) step 7: the Social media writes it, the Revisor de plataforma judges it, and the Vídeo's Status does not change.
+
 When she asks what she has in progress, follow the [projetos skill](../projetos/SKILL.md) (`/estudio:projetos`). When she wants to change a Projeto's briefing or Kit de marca, follow the [editar-projeto skill](../editar-projeto/SKILL.md) (`/estudio:editar-projeto`).
 
 ### Then, the level

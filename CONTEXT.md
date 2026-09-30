@@ -161,7 +161,7 @@ The finished file handed to the Criadora, in the requested Formato, inside the V
 _Avoid_: export, output, render (for the delivered file)
 
 **Texto do post**:
-The suggested words the Criadora pastes into each app when she posts a Vídeo — the first line, the text, the hashtags and, for Shorts, the title — delivered beside the Entrega without a Gate.
+The suggested words the Criadora pastes into each app when she posts a Vídeo — the first line, the text, the hashtags and, for Shorts, the title — delivered beside the Entrega without an approval Gate, judged by the Revisor de plataforma before she sees it, and available on request for a Vídeo already Entregue or Arquivado.
 _Avoid_: legenda (that is the burned-in caption), caption, descrição (alone), copy
 
 **Rascunho de issue**:

@@ -127,3 +127,6 @@ Pages: concepts/caderno.md, concepts/approval-gate.md, overview.md, index.md.
 
 ## [2026-09-30] update | Social media persona and the `texto-do-post` check: the Texto do post beside the Finalizador (ticket #44)
 Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Revisor de plataforma judges the Texto do post in a three-turn loop; Texto do post on request for Entregue and Arquivado Vídeos (ticket #45)
+Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.
