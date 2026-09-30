@@ -1,4 +1,5 @@
-// The Estúdio folder layout (ADR 0005), shared by `criar` and `estado`.
+// The Estúdio folder layout, shared by `criar` and `estado`. The Criadora's data lives in
+// this folder, never inside the plugin, whose root is replaced on every update.
 //
 //   estudio.json                     marker: {"schemaVersion": 1, "createdAt": ISO}
 //   perfil.md                        the Perfil (pt-BR, YAML-style frontmatter)

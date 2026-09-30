@@ -199,3 +199,28 @@ test('a folder that does not exist exits 2 with a JSON error', () => {
   assert.equal(r.status, 2);
   assert.match(JSON.parse(r.stdout).error, /not a folder/);
 });
+
+test('documents saved with Windows line endings read the same', () => {
+  const dir = folder('valido');
+  const doc = path.join(dir, 'projetos', 'Minha Empresa', 'videos', 'Lançamento', 'video.md');
+  fs.writeFileSync(doc, '---\r\nstatus: Revisão\r\nrodada: 3\r\n---\r\n# Lançamento\r\n');
+  const { out } = run('estado', dir);
+  assert.deepEqual(out.errors, []);
+  assert.deepEqual(out.waiting, [{ projeto: 'Minha Empresa', video: 'Lançamento', status: 'Revisão' }]);
+});
+
+test('a delivered Vídeo is finished: it waits for nobody and a new Vídeo comes next', () => {
+  const dir = folder('valido');
+  const videos = path.join(dir, 'projetos', 'Minha Empresa', 'videos');
+  fs.writeFileSync(path.join(videos, 'Lançamento', 'video.md'), '---\nstatus: Entregue\n---\n');
+  fs.writeFileSync(path.join(videos, 'Dica rápida', 'video.md'), '---\nstatus: Arquivado\n---\n');
+  const { out } = run('estado', dir);
+  assert.deepEqual(out.waiting, []);
+  assert.deepEqual(out.nextStep, { action: 'novo-video' });
+});
+
+test('a Kit that is not valid JSON is reported as invalid, not ok', () => {
+  const { out } = run('estado', folder('malformado'));
+  assert.equal(out.projetos.find((p) => p.id === 'Empresa').kit, 'invalido');
+  assert.equal(out.projetos.find((p) => p.id === 'Sem briefing').kit, 'ok');
+});

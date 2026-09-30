@@ -9,18 +9,20 @@ import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, 
 const IGNORABLE = new Set(['Thumbs.db', 'desktop.ini']);
 const isIgnorable = (name) => name.startsWith('.') || IGNORABLE.has(name);
 
-// The Esteira's Status values (CONTEXT.md) and whose turn each one is. A Vídeo whose
-// document says `gate: aberto` waits for the Criadora whatever its Status (a Gate is open).
-const STATUS_WAITS_FOR_CRIADORA = new Map([
-  ['Briefing', true],
-  ['Planejamento', false],
-  ['Construção', false],
-  ['QC interno', false],
-  ['Revisão', true],
-  ['Ajustes', false],
-  ['Aprovado', false],
-  ['Entregue', true],
-  ['Arquivado', false],
+// The Esteira's Status values, in order: whose turn each one is, and whether the Vídeo is
+// finished (delivered or archived). Briefing and Revisão are the Criadora's turn by nature;
+// in any other Status a Vídeo waits for her only while its document says `gate: aberto`
+// (the Diretor opened a Gate — Plano, Quadros de estilo, credits — and awaits her decision).
+const STATUSES = new Map([
+  ['Briefing', { waitsForCriadora: true, finished: false }],
+  ['Planejamento', { waitsForCriadora: false, finished: false }],
+  ['Construção', { waitsForCriadora: false, finished: false }],
+  ['QC interno', { waitsForCriadora: false, finished: false }],
+  ['Revisão', { waitsForCriadora: true, finished: false }],
+  ['Ajustes', { waitsForCriadora: false, finished: false }],
+  ['Aprovado', { waitsForCriadora: false, finished: false }],
+  ['Entregue', { waitsForCriadora: false, finished: true }],
+  ['Arquivado', { waitsForCriadora: false, finished: true }],
 ]);
 const NIVEIS = new Set([1, 2]);
 
@@ -83,8 +85,9 @@ export function estado(folder) {
     let kit = 'pendente';
     if (fs.existsSync(kitFile)) {
       const data = readJson(kitFile);
-      if (data !== null && (typeof data !== 'object' || Array.isArray(data))) fail(kitFile, 'must be a JSON object');
-      kit = 'ok';
+      const isObject = data !== null && typeof data === 'object' && !Array.isArray(data);
+      if (data !== null && !isObject) fail(kitFile, 'must be a JSON object');
+      kit = isObject ? 'ok' : 'invalido';
     }
 
     const videos = subfolders(path.join(dir, VIDEOS)).map((videoName) => {
@@ -97,11 +100,12 @@ export function estado(folder) {
       const data = readDoc(doc);
       if (!data) return video;
       const status = typeof data.status === 'string' ? nfc(data.status) : data.status;
-      if (!STATUS_WAITS_FOR_CRIADORA.has(status)) {
-        fail(doc, `status ${JSON.stringify(data.status ?? null)} is not one of: ${[...STATUS_WAITS_FOR_CRIADORA.keys()].join(', ')}`);
+      if (!STATUSES.has(status)) {
+        fail(doc, `status ${JSON.stringify(data.status ?? null)} is not one of: ${[...STATUSES.keys()].join(', ')}`);
       } else {
         video.status = status;
-        video.waitingForCriadora = STATUS_WAITS_FOR_CRIADORA.get(status) || data.gate === 'aberto';
+        const { waitsForCriadora, finished } = STATUSES.get(status);
+        video.waitingForCriadora = waitsForCriadora || (!finished && data.gate === 'aberto');
       }
       if (data.rodada != null && !(Number.isInteger(data.rodada) && data.rodada >= 0)) {
         fail(doc, `rodada ${JSON.stringify(data.rodada)} must be a whole number`);
@@ -132,7 +136,7 @@ function nextStep({ errors, perfil, projetos, waiting }) {
   if (unfinished) return { action: 'concluir-projeto', projeto: unfinished.id };
   if (waiting.length > 0) return { action: 'continuar-video', ...waiting[0] };
   for (const projeto of projetos) {
-    const video = projeto.videos.find((v) => v.status !== 'Arquivado' && v.status !== 'Entregue');
+    const video = projeto.videos.find((v) => v.status && !STATUSES.get(v.status).finished);
     if (video) return { action: 'continuar-video', projeto: projeto.id, video: video.id, status: video.status };
   }
   return { action: 'novo-video' };
