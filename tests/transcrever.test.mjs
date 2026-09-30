@@ -30,11 +30,47 @@ const MODEL = process.env.ESTUDIO_MODELO_TESTE ?? 'large-v3-turbo';
 const ready = tools.python && tools.ffmpeg && process.env.ESTUDIO_MODELOS;
 const needsModel = ready ? {} : { skip: 'set ESTUDIO_DADOS and ESTUDIO_MODELOS (a folder holding the prepared speech model) to run a real transcription' };
 
+// "No network" is proved, not assumed: a sitecustomize.py on PYTHONPATH replaces every way Python
+// opens a connection or resolves a name with one that records the attempt in a log and fails. It
+// also leaves a "loaded" mark, so a guard Python never loaded cannot pass for "nothing was tried".
+function networkGuard(name) {
+  const dir = path.join(root, name);
+  fs.mkdirSync(dir, { recursive: true });
+  const log = path.join(dir, 'tentativas.log');
+  fs.writeFileSync(path.join(dir, 'sitecustomize.py'), [
+    'import os, socket',
+    `LOG = ${JSON.stringify(log)}`,
+    'open(LOG + ".loaded", "w").close()',
+    'def blocked(*args, **kwargs):',
+    '    with open(LOG, "a") as f:',
+    '        f.write(repr(args[1:] if args and isinstance(args[0], socket.socket) else args) + "\\n")',
+    '    raise OSError("network blocked by the test")',
+    'socket.socket.connect = blocked',
+    'socket.socket.connect_ex = blocked',
+    'socket.getaddrinfo = blocked',
+    'socket.create_connection = blocked',
+    '',
+  ].join('\n'));
+  return {
+    env: { ...process.env, PYTHONPATH: dir },
+    loaded: () => fs.existsSync(`${log}.loaded`),
+    attempts: () => (fs.existsSync(log) ? fs.readFileSync(log, 'utf8') : ''),
+  };
+}
+
 let root;
 before(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'estúdio transcrição '));
 });
 after(() => root && fs.rmSync(root, { recursive: true, force: true }));
+
+test('the no-network guard catches a connection attempt', needsAnyPython, () => {
+  const guard = networkGuard('guarda de rede');
+  const r = spawnSync(anyPython, ['-c', "import socket; socket.create_connection(('127.0.0.1', 9))"], { encoding: 'utf8', env: guard.env });
+  assert.notEqual(r.status, 0);
+  assert.ok(guard.loaded(), 'Python loaded the guard');
+  assert.match(guard.attempts(), /127\.0\.0\.1/);
+});
 
 test('a usage error names what is missing and loads no model', needsPython, () => {
   const r = spawnSync(tools.python, [transcrever, path.join(root, 'não existe.mp4'), path.join(root, 'saída'), '--modelos', path.join(root, 'modelos')], { encoding: 'utf8' });
@@ -77,7 +113,7 @@ test('a models folder that does not exist yet is also "model not prepared", and 
   assert.equal(fs.existsSync(models), false);
 });
 
-test('a real transcription writes a word-timed palavras.json and a transcript', needsModel, () => {
+test('with no network, a real transcription writes a word-timed palavras.json and a transcript', needsModel, () => {
   // 2 s of a tone over a still frame: no speech, so any word found must still be well formed.
   const clip = path.join(root, 'Minha gravação.mp4');
   const made = spawnSync(tools.ffmpeg, [
@@ -89,10 +125,13 @@ test('a real transcription writes a word-timed palavras.json and a transcript', 
   const kit = path.join(root, 'kit.json');
   fs.writeFileSync(kit, JSON.stringify({ glossario: ['Estúdio', 'Remotion'] }));
 
+  const guard = networkGuard('sem rede');
   const out = path.join(root, 'transcricao');
   const r = spawnSync(tools.python, [transcrever, clip, out, '--modelos', process.env.ESTUDIO_MODELOS, '--kit', kit,
-    '--modelo', MODEL], { encoding: 'utf8', timeout: 600000, env: { ...process.env, HF_ENDPOINT: 'http://127.0.0.1:9' } });
+    '--modelo', MODEL], { encoding: 'utf8', timeout: 600000, env: guard.env });
   assert.equal(r.status, 0, r.stderr);
+  assert.ok(guard.loaded(), 'the transcription ran under the no-network guard');
+  assert.equal(guard.attempts(), '', 'the transcription tried to reach the network');
   const summary = JSON.parse(r.stdout);
   assert.ok(Math.abs(summary.duracao - 2) < 0.1, `duration of the clip (got ${summary.duracao})`);
   assert.equal(summary.dispositivo, summary.dispositivo === 'cuda' ? 'cuda' : 'cpu');
