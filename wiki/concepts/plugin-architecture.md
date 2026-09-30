@@ -62,7 +62,7 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 
 ## Built: Plano and Quadros de estilo (ticket #10)
 
-- Skill `plugin/estudio/skills/plano/SKILL.md` (`/estudio:plano`): for a Vídeo in `Planejamento`, the Diretor has the Roteirista-estrategista draft the Plano, checks it, has the Diretor de arte render the Quadros de estilo, and holds the Gate. The Plano and the Quadros share one Gate when the Kit defines the style (no empty look text field of the Kit; `som.*` does not count). Otherwise the Plano has its own Gate and the Quadros a second one. Her requests go to `pedidosDela` and win over the repertoire.
+- Skill `plugin/estudio/skills/plano/SKILL.md` (off her menu, `user-invocable: false`; the Diretor routes to it): for a Vídeo in `Planejamento`, the Diretor has the Roteirista-estrategista draft the Plano, checks it, has the Diretor de arte render the Quadros de estilo, and holds the Gate. The Plano and the Quadros share one Gate when the Kit defines the style (no empty look text field of the Kit; `som.*` does not count). Otherwise the Plano has its own Gate and the Quadros a second one. Her requests go to `pedidosDela` and win over the repertoire.
 - Plano file `videos/<vídeo>/plano.json`, schema in `plugin/estudio/scripts/lib/plano.mjs`. It holds:
   - `tempoEstimadoMin`, plus `creditosEstimados` for Nível 2;
   - 2–3 `direcoes`, exactly one of them `recomendada`;
@@ -93,7 +93,7 @@ Related: [studio-personas](../entities/studio-personas.md), [approval-gate](appr
 
 ## Built: build, review Rodadas and Entrega (ticket #11)
 
-- Skill `plugin/estudio/skills/edicao/SKILL.md` (`/estudio:edicao`): for a Vídeo in `Construção`, `QC interno`, `Revisão`, `Ajustes` or `Aprovado`. The Motion designer builds a version, the Diretor holds her review, the Finalizador renders the Entrega and the Diretor opens the delivery folder for her.
+- Skill `plugin/estudio/skills/edicao/SKILL.md` (off her menu, `user-invocable: false`; the Diretor routes to it): for a Vídeo in `Construção`, `QC interno`, `Revisão`, `Ajustes` or `Aprovado`. The Motion designer builds a version, the Diretor holds her review, the Finalizador renders the Entrega and the Diretor opens the delivery folder for her.
 - Template base `plugin/estudio/template/src/_shared/edicao.tsx`: `<Edicao>` draws her Master as one continuous layer with its original audio, lasting exactly `duracao` seconds (`calcularMetadadosDaEdicao`, 30 fps); `<MasterMudo>` shows her again silently in a split or card; `sobreposicao: true` drops the Master for a transparent overlay. `EdicaoComLegendas` (Master + Kit captions) is registered as the simplest edit.
 - CLI (`plugin/estudio/scripts/lib/revisao.mjs`):
   - `nova-versao` gives the next version folder `revisao/vNN/` (the open one again while her review is pending);

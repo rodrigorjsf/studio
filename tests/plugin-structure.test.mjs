@@ -70,6 +70,21 @@ test('a minimal valid fixture package passes', () => {
   assert.equal(code, 0);
 });
 
+// The spec's slash commands are /estudio:estudio, novo-projeto, projetos, editar-projeto,
+// novo-video and perfil. Any other skill is an Esteira step the Diretor routes to: it stays off
+// her menu (`user-invocable: false`).
+const skill = (name, extra = '') => `---\nname: ${name}\ndescription: A step.\n${extra}---\nBody\n`;
+
+test('a skill outside the spec slash commands that shows up in her menu is rejected', () => {
+  assertRejected(fixture({ 'plugin/estudio/skills/plano/SKILL.md': skill('plano') }), 'skills/plano/SKILL.md: not a slash command of the spec');
+});
+
+test('a skill outside the spec slash commands hidden from her menu passes', () => {
+  const { code, verdict } = check(fixture({ 'plugin/estudio/skills/plano/SKILL.md': skill('plano', 'user-invocable: false\n') }));
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
 // Every persona declares its display color in the task list and transcript (ticket #18); the
 // eight values are the only ones Claude Code accepts.
 test('a persona without a color is rejected', () => {
@@ -296,7 +311,7 @@ test('estudio installs from the local marketplace via the CLI, with its skills a
   const details = claude(['plugin', 'details', 'estudio@studio'], env);
   // The entry skill, the Perfil interview (/estudio:perfil), the Projeto interview (/estudio:novo-projeto),
   // the Projeto list (/estudio:projetos), the Projeto edit (/estudio:editar-projeto), the new Vídeo
-  // (/estudio:novo-video), its Plano (/estudio:plano) and its edit (/estudio:edicao), plus the Assistente
+  // (/estudio:novo-video), its Plano (plano) and its edit (edicao), plus the Assistente
   // de edição, the Roteirista-estrategista, the Diretor de arte, the Editor de pré-corte, the Motion
   // designer, the Finalizador, the Artista generativo and the Montador Higgsedit personas, and the three
   // Críticos: QC técnico, Guardião da marca and Revisor de plataforma.

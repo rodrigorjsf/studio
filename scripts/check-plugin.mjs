@@ -4,7 +4,7 @@
 //       editing tools, a package free of development material and within platform limits,
 //       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
 //       holding a Notion tool), no trace of the Higgsfield API-key path, a valid display color on
-//       every persona, and no upstream leftover (the forked repo's paths, install ritual, ticket
+//       every persona, only the spec's slash commands in her menu, and no upstream leftover (the forked repo's paths, install ritual, ticket
 //       markers).
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
@@ -63,6 +63,7 @@ function checkPlugin(dir, expectedName, errors) {
     errors.push(`${expectedName}: plugin.json "version" must be semver`);
   }
   checkPersonas(dir, expectedName, errors);
+  checkSkillMenu(dir, expectedName, errors);
   checkPackageContents(dir, expectedName, errors);
   checkNotionServers(dir, manifest, expectedName, errors);
 }
@@ -213,6 +214,22 @@ function frontmatter(text) {
     }
   }
   return fields;
+}
+
+// The slash commands the spec gives her. Every other skill is an Esteira step the Diretor routes
+// to, so it stays off her menu with `user-invocable: false`.
+const SLASH_COMMANDS = new Set(['estudio', 'novo-projeto', 'projetos', 'editar-projeto', 'novo-video', 'perfil']);
+
+function checkSkillMenu(dir, pluginName, errors) {
+  const skillsDir = path.join(dir, 'skills');
+  if (!fs.existsSync(skillsDir)) return;
+  for (const name of fs.readdirSync(skillsDir)) {
+    const file = path.join(skillsDir, name, 'SKILL.md');
+    if (SLASH_COMMANDS.has(name) || !fs.existsSync(file)) continue;
+    if (frontmatter(fs.readFileSync(file, 'utf8'))['user-invocable'] !== 'false') {
+      errors.push(`${pluginName}: skills/${name}/SKILL.md: not a slash command of the spec; set "user-invocable: false" to keep it off her menu`);
+    }
+  }
 }
 
 function checkPersonas(dir, pluginName, errors) {

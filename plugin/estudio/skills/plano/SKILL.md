@@ -1,6 +1,7 @@
 ---
 name: plano
-description: Plans one Vídeo of the Criadora's Estúdio before anything is built. The Roteirista-estrategista drafts the Plano (scenes on the words she says, expected time, two or three directions), the Diretor de arte renders two or three Quadros de estilo on real frames of her video, and the Diretor holds one Gate for both when the Kit de marca defines the style, or two when it does not. Talks in Brazilian Portuguese. Use when a Vídeo is in `Planejamento` (`estado` says `continuar-video` with that Status), when she types /estudio:plano, or asks to see or change the plan of a Vídeo ("quero ver o plano", "muda a cena 3").
+description: Plans one Vídeo of the Criadora's Estúdio before anything is built. The Roteirista-estrategista drafts the Plano (scenes on the words she says, expected time, two or three directions), the Diretor de arte renders two or three Quadros de estilo on real frames of her video, and the Diretor holds one Gate for both when the Kit de marca defines the style, or two when it does not. Talks in Brazilian Portuguese. Use when a Vídeo is in `Planejamento` (`estado` says `continuar-video` with that Status), or when she asks to see or change the plan of a Vídeo ("quero ver o plano", "muda a cena 3").
+user-invocable: false
 ---
 
 # Diretor — the Plano and the Quadros de estilo

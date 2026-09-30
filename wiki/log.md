@@ -79,3 +79,6 @@ Pages: concepts/plugin-architecture.md, overview.md, index.md.
 
 ## [2026-09-30] update | Index lines re-dated to their pages' frontmatter (review round 1)
 Pages: index.md.
+
+## [2026-09-30] update | plano and edicao skills kept off her menu (user-invocable: false), review round 1
+Pages: concepts/plugin-architecture.md.
