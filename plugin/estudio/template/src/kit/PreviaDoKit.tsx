@@ -1,0 +1,46 @@
+// "Prévia do Kit": the Projeto's Kit de marca drawn on one frame — background, title,
+// text, highlight, logo, caption style and entrance motion. It shows her the look before a
+// Vídeo is built, and it is the reference for how a Vídeo composition reads the Kit: every
+// value on screen comes from the `kit` prop, none is written here.
+import React from 'react';
+import {AbsoluteFill, Img, useVideoConfig} from 'remotion';
+import {arquivoDoProjeto, KIT_PADRAO, PropsDoKit, tamanhoNoQuadro} from '../_shared/kit';
+import {estiloDaFonte, LegendaDoKit, Palavra, useEntradaDoKit, useFontesDoKit} from '../_shared/marca';
+
+// Sample copy only (pt-BR, what she reads on the preview). Brand values come from the Kit.
+const TITULO = 'Seu título aqui';
+const TEXTO = 'Assim fica o texto dos seus vídeos.';
+const FALA: Palavra[] = ['Assim', 'ficam', 'as', 'legendas', 'do', 'seu', 'vídeo'].map((texto, i) => ({
+  texto,
+  inicio: 0.2 + i * 0.3,
+}));
+
+export const PreviaDoKit: React.FC<PropsDoKit> = ({projeto, kit = KIT_PADRAO}) => {
+  const {width, height} = useVideoConfig();
+  useFontesDoKit(kit, projeto);
+  const entrada = useEntradaDoKit(kit, 0);
+  const {cores, tipografia} = kit;
+  const px = (tamanho: number) => tamanhoNoQuadro(tamanho, width, height);
+  const logo = projeto ? kit.ativos.logos[0] : undefined;
+
+  return (
+    <AbsoluteFill style={{background: cores.fundo}}>
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center', padding: '0 10%', gap: px(28),
+          opacity: entrada, transform: `translateY(${(1 - entrada) * px(40)}px)`,
+        }}
+      >
+        {logo ? <Img src={arquivoDoProjeto(projeto, logo)} style={{height: px(120), objectFit: 'contain', alignSelf: 'flex-start'}} /> : null}
+        <div style={{...estiloDaFonte(tipografia.titulo), fontSize: px(tipografia.escala.titulo), color: cores.primaria, lineHeight: 1.05}}>
+          {TITULO}
+        </div>
+        <div style={{width: px(160), height: px(14), background: cores.destaque}} />
+        <div style={{...estiloDaFonte(tipografia.texto), fontSize: px(tipografia.escala.corpo), color: cores.texto, lineHeight: 1.3}}>
+          {TEXTO}
+        </div>
+      </AbsoluteFill>
+      <LegendaDoKit kit={kit} palavras={FALA} />
+    </AbsoluteFill>
+  );
+};

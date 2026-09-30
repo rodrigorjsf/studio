@@ -37,3 +37,6 @@ Pages: concepts/brand-kit-per-front.md, concepts/grilling-catalogue.md, overview
 
 ## [2026-09-29] update | Projeto list, Kit edits and per-Vídeo Kit snapshots built (ticket #7)
 Pages: concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-29] update | Remotion template compositions read the Kit de marca (ticket #8)
+Pages: concepts/brand-kit-per-front.md, overview.md.

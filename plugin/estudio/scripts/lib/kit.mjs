@@ -7,6 +7,7 @@
 // stages (Kit learnings, Notion) can add fields without breaking older Estúdios.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { KIT_ASSETS } from './layout.mjs';
 
 const KIT_SCHEMA_VERSION = 1;
@@ -15,36 +16,12 @@ const FORMATOS = ['9:16', '16:9', '1:1'];
 const POLITICAS_MUSICA = ['no-app', 'arquivo-dela', 'sem-musica'];
 
 // A complete, valid Kit: what "decide você" answers when she has no preference.
-// Vertical 9:16 and music added by her in the app are the spec's defaults.
+// Vertical 9:16 and music added by her in the app are the spec's defaults. It lives in the
+// Remotion template, which previews it before any Projeto exists, so both read one file.
+const DEFAULT_KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'template', 'src', '_shared', 'kit-padrao.json');
+
 export function defaultKit() {
-  return {
-    schemaVersion: KIT_SCHEMA_VERSION,
-    aprovadoEm: null,
-    formato: '9:16',
-    cores: { primaria: '#111111', destaque: '#FFD400', fundo: '#FFFFFF', texto: '#111111' },
-    tipografia: {
-      titulo: { familia: 'Inter', peso: 800, arquivo: null },
-      texto: { familia: 'Inter', peso: 500, arquivo: null },
-      escala: { titulo: 96, corpo: 48 },
-    },
-    legendas: {
-      ativas: true, estilo: 'palavra-destacada', fonte: 'texto', tamanho: 56,
-      cor: '#FFFFFF', destaque: '#FFD400', posicao: 'inferior', caixaAlta: false, palavrasPorVez: 3,
-    },
-    movimento: { intensidade: 'equilibrada', ritmo: 'equilibrado', entradaMs: 300, transicao: 'corte', recursos: [] },
-    camera: { comportamento: '', enquadramento: '' },
-    zonaDoRosto: {},
-    imagens: { prints: 'inteiros, com marca-texto exatamente na frase citada', interacao: '' },
-    som: { efeitos: 'sutis' },
-    musica: { politica: 'no-app' },
-    entregaveis: { formatos: ['9:16'], overlays: false },
-    creditos: { porVideo: null, porMes: null },
-    fazer: [],
-    evitar: [],
-    glossario: [],
-    referencias: [],
-    ativos: { logos: [], fontes: [], cartaoFinal: null, outros: [] },
-  };
+  return JSON.parse(fs.readFileSync(DEFAULT_KIT, 'utf8'));
 }
 
 // ---- checkers: each returns null when the value is fine, or a plain problem ----

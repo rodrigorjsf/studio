@@ -2,6 +2,8 @@
 
 The Kit de marca is the Projeto's machine-readable identity: `projetos/<projeto>/kit.json` in the Estúdio. The Remotion compositions and the brand Crítico read the same values, so every field has a fixed type. `estado` checks the schema and reports every problem as `field problem` under `errors`. `aprovar-kit` refuses a Kit with any problem.
 
+In the Estúdio's Remotion template, `src/_shared/kit.ts` loads this file for every composition and `src/kit/PreviaDoKit.tsx` draws it on one frame (the "Prévia do Kit"); the defaults below live in `src/_shared/kit-padrao.json`, the one file both `novo-projeto` and the template read.
+
 `novo-projeto` writes a complete, valid Kit with the defaults below. Those defaults are also what "decide você" means when the Criadora has no preference. Change only the fields her answers settle, and keep the rest. Keys are pt-BR, like every document in the Estúdio. Unknown extra keys are allowed but are not read by anything yet, so do not invent new ones.
 
 ## Fields
