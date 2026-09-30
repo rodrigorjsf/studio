@@ -23,3 +23,9 @@ Related: [grilling-catalogue](grilling-catalogue.md).
 - The schema is enforced in code by `plugin/estudio/scripts/lib/kit.mjs`. `estado` reports each bad field, for example `cores.destaque must be a color like "#1A2B3C"`. Asset paths must exist inside `kit/`. The field-by-field description the Entrevistador follows is `plugin/estudio/skills/novo-projeto/references/kit-schema.md`.
 - Defaults are written by `novo-projeto`: Formato `9:16` and `musica.politica: "no-app"` (she adds the music in the app).
 - Approval Gate: a valid Kit reads `aguardando-aprovacao` in `estado` until `aprovar-kit` stamps `aprovadoEm`, which refuses an invalid Kit. Only then is the Kit `ok` and the Projeto usable. Tests: `tests/projeto.test.mjs`.
+
+## Built: editing an approved Kit, and each Vídeo's own Kit (ticket #7)
+
+- `/estudio:editar-projeto` changes a Projeto's briefing (edited in place) or its Kit. A Kit change goes only through `editar-kit "<folder>" "<projeto>" '<json>'`: the JSON holds only the changed fields (objects merge, anything else replaces). The command re-validates the merged Kit with `validateKit`, refuses a broken one without writing anything, and stamps `aprovadoEm` afresh, because the Criadora confirmed the change first.
+- Kit snapshot: before the Projeto's `kit.json` changes, every existing Vídeo without one gets `videos/<vídeo>/kit.json`, a copy of the Kit it started with. A Vídeo reads its own Kit when present, else the Projeto's. `atualizar-kit-video` moves one Vídeo to the current Kit on her opt-in; delivered or archived Vídeos are refused. Assets in `kit/` are never overwritten, so an older Kit's paths stay valid.
+- `/estudio:projetos` lists Projetos and Vídeos only from `estado`. Tests: `tests/editar-projeto.test.mjs`.

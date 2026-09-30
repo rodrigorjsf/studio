@@ -33,7 +33,7 @@ Ask how she calls this domain ("Minha Empresa", "Instagram Pessoal"). That name 
 | Result | What to do |
 |---|---|
 | `created: true` | It created `projetos/<nome>/` with the briefing `projeto.md`, a Kit `kit.json` already filled with the defaults, and the assets folder `kit/`. When `resumed` is `true`, it only added the missing pieces. |
-| `reason: "already-exists"` | That Projeto exists. Offer to continue it, or to choose another name. Changing an existing Projeto is `/estudio:editar-projeto` (*pending: ticket #7*). |
+| `reason: "already-exists"` | That Projeto exists. Offer to continue it, or to choose another name. Changing an existing Projeto is `/estudio:editar-projeto`: follow the [editar-projeto skill](../editar-projeto/SKILL.md). |
 | `reason: "invalid-name"` | The name cannot be a folder name (`/ \ : * ? " < > \|`, a leading dot, or empty). Suggest a close alternative. |
 
 She can have several Projetos in one Estúdio. Each one has its own folder, briefing and Kit, and each one gets its own approval.

@@ -80,6 +80,8 @@ Act on `nextStep.action`:
 - **`continuar-video`** — tell her in one sentence where that Vídeo stopped (`status`, `rodada`) and, if it is in `waiting`, what she needs to decide. Mention any other item in `waiting` in one line each.
 - **`novo-video`** — everything is up to date; offer to start a new Vídeo.
 
+When she asks what she has in progress, follow the [projetos skill](../projetos/SKILL.md) (`/estudio:projetos`). When she wants to change a Projeto's briefing or Kit de marca, follow the [editar-projeto skill](../editar-projeto/SKILL.md) (`/estudio:editar-projeto`).
+
 ### Then, the level
 
 In your first reply after the Estúdio is ready (unless she already stated the level in her first message):

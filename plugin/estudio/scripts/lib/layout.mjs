@@ -7,6 +7,9 @@
 //   projetos/<projeto>/kit.json      the machine-readable Kit de marca (schema: kit.mjs)
 //   projetos/<projeto>/kit/          the Kit's assets: logos, fonts, end card, reference images
 //   projetos/<projeto>/videos/<vídeo>/video.md   the Vídeo document (frontmatter: status, rodada, nivel…)
+//   projetos/<projeto>/videos/<vídeo>/kit.json   the Vídeo's own copy of the Kit (Kit snapshot): when
+//                                    present, the Vídeo follows it instead of the Projeto's Kit, so a
+//                                    later Kit edit never changes a Vídeo behind her back
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder
 //
 // Anything else inside a Projeto or Vídeo folder (the Original, versions,
@@ -21,3 +24,4 @@ export const KIT = 'kit.json';
 export const KIT_ASSETS = 'kit';
 export const VIDEOS = 'videos';
 export const VIDEO_DOC = 'video.md';
+export const VIDEO_KIT = 'kit.json';
