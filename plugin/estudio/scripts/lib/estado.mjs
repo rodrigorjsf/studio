@@ -4,9 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { unansweredSections } from './briefing.mjs';
 import { parseFrontmatter } from './frontmatter.mjs';
+import { boxProblem, transcriptProblem } from './ingest.mjs';
 import { validateKit } from './kit.mjs';
 import { readPerfil } from './perfil.mjs';
-import { KIT, MARKER, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS } from './layout.mjs';
+import {
+  KIT, MARKER, PALAVRAS, PERFIL, PROJETO_DOC, PROJETOS, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
+} from './layout.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
 const IGNORABLE = new Set(['Thumbs.db', 'desktop.ini']);
@@ -28,6 +31,22 @@ const STATUSES = new Map([
   ['Arquivado', { waitsForCriadora: false, finished: true }],
 ]);
 const NIVEIS = new Set([1, 2]);
+// The Vídeo document's metric counters: questions asked, Gates opened, Gates Autonomia approved.
+export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas'];
+export const STATUS_NAMES = [...STATUSES.keys()];
+const wholeCount = (v) => Number.isInteger(v) && v >= 0;
+const credits = (v) => typeof v === 'number' && v >= 0;
+const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
+
+// The Vídeo document's record fields other than Status, Rodada and Nível, each checked only
+// when present and not empty (documents from before ticket #9 have none of them).
+const VIDEO_RECORD = [
+  ...COUNTERS.map((key) => [key, wholeCount, 'must be a whole number, 0 or more']),
+  ['creditosEstimados', credits, 'must be a number of credits, 0 or more'],
+  ['creditosGastos', credits, 'must be a number of credits, 0 or more'],
+  ['iniciadoEm', isoDate, 'must be a date (ISO)'],
+  ['entregueEm', isoDate, 'must be a date (ISO)'],
+];
 // Delivered or archived: the Vídeo's work is done.
 export const isFinished = (status) => STATUSES.get(status)?.finished === true;
 
@@ -109,7 +128,21 @@ export function estado(folder) {
 
     const videos = subfolders(path.join(dir, VIDEOS)).map((videoName) => {
       const doc = path.join(dir, VIDEOS, videoName, VIDEO_DOC);
-      const video = { id: nfc(videoName), status: null, rodada: null, nivel: null, waitingForCriadora: false };
+      const video = {
+        id: nfc(videoName), status: null, rodada: null, nivel: null, briefing: 'completo',
+        ingest: { transcricao: false, zonaDoRosto: false }, waitingForCriadora: false,
+      };
+      // The ingest, as far as it went: a Vídeo interrupted midway resumes from what is missing.
+      const videoFile = (rel) => path.join(dir, VIDEOS, videoName, ...rel.split('/'));
+      const ingested = (rel, problemOf) => {
+        const data = fs.existsSync(videoFile(rel)) ? readJson(videoFile(rel)) : null;
+        const problem = data === null ? 'absent' : problemOf(data);
+        if (problem && problem !== 'absent') fail(videoFile(rel), problem);
+        return !problem;
+      };
+      video.ingest.transcricao = ingested(PALAVRAS, transcriptProblem);
+      video.ingest.zonaDoRosto = ingested(ZONA_DO_ROSTO, (data) => (data.zona === null || !boxProblem(data.zona)
+        ? null : `zona ${boxProblem(data.zona)}, or null when no face is on screen`));
       // The Vídeo's own Kit (its Kit snapshot), when it has one, is held to the same schema.
       const ownKit = path.join(dir, VIDEOS, videoName, VIDEO_KIT);
       const ownKitData = fs.existsSync(ownKit) ? readJson(ownKit) : null;
@@ -120,6 +153,8 @@ export function estado(folder) {
       }
       const data = readDoc(doc);
       if (!data) return video;
+      // `incompleto` while a section of the Vídeo's short briefing still waits for her answer.
+      if (unansweredSections(fs.readFileSync(doc, 'utf8')) > 0) video.briefing = 'incompleto';
       const status = typeof data.status === 'string' ? nfc(data.status) : data.status;
       if (!STATUSES.has(status)) {
         fail(doc, `status ${JSON.stringify(data.status ?? null)} is not one of: ${[...STATUSES.keys()].join(', ')}`);
@@ -134,6 +169,9 @@ export function estado(folder) {
       if (data.nivel != null && !NIVEIS.has(data.nivel)) {
         fail(doc, `nivel ${JSON.stringify(data.nivel)} must be 1 or 2`);
       } else video.nivel = data.nivel ?? null;
+      for (const [key, check, problem] of VIDEO_RECORD) {
+        if (data[key] != null && !check(data[key])) fail(doc, `${key} ${JSON.stringify(data[key])} ${problem}`);
+      }
       return video;
     });
     return { id: nfc(name), briefing: briefingState, kit, videos };

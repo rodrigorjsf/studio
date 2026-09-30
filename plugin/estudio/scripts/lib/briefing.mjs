@@ -23,7 +23,8 @@ export const BRIEFING_SECTIONS = [
   'Orçamento de créditos',
 ];
 
-const PLACEHOLDER = '_A preencher na entrevista._';
+// The same placeholder marks the unanswered sections of a Vídeo's short briefing (video.mjs).
+export const PLACEHOLDER = '_A preencher na entrevista._';
 
 export function briefingTemplate(nome, createdAt) {
   const sections = BRIEFING_SECTIONS.map((title) => `## ${title}\n\n${PLACEHOLDER}\n`).join('\n');

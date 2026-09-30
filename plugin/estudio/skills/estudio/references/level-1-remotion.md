@@ -7,7 +7,7 @@
 In Nível 1, Claude watches your video, understands what you say and **programs** the animations with [Remotion](https://www.remotion.dev), a tool that turns code into video. You do not need to know how to code: you talk, approve the plan and check the result.
 
 **Cost:** zero. Everything runs on your computer.
-**Tools:** the plugin's frame sampler (watches the video, see [watching a video](watching-a-video.md)), `tools/transcrever.py` (timing of each word), the plugin's [Remotion rules](remotion/index.md) and Remotion itself. All of them ship with the plugin or come from its installer; nothing else is installed.
+**Tools:** the plugin's frame sampler (watches the video, see [watching a video](watching-a-video.md)), the plugin's transcriber `scripts/transcrever.py` (timing of each word), the plugin's [Remotion rules](remotion/index.md) and Remotion itself. All of them ship with the plugin or come from its installer; nothing else is installed.
 
 *Pending: the plugin's no-admin installer (ticket #4) replaces this step.* (Applies to every `tools/*.py` and `npm run` setup step in this guide.)
 
@@ -40,6 +40,8 @@ Claude runs these phases in order and **stops at the approval points**.
 
 ### 1. Organize
 
+In the plugin, this step and the next are the [novo-video skill](../../novo-video/SKILL.md): it stores her recording untouched as the Vídeo's Original (`projetos/<projeto>/videos/<vídeo>/original/`), runs the short Vídeo briefing, and has the Assistente de edição probe, watch and transcribe the video and measure the Zona do rosto (`zona-do-rosto.json`). The upstream steps below describe the same work.
+
 - Finds the new folder in `projetos/`. If you only dropped a video there, it creates `projetos/<NNN>/video/` and moves the file inside.
 - Numbering: three digits, dot and space (`001. meu-video`). New project = highest existing number + 1.
 - Runs `ffprobe` on the video to record duration, resolution, fps and codecs at the top of `plano.md`.
@@ -50,7 +52,7 @@ Claude runs these phases in order and **stops at the approval points**.
 1. **Frames, overview:** the plugin's frame sampler in `--modo visao-geral` (command in the estudio skill, *Watching a video*), into `<projeto>/frames/visao-geral`. Claude reads **every** frame listed and maps framing, background and light, following [watching a video](watching-a-video.md).
 2. **Frames, face zone:** the same sampler in `--modo zona-do-rosto`, into `<projeto>/frames/zona-do-rosto`: one frame per second over the whole video, with near-identical frames kept, to measure where the face is across the whole clip.
 3. **Per-word timing (local and free):**
-   `python tools/transcrever.py "<vídeo>" "<projeto>/transcricao"`
+   the plugin's `scripts/transcrever.py` (the exact command is in the Assistente de edição's instructions; the novo-video skill runs it)
    Produces `palavras.json` (start and end of each word) and `transcript.md`.
 4. Badly transcribed proper nouns can be fixed in the text ("cloud" → Claude) without touching the timings.
 5. When a moment matters (she points at the screen, a number appears), sample it again at those times (`--cues`) or in a `--start`/`--end` window.

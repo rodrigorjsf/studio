@@ -127,7 +127,8 @@ instala_python() {
   export UV_NO_PROGRESS=1
   rm -rf "$RUNTIME/python"
   "$UV" venv --quiet --python "$PYTHON_VERSAO" "$RUNTIME/python" || { rm -rf "$RUNTIME/python"; falha "baixar o Python"; }
-  "$UV" pip install --quiet --python "$PYTHON_PORTATIL" faster-whisper || { rm -rf "$RUNTIME/python"; falha "baixar o faster-whisper"; }
+  # PyAV 19 dropped an argument faster-whisper 1.2.1 still passes: every transcription fails.
+  "$UV" pip install --quiet --python "$PYTHON_PORTATIL" "faster-whisper==1.2.1" "av<19" || { rm -rf "$RUNTIME/python"; falha "baixar o faster-whisper"; }
   [ -n "$(acha_python)" ] || { rm -rf "$RUNTIME/python"; falha "fazer a transcrição funcionar"; }
   echo "Python com faster-whisper: pronto."
 }

@@ -125,7 +125,8 @@ function InstalaPython {
   Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue
   & $uv venv --quiet --python $PythonVersao $venv 2>&1 | Out-Null
   if ($LASTEXITCODE -ne 0) { Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue; Falha 'baixar o Python' }
-  & $uv pip install --quiet --python $PythonPortatil faster-whisper 2>&1 | Out-Null
+  # PyAV 19 dropped an argument faster-whisper 1.2.1 still passes: every transcription fails.
+  & $uv pip install --quiet --python $PythonPortatil 'faster-whisper==1.2.1' 'av<19' 2>&1 | Out-Null
   if ($LASTEXITCODE -ne 0 -or -not (AchaPython)) {
     Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue
     Falha 'baixar o faster-whisper'

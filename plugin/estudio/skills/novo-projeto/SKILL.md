@@ -102,7 +102,7 @@ This Gate is always hers: approve the Kit only on her explicit answer.
 
 ## 6. Close
 
-Tell her in one sentence that the Projeto is ready and what it holds. Then give the next step: start a Vídeo in it (`/estudio:novo-video`, *pending: ticket #9*), or create another Projeto.
+Tell her in one sentence that the Projeto is ready and what it holds. Then give the next step: start a Vídeo in it (`/estudio:novo-video`), or create another Projeto.
 
 ## Rules
 

@@ -43,3 +43,6 @@ Pages: concepts/brand-kit-per-front.md, overview.md.
 
 ## [2026-09-29] update | Frame sampler and Remotion rules incorporated; external skills removed (ticket #23)
 Pages: concepts/plugin-architecture.md, overview.md.
+
+## [2026-09-29] update | New Vídeo briefing and ingest built (ticket #9)
+Pages: concepts/plugin-architecture.md, overview.md.

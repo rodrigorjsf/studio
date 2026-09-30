@@ -6,13 +6,19 @@
 // WHEN  Skills run it at every session start (`estado`), when the Criadora accepts turning
 //       a folder into an Estúdio (`criar`), and in the Projeto Grilling (`novo-projeto`,
 //       then `aprovar-kit` once she approves the Kit de marca), and when she changes an
-//       approved Kit (`editar-kit`) or opts an existing Vídeo into it (`atualizar-kit-video`).
+//       approved Kit (`editar-kit`) or opts an existing Vídeo into it (`atualizar-kit-video`);
+//       when a recording starts a Vídeo (`novo-video`), as the Diretor records its Nível, Status
+//       and counters (`registrar-video`), and when the Assistente de edição has measured the
+//       face on every frame (`zona-do-rosto`).
 // HOW   node "<plugin root>/scripts/estudio.mjs" estado "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" criar  "<folder>"
 //       node "<plugin root>/scripts/estudio.mjs" novo-projeto "<folder>" "<projeto>"
 //       node "<plugin root>/scripts/estudio.mjs" aprovar-kit  "<folder>" "<projeto>"
 //       node "<plugin root>/scripts/estudio.mjs" editar-kit   "<folder>" "<projeto>" '<json>'
 //       node "<plugin root>/scripts/estudio.mjs" atualizar-kit-video "<folder>" "<projeto>" "<vídeo>"
+//       node "<plugin root>/scripts/estudio.mjs" novo-video "<folder>" "<projeto>" "<vídeo>" "<gravação>"
+//       node "<plugin root>/scripts/estudio.mjs" registrar-video "<folder>" "<projeto>" "<vídeo>" '<json>'
+//       node "<plugin root>/scripts/estudio.mjs" zona-do-rosto "<folder>" "<projeto>" "<vídeo>"
 //       Always quote every argument: the Criadora's paths and names carry spaces and accents.
 //       Exit 0 with a JSON report; exit 2 with {"error": ...} on a usage error.
 import fs from 'node:fs';
@@ -21,6 +27,7 @@ import { criar } from './lib/criar.mjs';
 import { estado } from './lib/estado.mjs';
 import { atualizarKitVideo, editarKit } from './lib/editar.mjs';
 import { aprovarKit, novoProjeto } from './lib/projeto.mjs';
+import { novoVideo, registrarVideo, zonaDoRosto } from './lib/video.mjs';
 
 // Each subcommand with the arguments it takes after the Estúdio folder.
 const COMMANDS = {
@@ -30,6 +37,9 @@ const COMMANDS = {
   'aprovar-kit': { run: aprovarKit, args: ['"<projeto>"'] },
   'editar-kit': { run: editarKit, args: ['"<projeto>"', "'<json>'"] },
   'atualizar-kit-video': { run: atualizarKitVideo, args: ['"<projeto>"', '"<vídeo>"'] },
+  'novo-video': { run: novoVideo, args: ['"<projeto>"', '"<vídeo>"', '"<gravação>"'] },
+  'registrar-video': { run: registrarVideo, args: ['"<projeto>"', '"<vídeo>"', "'<json>'"] },
+  'zona-do-rosto': { run: zonaDoRosto, args: ['"<projeto>"', '"<vídeo>"'] },
 };
 
 function usageError(error) {

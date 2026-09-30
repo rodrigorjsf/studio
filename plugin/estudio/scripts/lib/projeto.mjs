@@ -11,7 +11,7 @@ import { KIT, KIT_ASSETS, MARKER, PROJETO_DOC, PROJETOS, VIDEO_KIT, VIDEOS } fro
 // A Projeto is a folder named as she calls it ("Minha Empresa"), so the name must be a
 // single, portable folder name on Mac and Windows.
 const FORBIDDEN = /[<>:"/\\|?*\u0000-\u001f]/;
-function nameProblem(nome) {
+export function nameProblem(nome) {
   if (typeof nome !== 'string' || nome.trim() === '') return 'empty';
   if (nome !== nome.trim() || nome.startsWith('.') || nome.endsWith('.')) return 'leading or trailing dot or space';
   if (FORBIDDEN.test(nome)) return 'contains a character a folder name cannot hold';
