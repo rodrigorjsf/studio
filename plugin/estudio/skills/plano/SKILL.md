@@ -37,7 +37,7 @@ Hand the Vídeo to the **Roteirista-estrategista** (the `roteirista-estrategista
 - `<vídeo>`: `<Estúdio>/projetos/<projeto>/videos/<nome do vídeo>/`; `<estudio>`: the Estúdio folder; `<projeto>` and `<nome do vídeo>` as `estado` names them;
 - `<plugin>`: `${CLAUDE_PLUGIN_ROOT}`; `<node>`: `tools.node`;
 - `<kit>`: the Vídeo's own `kit.json` if it has one, else `projetos/<projeto>/kit.json`;
-- `<caderno-estudio>` and `<caderno-projeto>`: the Estúdio's `caderno.caminho` and the Projeto's `caderno.caminho` from `estado`, the two Cadernos it reads before working (see the [caderno reference](../estudio/references/caderno.md));
+- `<caderno-estudio>` and `<caderno-projeto>`: the Estúdio's `caderno.caminho` and the Projeto's `caderno.caminho` from `estado`, the two Cadernos it reads before working (see the [caderno reference](../estudio/references/caderno.md)). When its report arrives, write or skip its `caderno-proposto` lines right away and tell her each one you wrote in one line, as that reference says;
 - `<resumos-notion>`: the absolute paths of the Resumos Notion that exist, the Projeto's `projetos/<projeto>/notion/resumo.md` and the Vídeo's `notion/resumo.md`, or "none". The Roteirista reads only these, never Notion itself;
 - **her requests for this Vídeo**, word for word: what she asked in the briefing or in this conversation. Her request wins over the repertoire; the Roteirista records each one in the Plano's `pedidosDela`.
 

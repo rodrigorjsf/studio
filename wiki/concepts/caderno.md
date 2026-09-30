@@ -13,7 +13,7 @@ Built in tickets #40 (Caderno) and #43 (issue drafts): the studio's memory of ho
 |---|---|
 | Layers | Estúdio (her, her computer) and one per Projeto (that domain); Diretor picks, default Estúdio |
 | Sections | Elogios, Queixas, Soluções |
-| Writer | any persona originates in its report (`caderno-proposto`); only the Diretor writes, via the `estudio.mjs` command `caderno` |
+| Writer | any persona originates in its report (`caderno-proposto`); only the Diretor writes, via the `estudio.mjs` command `caderno`, as soon as the report arrives (so the next persona of the same Vídeo reads it), telling her in one line per entry |
 | Capture | Diretor spots Elogios/Queixas in her words, writes, tells her in one line |
 | Conflicts | new vs old entry: she chooses; Queixa vs Kit: Diretor offers a Kit learning |
 | Readers | Diretor at session start; every persona receives both paths (`<caderno-estudio>`, `<caderno-projeto>`) and reads them before working |

@@ -130,3 +130,6 @@ Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md
 
 ## [2026-09-30] update | Revisor de plataforma judges the Texto do post in a three-turn loop; Texto do post on request for Entregue and Arquivado Vídeos (ticket #45)
 Pages: concepts/post-copy.md, entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Review round 1 of spec #39: persona Caderno proposals written on arrival with a one-line notice; structure check requires the Social media and the platform reference
+Pages: concepts/caderno.md. Evidence: `plugin/estudio/skills/estudio/references/caderno.md`, `scripts/check-plugin.mjs`.
