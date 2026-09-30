@@ -364,7 +364,7 @@ test('a platform reference that links out of the package is still rejected', () 
 });
 
 test('the shipped platform reference keeps the source labels the research gave its claims', () => {
-  const text = fs.readFileSync(path.join(repoRoot, REFERENCE), 'utf8');
+  const text = fs.readFileSync(path.join(repoRoot, REFERENCE), 'utf8').replace(/\r\n/g, '\n');
   const labelOf = (pattern) => {
     const lines = text.split('\n').filter((line) => line.startsWith('- ') && pattern.test(line));
     assert.equal(lines.length, 1, `exactly one rule matches ${pattern}`);
