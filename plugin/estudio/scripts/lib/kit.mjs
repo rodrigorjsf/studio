@@ -8,8 +8,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { KIT_ASSETS } from './layout.mjs';
-import { isIsoDate, isObject } from './valores.mjs';
+import { KIT, KIT_ASSETS, VIDEO_KIT } from './layout.mjs';
+import { isIsoDate, isObject, readJson } from './valores.mjs';
 
 const KIT_SCHEMA_VERSION = 1;
 const FORMATOS = ['9:16', '16:9', '1:1'];
@@ -142,4 +142,11 @@ export function validateKit(kit, projetoDir) {
     problems.push(`formato ${JSON.stringify(kit.formato)} must be listed in entregaveis.formatos`);
   }
   return problems;
+}
+
+// The Kit a Vídeo follows, given its folder (`projetos/<p>/videos/<v>`): its own Kit snapshot when
+// it has one, else its Projeto's. Null when the file is missing or not JSON.
+export function kitOfVideo(videoDir) {
+  const own = path.join(videoDir, VIDEO_KIT);
+  return readJson(fs.existsSync(own) ? own : path.join(videoDir, '..', '..', KIT));
 }

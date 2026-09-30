@@ -25,10 +25,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { nfc } from './estado.mjs';
-import { PLATAFORMAS, plataformasDoKit, plataformasValidas } from './kit.mjs';
-import { ENTREGA, KIT, TEXTO_DO_POST, VIDEO_KIT } from './layout.mjs';
+import { PLATAFORMAS, kitOfVideo, plataformasDoKit, plataformasValidas } from './kit.mjs';
+import { ENTREGA, TEXTO_DO_POST } from './layout.mjs';
 import { findVideo } from './video.mjs';
-import { readJson } from './valores.mjs';
 
 // Each platform of the Kit: the heading the Social media writes and the names a heading may carry
 // (matched on its letters and digits alone, in lower case). One row per platform of `PLATAFORMAS`.
@@ -106,8 +105,7 @@ export function textoDoPost(folder, projetoNome, videoNome) {
   if (!fs.existsSync(file)) return { checked: false, reason: 'no-texto', projeto, video };
 
   // The Vídeo follows its own Kit copy when it has one, else the Projeto's.
-  const ownKit = path.join(dir, VIDEO_KIT);
-  const kit = readJson(fs.existsSync(ownKit) ? ownKit : path.join(dir, '..', '..', KIT));
+  const kit = kitOfVideo(dir);
   // A Kit whose platform list is not a non-empty list of the platforms the studio writes for is the
   // Kit's to fix (`estado` reports it too).
   if (!plataformasValidas(kit)) {
