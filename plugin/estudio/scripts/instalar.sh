@@ -14,7 +14,7 @@
 #       ready, 1 when it failed (nothing half-installed stays behind), 2 on a usage error.
 #       `modelo` downloads the speech model's files listed in ../vendor.json into
 #       <plugin data folder>/modelos/large-v3-turbo/, verifies each sha256, deletes and reports
-#       any file that fails, and skips files already verified. ESTUDIO_MODELO_MANIFESTO points
+#       any file that fails, and skips files already verified. ESTUDIO_MODEL_MANIFEST points
 #       it at another manifest (tests serve local file:// URLs); real downloads need the network.
 
 STEP=$1

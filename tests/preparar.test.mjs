@@ -5,7 +5,7 @@
 // they leave behind.
 //
 // The speech model step (ticket #32) is driven with a manifest override
-// (ESTUDIO_MODELO_MANIFESTO) whose files are small fixtures served through file:// URLs, so no
+// (ESTUDIO_MODEL_MANIFEST) whose files are small fixtures served through file:// URLs, so no
 // network is needed. The real download (about 2 GB) runs only with ESTUDIO_TESTE_REDE=1.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -246,7 +246,7 @@ test('re-running the installer on a prepared computer downloads nothing and says
   preparedModel(m.data, fixture.upstream);
   const estudio = estudioFolder(tempRoot(), { remotion: true });
   const before = listFiles(m.data);
-  const r = run(instalar, ['tudo', m.data, estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: fixture.manifest });
+  const r = run(instalar, ['tudo', m.data, estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 0, `${r.out}${r.err}`);
   assert.match(r.out, /já estava pronto/);
   assert.match(r.out, /Computador preparado/);
@@ -258,7 +258,7 @@ test('the modelo step downloads each file into the models folder, says so plainl
   const m = freshMachine();
   withCurl(m.bin);
   const fixture = modelFixture(m.root);
-  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: fixture.manifest });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 0, `${r.out}${r.err}`);
   assert.match(r.out, /Modelo de fala.*baixando/);
   for (let i = 1; i <= MODEL_FILES.length; i += 1) assert.match(r.out, new RegExp(`\\(${i} de ${MODEL_FILES.length}\\)`), 'a progress line per file');
@@ -274,7 +274,7 @@ test('a downloaded file with the wrong sha256 is deleted and reported, and the s
   const m = freshMachine();
   withCurl(m.bin);
   const fixture = modelFixture(m.root, { wrongSha: ['tokenizer.json'] });
-  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: fixture.manifest });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 1, `${r.out}${r.err}`);
   assert.match(r.out + r.err, /tokenizer\.json.*corrompido.*apagado/);
   assert.doesNotMatch(r.out + r.err, JARGON);
@@ -291,7 +291,7 @@ test('a corrupted file already in the models folder is replaced on the next run,
   const folder = preparedModel(m.data, fixture.upstream);
   fs.writeFileSync(path.join(folder, 'model.bin'), 'half of a file');
   const untouched = fs.statSync(path.join(folder, 'config.json')).mtimeMs;
-  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: fixture.manifest });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 0, `${r.out}${r.err}`);
   assert.match(r.out, /\(1 de 1\)/);
   assert.equal(fs.readFileSync(path.join(folder, 'model.bin'), 'utf8'), fs.readFileSync(path.join(fixture.upstream, 'model.bin'), 'utf8'));
@@ -303,7 +303,7 @@ test('re-running the modelo step on a prepared model downloads nothing', () => {
   const fixture = modelFixture(m.root);
   const folder = preparedModel(m.data, fixture.upstream);
   const before = listFiles(m.data);
-  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: fixture.manifest });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 0, `${r.out}${r.err}`);
   assert.match(r.out, /Modelo de fala: já estava pronto/);
   assert.doesNotMatch(r.out, /baixando/);
@@ -313,7 +313,7 @@ test('re-running the modelo step on a prepared model downloads nothing', () => {
 
 test('a model download that cannot start fails plainly and leaves no model behind', () => {
   const m = freshMachine(); // no curl on PATH
-  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODELO_MANIFESTO: modelFixture(m.root).manifest });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: modelFixture(m.root).manifest });
   assert.equal(r.code, 1);
   assert.match(r.out + r.err, /Não consegui/);
   assert.equal(fs.existsSync(path.join(m.data, ...MODEL_FOLDER, 'model.bin')), false);
@@ -422,7 +422,7 @@ test('on Windows the modelo step fills the models folder from local fixtures, th
   fs.writeFileSync(manifestPath, JSON.stringify({ sources: [{ id: 'speech-model', files }] }));
   const data = path.join(rootWsl, 'dados do plugin');
   const script = (name) => toWin(path.join(pluginRoot, 'scripts', name));
-  const withManifest = `$env:ESTUDIO_MODELO_MANIFESTO = '${toWin(manifestPath)}';`;
+  const withManifest = `$env:ESTUDIO_MODEL_MANIFEST = '${toWin(manifestPath)}';`;
   const install = () => ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Step modelo -DataDir '${toWin(data)}'; exit $LASTEXITCODE`);
   const check = () => JSON.parse(ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -DataDir '${toWin(data)}' -Estudio '${toWin(rootWsl)}'`).stdout).missing;
   const folder = path.join(data, ...MODEL_FOLDER);

@@ -20,10 +20,10 @@ $PortablePython = Join-Path $Runtime 'python\Scripts\python.exe'
 
 # The speech model: transcrever.py loads it from modelos\<model name> by path. The list of its
 # files (name, sha256, download URL) is the `speech-model` source of vendor.json; the
-# ESTUDIO_MODELO_MANIFESTO override points at another manifest, so tests can serve local files.
+# ESTUDIO_MODEL_MANIFEST override points at another manifest, so tests can serve local files.
 $ModelName = 'large-v3-turbo'
 $ModelDir = Join-Path $DataDir "modelos\$ModelName"
-$ModelManifest = if ($env:ESTUDIO_MODELO_MANIFESTO) { $env:ESTUDIO_MODELO_MANIFESTO } else { Join-Path $PSScriptRoot '..\..\vendor.json' }
+$ModelManifest = if ($env:ESTUDIO_MODEL_MANIFEST) { $env:ESTUDIO_MODEL_MANIFEST } else { Join-Path $PSScriptRoot '..\..\vendor.json' }
 
 # The program exists and runs successfully.
 function Works([string]$Program, [string[]]$Arguments) {

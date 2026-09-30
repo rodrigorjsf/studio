@@ -14,7 +14,7 @@
 #       -ExecutionPolicy Bypass applies to this one process only and needs no admin rights.
 #       `modelo` downloads the speech model's files listed in ..\vendor.json into
 #       <plugin data folder>\modelos\large-v3-turbo\, verifies each sha256, deletes and reports
-#       any file that fails, and skips files already verified. ESTUDIO_MODELO_MANIFESTO points
+#       any file that fails, and skips files already verified. ESTUDIO_MODEL_MANIFEST points
 #       it at another manifest (tests serve local file:// URLs); real downloads need the network.
 #       Prints progress in plain Portuguese. Exit 0 when ready, 1 when a step failed
 #       (nothing half-installed stays behind), 2 on a usage error.

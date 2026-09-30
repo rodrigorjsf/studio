@@ -22,10 +22,10 @@ PORTABLE_PYTHON="$RUNTIME/python/bin/python"
 
 # The speech model: transcrever.py loads it from modelos/<model name> by path. The list of its
 # files (name, sha256, download URL) is the `speech-model` source of vendor.json; the
-# ESTUDIO_MODELO_MANIFESTO override points at another manifest, so tests can serve local files.
+# ESTUDIO_MODEL_MANIFEST override points at another manifest, so tests can serve local files.
 MODEL_NAME=large-v3-turbo
 MODEL_DIR="$DATA_DIR/modelos/$MODEL_NAME"
-MODEL_MANIFEST=${ESTUDIO_MODELO_MANIFESTO:-$SCRIPT_DIR/../vendor.json}
+MODEL_MANIFEST=${ESTUDIO_MODEL_MANIFEST:-$SCRIPT_DIR/../vendor.json}
 
 # works <program> <args…>: the program exists and runs successfully.
 works() {
