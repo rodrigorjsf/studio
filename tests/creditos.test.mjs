@@ -242,6 +242,16 @@ test('estado holds the credit Gate\'s date to the Vídeo document\'s schema', ()
   assert.deepEqual(errors.map((e) => e.message), ['creditosAprovadosEm "ontem" must be a date (ISO)']);
 });
 
+test('estado and the credit Gate agree that a count too large to be finite is not a number of credits', () => {
+  const { dir, video } = videoNivel2();
+  const doc = path.join(video, 'video.md');
+  const huge = '9'.repeat(400); // Number() reads it as Infinity
+  fs.writeFileSync(doc, fs.readFileSync(doc, 'utf8').replace('creditosGastos: 0', `creditosGastos: ${huge}`));
+  const { errors } = run('estado', dir).out;
+  assert.equal(errors.length, 1);
+  assert.match(errors[0].message, /^creditosGastos .* must be a number of credits, 0 or more$/);
+});
+
 test('after a stop, only her new credit approval lets generation go on, and it closes no other Gate', () => {
   const { dir, video } = videoNivel2({ estimados: 10 });
   // Another Gate of hers is open (the Quadros'): approving the credits leaves it open.

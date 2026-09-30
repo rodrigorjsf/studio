@@ -22,11 +22,11 @@ import {
   GERADOS, GERADOS_REGISTRO, HIGGSEDIT, HIGGSEDIT_PEDIDOS, HIGGSEDIT_REGISTRO, KIT, PLANO, VIDEO_DOC, VIDEO_KIT,
 } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
-import { isObject, readJson } from './valores.mjs';
+import { isNonNegativeNumber, isObject, readJson } from './valores.mjs';
 
 // Spending more than this share over the approved estimate stops the work (~20%).
 const MARGEM = 0.2;
-const isCredits = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+const isCredits = isNonNegativeNumber;
 // Credits are kept to the cent: quoted costs such as 1.75 per second add up without float noise.
 const toCents = (v) => Math.round(v * 100) / 100;
 const limiteDe = (estimados) => toCents(estimados * (1 + MARGEM));
@@ -167,8 +167,7 @@ export function aprovarCreditos(folder, projetoNome, videoNome, inputText) {
 const VIDEO_INTEIRO = 'video-inteiro';
 function trechoProblem(trecho) {
   if (trecho === VIDEO_INTEIRO) return null;
-  const isSecond = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
-  if (!isObject(trecho) || Object.keys(trecho).sort().join() !== 'fim,inicio' || !isSecond(trecho.inicio) || !isSecond(trecho.fim) || trecho.fim <= trecho.inicio) {
+  if (!isObject(trecho) || Object.keys(trecho).sort().join() !== 'fim,inicio' || !isNonNegativeNumber(trecho.inicio) || !isNonNegativeNumber(trecho.fim) || trecho.fim <= trecho.inicio) {
     return `trecho must be "${VIDEO_INTEIRO}" or {"inicio": <s>, "fim": <s>}, the stretch of her Master in seconds, fim after inicio`;
   }
   return null;

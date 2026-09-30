@@ -11,7 +11,7 @@ import { readPerfil } from './perfil.mjs';
 import {
   APROVACOES_AUTOMATICAS, DECISAO, KIT, MARKER, PALAVRAS, PERFIL, PLANO, PROJETO_DOC, PROJETOS, REVISAO, SCHEMA_VERSION, VIDEO_DOC, VIDEO_KIT, VIDEOS, ZONA_DO_ROSTO,
 } from './layout.mjs';
-import { isIsoDate } from './valores.mjs';
+import { isIsoDate, isNonNegativeNumber } from './valores.mjs';
 
 // Files an OS or Claude drops into any folder; they do not make a folder "not empty".
 const IGNORABLE = new Set(['Thumbs.db', 'desktop.ini']);
@@ -40,18 +40,17 @@ export const DECISIONS = ['aprovar', 'aprovar-com-ajustes', 'pedir-mudancas'];
 export const COUNTERS = ['perguntas', 'gates', 'aprovacoesAutomaticas', 'turnosInternos', 'tokensInternos', 'segundosInternos'];
 export const STATUS_NAMES = [...STATUSES.keys()];
 export const wholeCount = (v) => Number.isInteger(v) && v >= 0;
-const credits = (v) => typeof v === 'number' && v >= 0;
 
 // The Vídeo document's record fields other than Status, Rodada and Nível, each checked only
 // when present and not empty (older Vídeo documents have none of them).
 const VIDEO_RECORD = [
   ...COUNTERS.map((key) => [key, wholeCount, 'must be a whole number, 0 or more']),
-  ['creditosEstimados', credits, 'must be a number of credits, 0 or more'],
-  ['creditosGastos', credits, 'must be a number of credits, 0 or more'],
+  ['creditosEstimados', isNonNegativeNumber, 'must be a number of credits, 0 or more'],
+  ['creditosGastos', isNonNegativeNumber, 'must be a number of credits, 0 or more'],
   ['creditosAprovadosEm', isIsoDate, 'must be a date (ISO)'],
   ['creditosParadosEm', isIsoDate, 'must be a date (ISO)'],
-  ['higgseditCreditosEstimados', credits, 'must be a number of credits, 0 or more'],
-  ['higgseditCreditosGastos', credits, 'must be a number of credits, 0 or more'],
+  ['higgseditCreditosEstimados', isNonNegativeNumber, 'must be a number of credits, 0 or more'],
+  ['higgseditCreditosGastos', isNonNegativeNumber, 'must be a number of credits, 0 or more'],
   ['higgseditAprovadoEm', isIsoDate, 'must be a date (ISO)'],
   ['higgseditParadoEm', isIsoDate, 'must be a date (ISO)'],
   ['iniciadoEm', isIsoDate, 'must be a date (ISO)'],
