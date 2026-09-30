@@ -70,12 +70,12 @@ export function abrirRevisao(folder, projetoNome, videoNome) {
 
 // Her notes as one list: trimmed, blanks dropped, and a note she repeated (same words, any
 // case or spacing) kept once, in the order she first said it.
-const key = (note) => nfc(note).toLowerCase().replace(/\s+/g, ' ').trim();
+const noteKey = (note) => nfc(note).toLowerCase().replace(/\s+/g, ' ').trim();
 function consolidate(notes, without = new Set()) {
   const seen = new Set(without);
   return notes.map((note) => note.trim()).filter((note) => {
-    if (note === '' || seen.has(key(note))) return false;
-    seen.add(key(note));
+    if (note === '' || seen.has(noteKey(note))) return false;
+    seen.add(noteKey(note));
     return true;
   });
 }
@@ -109,14 +109,15 @@ function readDecision(text) {
     return { refusal: { reason: 'invalid-decision', message: 'notas and mudancasDeEscopo must be lists of her notes, as text' } };
   }
   const mudancasDeEscopo = consolidate(input.mudancasDeEscopo ?? []);
-  const notas = consolidate(input.notas ?? [], new Set(mudancasDeEscopo.map(key)));
+  const notas = consolidate(input.notas ?? [], new Set(mudancasDeEscopo.map(noteKey)));
   const { decisao } = input;
   const all = notas.length + mudancasDeEscopo.length;
   if (decisao === 'aprovar' && all > 0) {
     return { refusal: { reason: 'notes-on-plain-approval', message: 'approving with notes is aprovar-com-ajustes' } };
   }
-  const noNotes = decisao === 'aprovar-com-ajustes' ? notas.length === 0 : decisao === 'pedir-mudancas' && all === 0;
-  if (noNotes) {
+  // The notes each decision needs: small fixes for an approval with changes; anything for changes.
+  const needed = { aprovar: 0, 'aprovar-com-ajustes': notas.length, 'pedir-mudancas': all };
+  if (decisao !== 'aprovar' && needed[decisao] === 0) {
     return { refusal: { reason: 'no-notes', message: `${decisao} needs her notes` } };
   }
   if (decisao === 'aprovar-com-ajustes' && mudancasDeEscopo.length > 0) {

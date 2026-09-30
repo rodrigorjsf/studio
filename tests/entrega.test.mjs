@@ -122,6 +122,9 @@ test('transparent overlays she asked for are delivered silent, as long as the Ma
   ffmpeg('-f', 'lavfi', '-i', 'color=c=black@0.0:s=108x192:r=30:d=2,format=yuva444p10le', '-c:v', 'prores_ks', '-profile:v', '4444', path.join(entrega, 'overlay.mov'));
   ffmpeg('-f', 'lavfi', '-i', 'color=c=black@0.0:s=108x192:r=30:d=2,format=yuva444p10le', '-f', 'lavfi', '-i', 'sine=duration=2',
     '-c:v', 'prores_ks', '-profile:v', '4444', '-c:a', 'pcm_s16le', path.join(entrega, 'overlay com som.mov'));
+  // Overlays alone are not an Entrega: the full MP4 always goes with them.
+  assert.equal(entregar(dir).reason, 'no-main-video');
+  render(path.join(entrega, 'Dica rápida 9x16.mp4'));
   const out = entregar(dir);
   assert.deepEqual(out.problemas, ['overlay com som.mov: an overlay carries no audio (1 track); her voice is in the Master']);
   fs.rmSync(path.join(entrega, 'overlay com som.mov'));

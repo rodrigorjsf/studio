@@ -19,12 +19,12 @@ Catalog of every wiki page. Read this first. Format and rules: [SCHEMA.md](SCHEM
 
 ## Concepts
 
-- [Approval gate](concepts/approval-gate.md) — one gate primitive: maker, internal critic, consolidated notes, decision, round counter (updated 2026-09-29)
+- [Approval gate](concepts/approval-gate.md) — one gate primitive: maker, internal critic, consolidated notes, decision, round counter; review Rodadas in versioned folders (updated 2026-09-30)
 - [Brand kit per front](concepts/brand-kit-per-front.md) — persisted, enforced identity per creator front under marcas/<front>/ (updated 2026-09-29)
 - [Grilling catalogue](concepts/grilling-catalogue.md) — brand vs per-video interview topics translated under locked-final-cut (updated 2026-09-29)
 - [Notion context](concepts/notion-context.md) — read-only Páginas Notion per Projeto/Vídeo, Resumo Notion, Kit wins (updated 2026-09-29)
 - [Picture lock](concepts/picture-lock.md) — the seam between creative loop and finishing; the Pré-corte cuts once, then the Master locks (updated 2026-09-30)
-- [Plugin architecture](concepts/plugin-architecture.md) — director entry skill, subagents between gates, data locations, surfaces, Pré-corte (updated 2026-09-30)
+- [Plugin architecture](concepts/plugin-architecture.md) — director entry skill, subagents between gates, data locations, surfaces, Pré-corte, build/review/Entrega (updated 2026-09-30)
 - [Short-form 9:16 rules](concepts/short-form-9x16.md) — 1080×1920 primary, 3 s hook, ~900×1400 safe box, evidence tiers (updated 2026-09-29)
 - [Technical vs editorial QC](concepts/qc-technical-vs-editorial.md) — automatable checks vs independent critic checks (updated 2026-09-29)
 

@@ -31,7 +31,8 @@
 //                                    Pré-corte moves palavras.json onto the new Master's clock
 //   projetos/<projeto>/videos/<vídeo>/revisao/vNN/          one folder per version of the edit (v01, v02…):
 //                                    the key stills she reviews, then decisao.json (her decision and her
-//                                    notes consolidated) and notas.md (the same list, in pt-BR, for her)
+//                                    notes consolidated), notas.md (the same list, in pt-BR, for her) and,
+//                                    after an approval with small changes, ajustes/ (the stills they changed)
 //   projetos/<projeto>/videos/<vídeo>/entrega/              the Entrega: the final MP4 (9:16 by default; 16:9
 //                                    or transparent MOV overlays on request), checked by `entregar`
 //   package.json, src/, …            the Remotion template; projetos/ is its public folder

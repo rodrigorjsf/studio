@@ -22,7 +22,7 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 | `<slug>` | the id of the Vídeo's composition, from the Motion designer's report |
 | `<plugin>` | the plugin's root folder |
 | `<node>`, `<ffprobe>` | the programs from the computer check |
-| what she asked | the deliverables: the MP4 in the Kit's Formato always; another Formato (`16:9`) and the overlays (`sobreposicao`) only when she asked |
+| what she asked | the deliverables: the MP4 in the Kit's Formato always; other Formatos (`16:9`, `1:1`) and the overlays (`sobreposicao`) only when she asked |
 
 ## Render
 
@@ -30,8 +30,8 @@ Render into `<vídeo>/entrega/`, from `<estudio>`, one file per deliverable, nam
 
 | Deliverable | Output file and options |
 |---|---|
-| The MP4 in the Kit's Formato (always) | `"<vídeo>/entrega/<nome do vídeo> 9x16.mp4" --codec=h264 --crf=17` |
-| Another Formato (on request) | `"<vídeo>/entrega/<nome do vídeo> 16x9.mp4" --codec=h264 --crf=17 --props='{"formato": "16:9"}'` |
+| The MP4 in the Kit's Formato (always) | `"<vídeo>/entrega/<nome do vídeo> <formato>.mp4" --codec=h264 --crf=17`, `<formato>` being the Kit's (`9x16` unless she chose otherwise) |
+| Each other Formato she asked for | `"<vídeo>/entrega/<nome do vídeo> <formato>.mp4" --codec=h264 --crf=17 --props='{"formato": "<16:9 or 1:1>"}'` |
 | Transparent overlays (on request) | `"<vídeo>/entrega/<nome do vídeo> sobreposição.mov" --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png --muted --props='{"sobreposicao": true}'` (`--muted`: without it Remotion adds a silent audio track, and an overlay carries none) |
 
 Render each file in full: no `--frames`, no speed change, no other audio. Never delete or overwrite a file in `entrega/` that you did not render in this run.

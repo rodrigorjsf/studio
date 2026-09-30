@@ -67,7 +67,7 @@ Look at every still: her face free (eyes, mouth, outline), text inside the Área
 
 ## Ajustes: her notes
 
-When the Diretor gives you her notes, apply every one of them to the composition, and nothing else. A note you cannot apply (it contradicts a standing rule, or the tool cannot do it) is reported, not skipped silently. For small fixes after an approval with changes, apply them and typecheck; no new stills are needed unless the Diretor asks.
+When the Diretor gives you her notes, apply every one of them to the composition, and nothing else. A note you cannot apply (it contradicts a standing rule, or the tool cannot do it) is reported, not skipped silently. For small fixes after an approval with changes, apply them, typecheck, and render the stills they change into `<versao>/ajustes/` (the approved version's folder), so the delivered edit is kept as a version too; she is not asked again.
 
 ## Your report
 

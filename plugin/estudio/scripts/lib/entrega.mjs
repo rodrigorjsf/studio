@@ -18,8 +18,8 @@ import { parseFrontmatter } from './frontmatter.mjs';
 import { ENTREGA, VIDEO_DOC } from './layout.mjs';
 import { findVideo, updateVideoRecord } from './video.mjs';
 
-const round = (v) => Math.round(v * 1000) / 1000;
-const kind = (name) => path.extname(name).toLowerCase();
+const roundMs = (v) => Math.round(v * 1000) / 1000;
+const extension = (name) => path.extname(name).toLowerCase();
 const DELIVERABLE = new Set(['.mp4', '.mov']);
 
 // Duration of the picture (seconds), its frame rate and the number of audio tracks, from ffprobe;
@@ -45,12 +45,12 @@ function fileProblems(name, media, master) {
   const problems = [];
   // One frame of the delivered file, plus a millisecond for the rounding of the timestamps.
   if (Math.abs(media.duration - master.duration) > 1 / media.fps + 0.001) {
-    problems.push(`${name}: lasts ${round(media.duration)} s, the Master ${round(master.duration)} s (more than one frame apart)`);
+    problems.push(`${name}: lasts ${roundMs(media.duration)} s, the Master ${roundMs(master.duration)} s (more than one frame apart)`);
   }
-  if (kind(name) === '.mp4' && media.audioTracks !== 1) {
+  if (extension(name) === '.mp4' && media.audioTracks !== 1) {
     problems.push(`${name}: has ${media.audioTracks} audio tracks; her original audio must play exactly once`);
   }
-  if (kind(name) === '.mov' && media.audioTracks > 0) {
+  if (extension(name) === '.mov' && media.audioTracks > 0) {
     problems.push(`${name}: an overlay carries no audio (${media.audioTracks} track${media.audioTracks > 1 ? 's' : ''}); her voice is in the Master`);
   }
   return problems;
@@ -83,9 +83,11 @@ export function entregar(folder, projetoNome, videoNome, ffprobe) {
 
   const pasta = path.join(dir, ENTREGA);
   const arquivos = fs.existsSync(pasta)
-    ? fs.readdirSync(pasta).filter((name) => DELIVERABLE.has(kind(name))).map(nfc).sort()
+    ? fs.readdirSync(pasta).filter((name) => DELIVERABLE.has(extension(name))).map(nfc).sort()
     : [];
   if (arquivos.length === 0) return refuse('no-deliverable', { pasta });
+  // Overlays finish an edit elsewhere; the Entrega itself is always a full MP4 with her voice.
+  if (!arquivos.some((name) => extension(name) === '.mp4')) return refuse('no-main-video', { pasta, arquivos });
   const master = typeof record.master === 'string' ? probe(ffprobe, path.join(dir, ...record.master.split('/'))) : null;
   if (!master) return refuse('probe-failed', { master: record.master ?? null });
   const problemas = arquivos.flatMap((name) => fileProblems(name, probe(ffprobe, path.join(pasta, name)), master));

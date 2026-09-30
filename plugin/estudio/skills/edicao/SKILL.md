@@ -75,7 +75,7 @@ It moves the Vídeo to **Revisão**, sets `rodada` to the version's number and o
 
 ## 5. The Entrega
 
-1. **Small fixes first.** When her decision was `aprovar-com-ajustes` (`versao.decisao` in `estado`), hand the `ajustesAntesDaEntrega` (in `decisao.json`: `notas`) to the Motion designer as in step 2, without a new version or new stills.
+1. **Small fixes first.** When her decision was `aprovar-com-ajustes` (`versao.decisao` in `estado`), hand the `ajustesAntesDaEntrega` (in `decisao.json`: `notas`) to the Motion designer as in step 2, with `<versao>` = the approved version's folder: it renders the stills the fixes change into its `ajustes` subfolder, without a new version or a new Rodada.
 2. **Render.** Tell her in one sentence that the final video is being rendered. Hand the Vídeo to the **Finalizador** (the `finalizador` agent) with the paths of step 2, the `<slug>`, and what to deliver: the MP4 in the Kit's `formato` (vertical 9:16 unless she chose otherwise) always; the other Formatos of the Kit's `entregaveis.formatos` and the transparent overlays (MOV) when `entregaveis.overlays` is `true` — both are what she asked for once, in the Projeto interview — plus anything she asked for this Vídeo. It renders into the Vídeo's `entrega` folder and runs:
 
    ```bash
