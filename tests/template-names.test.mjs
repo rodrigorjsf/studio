@@ -24,6 +24,9 @@ const normalize = (text) => text.replaceAll('\r\n', '\n');
 // old name -> new name. `alias: false` = a module-private constant: renamed, no alias needed.
 // `code` = the old name is an ordinary Portuguese word too ("Fonte", "Palavra"), so only source
 // files are searched for it, never prose.
+// `in` = a module-private local whose old name is also a contract field elsewhere (`estilo` is the
+// Kit's caption style): only its own file, relative to template/src, is searched.
+// `ignore` = lines that use the old word for something else, never the renamed helper.
 const RENAMED = [
   // _shared/kit.ts
   { old: 'Fonte', now: 'Font', code: true },
@@ -49,6 +52,21 @@ const RENAMED = [
   { old: 'MasterMudo', now: 'MutedMaster' },
   { old: 'PropsDaEdicaoComLegendas', now: 'EdicaoWithCaptionsProps' },
   { old: 'CLIPE', now: 'CLIP_FILE', alias: false },
+  { old: 'estilo', now: 'mediaStyle', alias: false, in: '_shared/edicao.tsx' },
+  // quadro/QuadroDeEstilo.tsx — "Quadro de estilo" is a glossary term, kept whole like `Edicao`.
+  // The `Area` fields `largura`/`altura` are NOT renamed: see the comment on `Area`.
+  { old: 'PropsDoQuadro', now: 'QuadroDeEstiloProps' },
+  { old: 'FPS_DO_QUADRO', now: 'QUADRO_DE_ESTILO_FPS' },
+  { old: 'calcularMetadadosDoQuadro', now: 'calculateQuadroDeEstiloMetadata' },
+  { old: 'AREA_PADRAO', now: 'DEFAULT_AREA', alias: false },
+  // estilos/_comum.tsx — `suave` is also a color key (`COR.suave`) and a pt-BR comment word in
+  // estilos/VerticalDados.tsx; those are not the easing.
+  { old: 'suave', now: 'smooth', code: true, ignore: /\.suave\b|\bsuave:|\/\/.*\bsuave\b/ },
+  { old: 'useEntrada', now: 'useEntrance' },
+  { old: 'CameraFalsa', now: 'FakeCamera' },
+  // kit/PreviaDoKit.tsx — the sample copy itself stays pt-BR.
+  { old: 'TITULO', now: 'SAMPLE_TITLE', alias: false },
+  { old: 'TEXTO', now: 'SAMPLE_TEXT', alias: false },
 ];
 
 const TEXT = /\.(ts|tsx|mjs|md|json|sh|ps1|py)$/;
@@ -61,25 +79,28 @@ function walk(directory) {
   });
 }
 const pluginFiles = walk(pluginRoot).map((file) => ({ file, lines: normalize(fs.readFileSync(file, 'utf8')).split('\n') }));
-const shared = (name) => normalize(fs.readFileSync(path.join(pluginRoot, 'template', 'src', '_shared', name), 'utf8'));
-const sharedSources = ['kit.ts', 'marca.tsx', 'edicao.tsx'].map(shared).join('\n');
+const templateSrc = path.join(pluginRoot, 'template', 'src');
+const templateSources = walk(templateSrc).filter((file) => SOURCE.test(file)).map((file) => normalize(fs.readFileSync(file, 'utf8'))).join('\n');
+const sharedSources = ['kit.ts', 'marca.tsx', 'edicao.tsx']
+  .map((name) => normalize(fs.readFileSync(path.join(templateSrc, '_shared', name), 'utf8'))).join('\n');
 
-for (const { old, now, alias = true, code = false } of RENAMED) {
+for (const { old, now, alias = true, code = false, in: only, ignore } of RENAMED) {
   test(`${old} is ${alias ? 'renamed to' : 'gone for'} ${now}${alias ? ' and kept only as a deprecated alias' : ''}`, () => {
-    assert.match(sharedSources, new RegExp(`\\b${now}\\b`), `${now} is not defined in the template's shared code`);
+    assert.match(templateSources, new RegExp(`\\b${now}\\b`), `${now} is not defined in the template`);
     const pattern = new RegExp(`\\b${old}\\b(?!-)`); // `Palavra-gatilho` is a glossary term, not the type
     const aliasLine = new RegExp(`^export (const|type) ${old}\\b.* ${now}\\b`);
     const stray = [];
     for (const { file, lines } of pluginFiles) {
       if (code && !SOURCE.test(file)) continue;
+      if (only && file !== path.join(templateSrc, only)) continue;
       lines.forEach((line, index) => {
-        if (!pattern.test(line)) return;
+        if (!pattern.test(line) || ignore?.test(line)) return;
         const isAlias = alias && aliasLine.test(line) && /@deprecated/.test(lines[index - 1] ?? '');
         if (!isAlias) stray.push(`${path.relative(repoRoot, file)}:${index + 1}`);
       });
     }
     assert.deepEqual(stray, [], `${old} still appears outside its deprecated alias`);
-    if (alias) assert.match(sharedSources, new RegExp(`@deprecated[^\\n]*\\n${'export (const|type) ' + old}\\b`), `${old} has no deprecated alias`);
+    if (alias) assert.match(templateSources, new RegExp(`@deprecated[^\\n]*\\n${'export (const|type) ' + old}\\b`), `${old} has no deprecated alias`);
   });
 }
 

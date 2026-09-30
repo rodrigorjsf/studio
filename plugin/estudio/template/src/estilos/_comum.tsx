@@ -2,18 +2,18 @@ import React from 'react';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-export const suave = Easing.inOut(Easing.cubic);
+export const smooth = Easing.inOut(Easing.cubic);
 
 // Progresso 0 → 1 que começa no segundo `inicio` e dura `duracao` segundos.
-export const useEntrada = (inicio: number, duracao = 0.6) => {
+export const useEntrance = (inicio: number, duracao = 0.6) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  return interpolate(frame, [inicio * fps, (inicio + duracao) * fps], [0, 1], {...clamp, easing: suave});
+  return interpolate(frame, [inicio * fps, (inicio + duracao) * fps], [0, 1], {...clamp, easing: smooth});
 };
 
 // ponytail: silhueta no lugar da sua câmera, para os exemplos rodarem sem nenhum vídeo.
 // Num projeto real, aqui entra <Video src={staticFile('<projeto>/videos/<vídeo>/master.mp4')} />.
-export const CameraFalsa: React.FC<{fundo?: string; cor?: string; preencher?: boolean}> = ({
+export const FakeCamera: React.FC<{fundo?: string; cor?: string; preencher?: boolean}> = ({
   fundo = '#3a332c',
   cor = '#5b5147',
   preencher = false,
@@ -29,3 +29,13 @@ export const CameraFalsa: React.FC<{fundo?: string; cor?: string; preencher?: bo
     </svg>
   </AbsoluteFill>
 );
+
+// Deprecated aliases: the helpers were Portuguese before they were renamed to English. They keep
+// a Vídeo composition written against the old names compiling; new code uses the names above.
+// Removed in a later breaking release, once every Estúdio has refreshed its shared code.
+/** @deprecated Use `smooth`. */
+export const suave = smooth;
+/** @deprecated Use `useEntrance`. */
+export const useEntrada = useEntrance;
+/** @deprecated Use `FakeCamera`. */
+export const CameraFalsa = FakeCamera;

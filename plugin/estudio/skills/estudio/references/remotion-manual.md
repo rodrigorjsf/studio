@@ -122,7 +122,7 @@ She does not need to open any of them. But if she wants to peek, the code of the
 
 ```bash
 npm run studio         # opens the preview in the browser
-npm run typecheck      # checks that the code has no errors
+npm run typecheck      # checks the code: TypeScript errors, hand-made splits, colors or fonts written outside the Kit
 npm run compositions   # lists the registered compositions
 
 # a still frame of a composition

@@ -11,17 +11,21 @@ import {estiloDaFonte, LegendaDoKit, Palavra, useEntradaDoKit, useFontesDoKit} f
 import {
   arquivoDoVideo, calcularMetadadosDaEdicao, Edicao, FPS_DA_EDICAO, MasterMudo, PropsDaEdicao,
 } from '../../_shared/edicao';
+import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro} from '../../quadro/QuadroDeEstilo';
+import {CameraFalsa, suave, useEntrada} from '../../estilos/_comum';
 
 const titulo: Fonte = KIT_PADRAO.tipografia.titulo;
 const falas: Palavra[] = [{texto: 'olá', inicio: 0.1}];
 const kitProps = {projeto: '', formato: null} satisfies PropsDoKit;
 const carregar: (projeto: string) => Promise<Kit> = (projeto) => carregarKit(projeto);
 const metadadosDoKit: Parameters<typeof calcularMetadadosDoKit<PropsDoKit>>[0] | null = null;
+const quadro = {...kitProps, video: '', master: '', duracao: 1, titulo: ''} satisfies PropsDoQuadro;
 
 export const LegacyNames: React.FC<PropsDaEdicao> = (props) => {
   const kit = props.kit ?? KIT_PADRAO;
   useFontesDoKit(kit, props.projeto);
   const entrada = useEntradaDoKit(kit, 0);
+  const chip = useEntrada(0.2, 0.5);
   return (
     <Edicao {...props}>
       <div style={{...estiloDaFonte(titulo), opacity: entrada, fontSize: tamanhoNoQuadro(48, 1080, 1920)}}>
@@ -30,6 +34,7 @@ export const LegacyNames: React.FC<PropsDaEdicao> = (props) => {
       </div>
       <MasterMudo projeto={props.projeto} video={props.video} master={props.master} />
       <LegendaDoKit kit={kit} palavras={falas} />
+      <div style={{opacity: chip}}><CameraFalsa preencher /></div>
     </Edicao>
   );
 };
@@ -46,4 +51,4 @@ export const RegisterLegacy: React.FC = () => (
   />
 );
 
-export const unused = {carregar, metadadosDoKit, calcularMetadadosDoKit};
+export const unused = {carregar, metadadosDoKit, calcularMetadadosDoKit, quadro, calcularMetadadosDoQuadro, FPS_DO_QUADRO, suave};
