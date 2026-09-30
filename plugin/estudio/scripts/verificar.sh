@@ -11,8 +11,9 @@
 #       Defaults: $CLAUDE_PLUGIN_DATA and $CLAUDE_PROJECT_DIR (else the current folder).
 #       Without --json: prints one line for the model when something is missing, nothing
 #       otherwise. With --json: {"os","missing":[…],"tools":{node,ffmpeg,ffprobe,python},
-#       ("speech-model" is in "missing" when any model file is absent from the model folder),
-#       "remotion":"ok|missing|not-an-estudio"}. Always exits 0.
+#       "remotion":"ok|missing|not-an-estudio"}. Always exits 0. "missing" may name node,
+#       ffmpeg, ffprobe, python, remotion and speech-model (a model file is absent from the
+#       model folder).
 #       On Windows (Git Bash) it hands over to verificar.ps1.
 
 JSON=

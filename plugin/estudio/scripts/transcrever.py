@@ -32,8 +32,10 @@ from pathlib import Path
 DEFAULT_MODEL = "large-v3-turbo"
 EXIT_MODEL_NOT_PREPARED = 3
 # What faster-whisper cannot load a model without. A folder missing the tokenizer would make it
-# fall back to a download, which this script never does. The Preparação verifies every file.
+# fall back to a download, which this script never does; without the vocabulary the engine fails
+# with a raw error. The Preparação verifies every file: this only decides "prepared or not".
 REQUIRED_MODEL_FILES = ("model.bin", "config.json", "tokenizer.json")
+VOCABULARY_FILES = ("vocabulary.json", "vocabulary.txt")  # either spelling, depending on the model
 # The graphics card when there is one, the processor otherwise.
 DEVICES = [("cuda", "float16"), ("cpu", "int8")]
 
@@ -51,7 +53,8 @@ def glossary_prompt(kit: Path | None) -> str | None:
 
 
 def model_prepared(folder: Path) -> bool:
-    return all((folder / name).is_file() for name in REQUIRED_MODEL_FILES)
+    return (all((folder / name).is_file() for name in REQUIRED_MODEL_FILES)
+            and any((folder / name).is_file() for name in VOCABULARY_FILES))
 
 
 def transcribe(video: Path, language: str, folder: Path, prompt: str | None):

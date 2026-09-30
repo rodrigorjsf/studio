@@ -57,6 +57,17 @@ test('an empty model folder stops with exit 3, names the Preparação and writes
   assert.deepEqual(fs.readdirSync(path.join(models, 'large-v3-turbo')), [], 'the model folder stays empty: nothing is downloaded');
 });
 
+test('a model folder missing its vocabulary is not prepared either', needsAnyPython, () => {
+  const clip = path.join(root, 'Terceira gravação.mp4');
+  fs.writeFileSync(clip, 'x');
+  const models = path.join(root, 'modelos incompletos');
+  fs.mkdirSync(path.join(models, 'large-v3-turbo'), { recursive: true });
+  for (const name of ['model.bin', 'config.json', 'tokenizer.json']) fs.writeFileSync(path.join(models, 'large-v3-turbo', name), '{}');
+  const r = spawnSync(anyPython, [transcrever, clip, path.join(root, 'saída 3'), '--modelos', models], { encoding: 'utf8' });
+  assert.equal(r.status, 3, r.stderr);
+  assert.equal(fs.existsSync(path.join(root, 'saída 3')), false);
+});
+
 test('a models folder that does not exist yet is also "model not prepared", and is not created', needsAnyPython, () => {
   const clip = path.join(root, 'Outra gravação.mp4');
   fs.writeFileSync(clip, 'x');

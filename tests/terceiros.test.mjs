@@ -51,6 +51,19 @@ test('the speech-model source is a pinned mirror: upstream, commit, license and 
   }
 });
 
+// instalar.sh and verificar.sh read this manifest with sed, not a JSON parser (the computer may
+// have no Node yet), so its shape is a contract: the speech-model source is the last one, and
+// each file object lists name, sha256 and url in that order.
+test('the speech-model source keeps the shape the POSIX installer parses', () => {
+  assert.equal(manifest.sources.at(-1).id, 'speech-model', 'speech-model is the last source');
+  const text = fs.readFileSync(path.join(pluginRoot, 'vendor.json'), 'utf8');
+  const fromModel = text.slice(text.indexOf('"id": "speech-model"'));
+  const objects = fromModel.match(/\{[^{}]*"name"[^{}]*\}/g) ?? [];
+  assert.equal(objects.length, 5);
+  for (const file of manifest.sources.at(-1).files) assert.match(file.name, /^[\w.-]+$/, `${file.name}: no spaces (the installer splits fields on whitespace)`);
+  for (const object of objects) assert.match(object, /"name": "[^"]+",\s*"sha256": "[0-9a-f]{64}",\s*"url": "[^"]+"/);
+});
+
 test('the third-party notice carries the model\'s MIT attribution', () => {
   const notice = fs.readFileSync(path.join(pluginRoot, 'THIRD_PARTY.md'), 'utf8');
   assert.match(notice, /mobiuslabsgmbh\/faster-whisper-large-v3-turbo/);
