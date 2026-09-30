@@ -2,8 +2,8 @@
 // into each app (`entrega/texto-do-post.md`, written by the Social media). It enforces only the
 // bright-line rules the platforms publish, so the Social media fixes what it reports before any
 // Crítico sees the text. It enforces only what can be measured: the Kit's platforms, hashtag counts,
-// the Shorts title's length and the filler tags (the official bright lines and the title length the
-// ticket sets); judging honesty, engagement bait and the keyword stays with the Revisor de plataforma.
+// the Shorts title's length and the filler tags (the official bright lines and YouTube's title
+// limit); judging honesty, engagement bait and the keyword stays with the Revisor de plataforma.
 //
 // The file is pt-BR markdown with one `## ` section per platform of the Vídeo's Kit
 // (`plataformas`: reels, tiktok, shorts), each headed by the platform's name:
@@ -39,7 +39,7 @@ const PLATFORMS = {
 };
 
 const INSTAGRAM_MAX_HASHTAGS = 5; // since 2025-12-18, platform-rules.md
-const MAX_HASHTAGS = 60; // YouTube ignores every hashtag past this; the ticket applies it to every platform
+const MAX_HASHTAGS = 60; // YouTube ignores every hashtag past this; the check applies it to every platform
 const SHORTS_TITLE_MAX = 100;
 // Generic filler tags no platform says help (platform-rules.md, "Forbidden filler hashtags").
 const FILLER_HASHTAGS = new Set(['fyp', 'fypage', 'foryou', 'foryoupage', 'viral', 'explore', 'explorepage', 'reels', 'trending']);
