@@ -7,11 +7,11 @@
 In Nível 1, Claude watches your video, understands what you say and **programs** the animations with [Remotion](https://www.remotion.dev), a tool that turns code into video. You do not need to know how to code: you talk, approve the plan and check the result.
 
 **Cost:** zero. Everything runs on your computer.
-**Tools:** the `watch` skill (watches the video), `tools/transcrever.py` (timing of each word), the `remotion-best-practices` skill (Remotion best practices) and Remotion itself.
+**Tools:** the plugin's frame sampler (watches the video, see [watching a video](watching-a-video.md)), `tools/transcrever.py` (timing of each word), the plugin's [Remotion rules](remotion/index.md) and Remotion itself. All of them ship with the plugin or come from its installer; nothing else is installed.
 
 *Pending: the plugin's no-admin installer (ticket #4) replaces this step.* (Applies to every `tools/*.py` and `npm run` setup step in this guide.)
 
-If you have never used Remotion, read the [Remotion manual for beginners](remotion-manual.md) first.
+If you have never used Remotion, read the [Remotion manual for beginners](remotion-manual.md) first. When you program, follow the [Remotion rules](remotion/index.md) for each topic you touch.
 
 ---
 
@@ -47,14 +47,14 @@ Claude runs these phases in order and **stops at the approval points**.
 
 ### 2. Watch and transcribe
 
-1. **Frames and overview (`watch` skill):** Claude follows the skill's own instructions. Example:
-   `python "<pasta da skill watch>/scripts/watch.py" "<vídeo>" --detail balanced --max-frames 60 --out-dir "<projeto>/frames"`
-   It reads all the frames and maps framing, face position, background and light. `watch` also transcribes the video to understand the content: locally (WhisperX, in newer versions of the skill) or with a free Groq key (see [getting started](getting-started.md#4-optional-free-groq-key)). With neither, use `--no-whisper`: the next step already transcribes.
-2. **Per-word timing (local and free):**
+1. **Frames, overview:** the plugin's frame sampler in `--modo visao-geral` (command in the estudio skill, *Watching a video*), into `<projeto>/frames/visao-geral`. Claude reads **every** frame listed and maps framing, background and light, following [watching a video](watching-a-video.md).
+2. **Frames, face zone:** the same sampler in `--modo zona-do-rosto`, into `<projeto>/frames/zona-do-rosto`: one frame per second over the whole video, with near-identical frames kept, to measure where the face is across the whole clip.
+3. **Per-word timing (local and free):**
    `python tools/transcrever.py "<vídeo>" "<projeto>/transcricao"`
    Produces `palavras.json` (start and end of each word) and `transcript.md`.
-3. Badly transcribed proper nouns can be fixed in the text ("cloud" → Claude) without touching the timings.
-4. With the content understood, the folder gets a descriptive name: `001. meu-video`.
+4. Badly transcribed proper nouns can be fixed in the text ("cloud" → Claude) without touching the timings.
+5. When a moment matters (she points at the screen, a number appears), sample it again at those times (`--cues`) or in a `--start`/`--end` window.
+6. With the content understood, the folder gets a descriptive name: `001. meu-video`.
 
 ### 3. Plan (approval point)
 

@@ -57,7 +57,7 @@ She receives the final MP4 at `edicoes/<NNN. nome>/<nome>_final.mp4`.
 Same organization as Nível 1: folder `projetos/<NNN. nome>/`, `ffprobe` on the video and `edicoes/<NNN. nome>/`.
 
 ### 2. Watch and transcribe
-Same process as Nível 1: frames with the `watch` skill into `frames/` and per-word timing with `tools/transcrever.py` into `transcricao/`.
+Same process as Nível 1: frames with the plugin's frame sampler (overview and face zone, see [watching a video](watching-a-video.md)) into `frames/`, and per-word timing with `tools/transcrever.py` into `transcricao/`. In path B (API key), the montage is in Remotion: follow the [Remotion rules](remotion/index.md).
 
 *Pending: the plugin's no-admin installer (ticket #4) replaces this step.*
 
