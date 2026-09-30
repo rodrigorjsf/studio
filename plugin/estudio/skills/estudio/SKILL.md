@@ -24,18 +24,18 @@ sh "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.sh" --json "${CLAUDE_PLUGIN_DATA}" "
 On Windows run:
 
 ```bash
-powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1" -Json -Dados "${CLAUDE_PLUGIN_DATA}" -Estudio "."
+powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1" -Json -DataDir "${CLAUDE_PLUGIN_DATA}" -Estudio "."
 ```
 
-It prints JSON: `missing` lists what is missing (`node`, `ffmpeg`, `ffprobe`, `python`, `remotion`); `tools` holds the full path of each program found (`node`, `ffmpeg`, `ffprobe`, `python`), or `null`. **Always run these programs by the path in `tools`**, quoted: the programs the studio downloads are not on the computer's PATH. A session-start hook runs the same check and puts a line starting "Estúdio setup check" in your context when something is missing.
+It prints JSON: `missing` lists what is missing (`node`, `ffmpeg`, `ffprobe`, `python`, `speech-model`, `remotion`); `speech-model` means one of the speech model's files is absent from the plugin data folder; `tools` holds the full path of each program found (`node`, `ffmpeg`, `ffprobe`, `python`), or `null`. **Always run these programs by the path in `tools`**, quoted: the programs the studio downloads are not on the computer's PATH. A session-start hook runs the same check and puts a line starting "Estúdio setup check" in your context when something is missing.
 
 If `missing` is empty, go on to reading the Estúdio. Otherwise ask the preparation question below first.
 
 #### The preparation question
 
-Ask **one** question (`AskUserQuestion` when available), in these words: **"Posso preparar seu computador para editar vídeos? (~10 min, grátis)"**. In one or two plain pt-BR sentences, say what it means: you download the programs the studio uses into a folder reserved for the studio's programs (not her Estúdio, where her videos live); it needs no password and opens no window; if she ever removes the studio, they go with it. Offer "sim" and "agora não".
+Ask **one** question (`AskUserQuestion` when available), in these words: **"Posso preparar seu computador para editar vídeos? (~2 GB, ~15 min, grátis)"**. In one or two plain pt-BR sentences, say what it means: you download, once, the programs the studio uses and the speech model that transcribes her voice (about 2 GB in all) into a folder reserved for the studio (not her Estúdio, where her videos live); it needs no password and opens no window; after this, transcribing a video needs no internet and never stops to ask for anything; if she ever removes the studio, everything goes with it. Offer "sim" and "agora não".
 
-- **On "sim"**, run the installer once per missing item, in this order, with a 10-minute timeout per step: `node`, then `ffmpeg` (covers `ffmpeg` and `ffprobe`), then `python`, then `remotion`. Skip the steps that are not missing. On macOS or Linux:
+- **On "sim"**, run the installer once per missing item, in this order, with a 10-minute timeout per step: `node`, then `ffmpeg` (covers `ffmpeg` and `ffprobe`), then `python`, then `modelo` (the speech model: `speech-model` in `missing`; about 1.6 GB, so tell her it takes a few minutes and relay its progress lines), then `remotion`. Skip the steps that are not missing. If a `modelo` step times out, run it again: files already downloaded and verified are kept, a file cut halfway continues from where it stopped (the step says `continuando … de onde parou`), and only the rest is fetched. While a file downloads, the step prints how many MB have arrived every 15 seconds. On macOS or Linux:
 
   ```bash
   sh "${CLAUDE_PLUGIN_ROOT}/scripts/instalar.sh" <step> "${CLAUDE_PLUGIN_DATA}" "."
@@ -44,10 +44,10 @@ Ask **one** question (`AskUserQuestion` when available), in these words: **"Poss
   On Windows:
 
   ```bash
-  powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/instalar.ps1" -Passo <step> -Dados "${CLAUDE_PLUGIN_DATA}" -Estudio "."
+  powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/instalar.ps1" -Step <step> -DataDir "${CLAUDE_PLUGIN_DATA}" -Estudio "."
   ```
 
-  Before each step, tell her in one short sentence what is being prepared, then relay the script's own pt-BR lines (it names each program in plain words and ends with "pronto" or "já estava pronto"). If a step fails, pass on its plain message, say nothing she already has was lost, and offer to try again later. After the last step, run the check again. `remotion` is missing only in a folder that is already an Estúdio: when you create her Estúdio later in this session and she already said "sim", run the `remotion` step right after creating it, without asking again.
+  Before each step, tell her in one short sentence what is being prepared, then relay the script's own pt-BR lines (it names each program in plain words and ends with "pronto" or "já estava pronto"). If a step fails, pass on its plain message, say nothing she already has was lost, and offer to try again later. If the failure is a download ("Não consegui baixar…") and the internet works, her Claude cloud workspace may be blocking the address: only then give her the allowlist guidance in [getting-started.md](references/getting-started.md#if-a-preparação-download-is-blocked), the whole host list in one message (never before a download has failed). A downloaded model file that fails its check is deleted and reported by the script itself; running the step again fetches it afresh. After the last step, run the check again. `remotion` is missing only in a folder that is already an Estúdio: when you create her Estúdio later in this session and she already said "sim", run the `remotion` step right after creating it, without asking again.
 - **On "agora não"**, tell her in one sentence that everything else keeps working and that she can say "prepara meu computador" whenever she wants. Editing a Vídeo needs the preparation, so offer it again when she gets there, and at the next session.
 - **Never** install anything without her "sim", never suggest installing a program by hand, and never name a package manager, a terminal or an admin password to her.
 
@@ -99,7 +99,7 @@ In your first reply after the Estúdio is ready (unless she already stated the l
    - Nível 2 → [level-2-higgsfield.md](references/level-2-higgsfield.md) and [editorial-direction.md](references/editorial-direction.md).
    - Both levels, before watching her video → [watching-a-video.md](references/watching-a-video.md).
    - **Any Remotion work** (programming scenes, captions, fonts, transitions, stills, renders) → the [Remotion rules](references/remotion/index.md): open the index and read the file for each topic you touch, before writing code. They are written for the Remotion version the Estúdio pins; [remotion-manual.md](references/remotion-manual.md) is the beginner's tour.
-3. **Check the prerequisites.** The computer check at the start of the session covers Node, Python with faster-whisper, ffmpeg/ffprobe and the Remotion dependencies; if anything is still missing, offer [the preparation question](#the-preparation-question) again before editing. For Nível 2, check whether the Higgsfield tools answer (call `balance`). [getting-started.md](references/getting-started.md) describes the tools. Never ask her to install anything by hand.
+3. **Check the prerequisites.** The computer check at the start of the session covers Node, Python with faster-whisper, the speech model, ffmpeg/ffprobe and the Remotion dependencies; if anything is still missing, offer [the preparation question](#the-preparation-question) again before editing. For Nível 2, check whether the Higgsfield tools answer (call `balance`). [getting-started.md](references/getting-started.md) describes the tools. Never ask her to install anything by hand.
 4. Ask which Vídeo to edit, naming the Projetos and Vídeos from `estado` and suggesting its `nextStep`. A new recording starts a new Vídeo in the [novo-video skill](../novo-video/SKILL.md).
 5. Present the **menu** below briefly and ask for her guidance on that video.
 

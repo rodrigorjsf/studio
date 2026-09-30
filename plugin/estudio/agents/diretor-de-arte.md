@@ -49,7 +49,7 @@ The props (JSON; put the JSON in a file and pass `--props=<file>` when it holds 
 | `area` | the Plano element's `area` for that text; it must stay off the `zona` and, in 9:16, between 0.1302 and 0.7813 of the height |
 | `legenda` | the words said around that moment, from `palavras.json`, as `[{"texto": w, "inicio": s}]` |
 
-When a direction needs more than this composition draws (a split screen, a Print with its highlighter), write a small composition next to it under `<estudio>/src/quadro/<vídeo slug>/`, register it in `<estudio>/src/Root.tsx` inside the `Quadros` folder, read the Kit through `calcularMetadadosDoKit` with the prop `video`, and use `src/_shared/synchronized-split.tsx` for any split. Follow `<plugin>/skills/estudio/references/remotion/index.md` for the topic you touch. Never write a color or a font by hand: they come from the Kit.
+When a direction needs more than this composition draws (a split screen, a Print with its highlighter), write a small composition next to it under `<estudio>/src/quadro/<vídeo slug>/`, register it in `<estudio>/src/Root.tsx` inside the `Quadros` folder, read the Kit through `calculateKitMetadata` with the prop `video`, and use `src/_shared/synchronized-split.tsx` for any split. Follow `<plugin>/skills/estudio/references/remotion/index.md` for the topic you touch. Never write a color or a font by hand: they come from the Kit.
 
 Then look at every still you rendered. Her face must be free (eyes, mouth and the outline of the face), text inside the Área livre, no black border, any Print whole. Render again what fails.
 

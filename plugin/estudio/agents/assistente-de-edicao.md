@@ -22,7 +22,7 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 | `<estudio>` | the Estúdio folder |
 | `<projeto>`, `<nome do vídeo>` | the Projeto's and the Vídeo's names, as `estado` reports them |
 | `<plugin>` | the plugin's root folder |
-| `<modelos>` | the folder for the speech model, inside the plugin's data folder |
+| `<modelos>` | the folder the Preparação fills with the speech model, inside the plugin's data folder |
 | `<kit>` | the Kit de marca the Vídeo follows (`kit.json`) |
 | `<node>`, `<python>`, `<ffmpeg>`, `<ffprobe>` | the programs from the computer check |
 
@@ -38,7 +38,7 @@ Do the three steps in order. Everything you write goes inside `<vídeo>`; nothin
 "<python>" "<plugin>/scripts/transcrever.py" "<master>" "<vídeo>/transcricao" --modelos "<modelos>" --kit "<kit>"
 ```
 
-It writes `transcricao/palavras.json` (every word with its start and end in seconds) and `transcricao/transcript.md`, and prints a JSON summary. Run it with the longest timeout Bash allows. The first transcription on a computer downloads the speech model (about 1.6 GB) into `<modelos>`: if the command times out during that download, run it again — the download resumes. If it fails for another reason, stop and report the error message; do not try another tool.
+It writes `transcricao/palavras.json` (every word with its start and end in seconds) and `transcricao/transcript.md`, and prints a JSON summary. Run it with the longest timeout Bash allows. It runs entirely on this computer: it loads the speech model from `<modelos>` and never downloads anything. **Exit code 3** means the model is not prepared (the Preparação has not fetched it yet): nothing was written; stop, do not try another tool, and say in your report that the speech model is not prepared, so the Diretor offers the Preparação again. If it fails for another reason, stop and report the error message; do not try another tool.
 
 ### 2. Watch the video (overview)
 

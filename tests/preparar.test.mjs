@@ -4,11 +4,14 @@
 // temporary plugin data folder, and asserts only on their output, exit code and the files
 // they leave behind.
 //
-// The real download (hundreds of MB) runs only with ESTUDIO_TESTE_REDE=1.
+// The speech model step (ticket #32) is driven with a manifest override
+// (ESTUDIO_MODEL_MANIFEST) whose files are small fixtures served through file:// URLs, so no
+// network is needed. The real download (about 2 GB) runs only with ESTUDIO_TESTE_REDE=1.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -35,7 +38,7 @@ function tempRoot() {
 
 // A bin folder holding only the basic system utilities the scripts may use — no node,
 // python, ffmpeg, curl or package manager — so the machine looks freshly unboxed.
-const BASIC_UTILITIES = ['sh', 'uname', 'sed', 'dirname', 'cat', 'mkdir', 'rm', 'mv', 'chmod', 'ls', 'tar', 'tr', 'head'];
+const BASIC_UTILITIES = ['sh', 'uname', 'sed', 'dirname', 'cat', 'mkdir', 'rm', 'mv', 'chmod', 'ls', 'tar', 'tr', 'head', 'sha256sum', 'shasum', 'sleep'];
 function sandboxBin(root) {
   const bin = path.join(root, 'bin');
   fs.mkdirSync(bin);
@@ -58,6 +61,39 @@ function portableRuntimes(data) {
   stub(path.join(data, 'runtime', 'ffmpeg', 'ffmpeg'), 'echo "ffmpeg version 9.0"');
   stub(path.join(data, 'runtime', 'ffmpeg', 'ffprobe'), 'echo "ffprobe version 9.0"');
   stub(path.join(data, 'runtime', 'python', 'bin', 'python'), 'exit 0');
+}
+
+// The speech model: the file names the repo's manifest promises, the folder the Preparação
+// fills, and a fixture manifest pointing at local copies (file:// URLs) with real sha256 values.
+const MODEL_FOLDER = ['modelos', 'large-v3-turbo'];
+const manifestFiles = JSON.parse(fs.readFileSync(path.join(pluginRoot, 'vendor.json'), 'utf8'))
+  .sources.find((source) => source.id === 'speech-model').files;
+const MODEL_FILES = manifestFiles.map((file) => file.name);
+const sha256 = (buffer) => crypto.createHash('sha256').update(buffer).digest('hex');
+
+function modelFixture(root, { wrongSha = [] } = {}) {
+  const upstream = path.join(root, 'mirror fixtures');
+  fs.mkdirSync(upstream);
+  const files = MODEL_FILES.map((name) => {
+    const content = `fixture bytes of ${name}\n`;
+    fs.writeFileSync(path.join(upstream, name), content);
+    return { name, sha256: wrongSha.includes(name) ? sha256('something else') : sha256(content), url: pathToFileURL(path.join(upstream, name)).href };
+  });
+  const manifest = path.join(root, 'manifesto-teste.json');
+  fs.writeFileSync(manifest, JSON.stringify({ sources: [{ id: 'speech-model', mode: 'mirrored', files }] }, null, 2));
+  return { manifest, upstream, files };
+}
+
+// A model folder holding the fixture files, as a finished Preparação leaves it.
+function preparedModel(data, upstream) {
+  const folder = path.join(data, ...MODEL_FOLDER);
+  fs.mkdirSync(folder, { recursive: true });
+  for (const name of MODEL_FILES) fs.copyFileSync(path.join(upstream, name), path.join(folder, name));
+  return folder;
+}
+
+function withCurl(bin) {
+  fs.symlinkSync(spawnSync('/bin/sh', ['-c', 'command -v curl'], { encoding: 'utf8' }).stdout.trim(), path.join(bin, 'curl'));
 }
 
 function estudioFolder(root, { remotion = false } = {}) {
@@ -103,7 +139,7 @@ test('on a fresh computer the check reports every missing tool and installs noth
   const r = run(verificar, ['--json', m.data, m.estudio], m.env);
   assert.equal(r.code, 0, r.err);
   const out = json(r);
-  assert.deepEqual(out.missing, ['node', 'ffmpeg', 'ffprobe', 'python', 'remotion']);
+  assert.deepEqual(out.missing, ['node', 'ffmpeg', 'ffprobe', 'python', 'speech-model', 'remotion']);
   assert.deepEqual(out.tools, { node: null, ffmpeg: null, ffprobe: null, python: null });
   assert.equal(out.remotion, 'missing');
   assert.deepEqual(listFiles(m.data), []);
@@ -114,6 +150,7 @@ test('on a fresh computer the check reports every missing tool and installs noth
 test('portable runtimes in the plugin data folder count as installed, and nothing is reported missing', () => {
   const m = freshMachine();
   portableRuntimes(m.data);
+  preparedModel(m.data, modelFixture(m.root).upstream);
   const estudio = estudioFolder(tempRoot(), { remotion: true });
   const out = json(run(verificar, ['--json', m.data, estudio], m.env));
   assert.deepEqual(out.missing, []);
@@ -131,7 +168,7 @@ test('tools already on the computer are used, and a Python without faster-whispe
   stub(path.join(m.bin, 'ffprobe'), 'echo ffprobe');
   stub(path.join(m.bin, 'python3'), 'exit 1'); // import faster_whisper fails
   const out = json(run(verificar, ['--json', m.data, m.estudio], m.env));
-  assert.deepEqual(out.missing, ['python', 'remotion']);
+  assert.deepEqual(out.missing, ['python', 'speech-model', 'remotion']);
   assert.equal(out.tools.node, path.join(m.bin, 'node'));
   assert.equal(out.tools.python, null);
 });
@@ -139,11 +176,29 @@ test('tools already on the computer are used, and a Python without faster-whispe
 test('a folder that is not an Estúdio yet does not report the Remotion dependencies as missing', () => {
   const m = freshMachine();
   portableRuntimes(m.data);
+  preparedModel(m.data, modelFixture(m.root).upstream);
   const plain = path.join(m.root, 'Pasta qualquer');
   fs.mkdirSync(plain);
   const out = json(run(verificar, ['--json', m.data, plain], m.env));
   assert.deepEqual(out.missing, []);
   assert.equal(out.remotion, 'not-an-estudio');
+});
+
+test('the check reports the speech model as missing when any of its files is absent, and never fetches it', () => {
+  const m = freshMachine();
+  portableRuntimes(m.data);
+  const estudio = estudioFolder(tempRoot(), { remotion: true });
+  const check = () => json(run(verificar, ['--json', m.data, estudio], m.env));
+  assert.deepEqual(check().missing, ['speech-model'], 'no model folder at all');
+
+  const folder = preparedModel(m.data, modelFixture(m.root).upstream);
+  assert.deepEqual(check().missing, []);
+  for (const name of MODEL_FILES) {
+    fs.renameSync(path.join(folder, name), path.join(folder, `${name}.parked`));
+    assert.deepEqual(check().missing, ['speech-model'], `${name} absent`);
+    fs.renameSync(path.join(folder, `${name}.parked`), path.join(folder, name));
+  }
+  assert.deepEqual(check().missing, []);
 });
 
 // The command exactly as hooks/hooks.json registers it, with the plugin root substituted
@@ -167,7 +222,7 @@ test('the session-start hook reports what is missing, in words the model can act
   const m = freshMachine();
   const r = runHook(m.data, { ...m.env, CLAUDE_PROJECT_DIR: m.estudio }, m.root);
   assert.equal(r.code, 0, r.err);
-  for (const tool of ['node', 'ffmpeg', 'ffprobe', 'python', 'remotion']) assert.match(r.out, new RegExp(tool));
+  for (const tool of ['node', 'ffmpeg', 'ffprobe', 'python', 'speech-model', 'remotion']) assert.match(r.out, new RegExp(tool));
   assert.match(r.out, /nothing was installed/i);
   assert.doesNotMatch(r.out, JARGON);
   assert.deepEqual(listFiles(m.data), []);
@@ -177,6 +232,7 @@ test('the session-start hook reports what is missing, in words the model can act
 test('the session-start hook stays silent when nothing is missing', () => {
   const m = freshMachine();
   portableRuntimes(m.data);
+  preparedModel(m.data, modelFixture(m.root).upstream);
   const estudio = estudioFolder(tempRoot(), { remotion: true });
   const r = runHook(m.data, { ...m.env, CLAUDE_PROJECT_DIR: estudio }, m.root);
   assert.equal(r.code, 0, r.err);
@@ -186,14 +242,183 @@ test('the session-start hook stays silent when nothing is missing', () => {
 test('re-running the installer on a prepared computer downloads nothing and says so in plain Portuguese', () => {
   const m = freshMachine(); // no curl on PATH: any download attempt would fail
   portableRuntimes(m.data);
+  const fixture = modelFixture(m.root);
+  preparedModel(m.data, fixture.upstream);
   const estudio = estudioFolder(tempRoot(), { remotion: true });
   const before = listFiles(m.data);
-  const r = run(instalar, ['tudo', m.data, estudio], m.env);
+  const r = run(instalar, ['tudo', m.data, estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
   assert.equal(r.code, 0, `${r.out}${r.err}`);
   assert.match(r.out, /já estava pronto/);
   assert.match(r.out, /Computador preparado/);
   assert.doesNotMatch(r.out + r.err, JARGON);
   assert.deepEqual(listFiles(m.data), before);
+});
+
+test('the modelo step downloads each file into the models folder, says so plainly, and leaves nothing else behind', () => {
+  const m = freshMachine();
+  withCurl(m.bin);
+  const fixture = modelFixture(m.root);
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(r.code, 0, `${r.out}${r.err}`);
+  assert.match(r.out, /Modelo de fala.*baixando/);
+  for (let i = 1; i <= MODEL_FILES.length; i += 1) assert.match(r.out, new RegExp(`\\(${i} de ${MODEL_FILES.length}\\)`), 'a progress line per file');
+  assert.match(r.out, /Modelo de fala: pronto\./);
+  assert.doesNotMatch(r.out + r.err, JARGON);
+  assert.deepEqual(listFiles(path.join(m.data, 'modelos')), [...MODEL_FILES.map((name) => path.join('large-v3-turbo', name)), 'large-v3-turbo'].sort());
+  assert.equal(fs.readFileSync(path.join(m.data, ...MODEL_FOLDER, 'config.json'), 'utf8'), fs.readFileSync(path.join(fixture.upstream, 'config.json'), 'utf8'));
+  assert.equal(fs.existsSync(path.join(m.data, 'tmp')), false, 'partial downloads are removed');
+  assert.deepEqual(json(run(verificar, ['--json', m.data, m.estudio], m.env)).missing.includes('speech-model'), false);
+});
+
+test('a downloaded file with the wrong sha256 is deleted and reported, and the step fails', () => {
+  const m = freshMachine();
+  withCurl(m.bin);
+  const fixture = modelFixture(m.root, { wrongSha: ['tokenizer.json'] });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(r.code, 1, `${r.out}${r.err}`);
+  assert.match(r.out + r.err, /tokenizer\.json.*corrompido.*apagado/);
+  assert.doesNotMatch(r.out + r.err, JARGON);
+  const folder = path.join(m.data, ...MODEL_FOLDER);
+  assert.equal(fs.existsSync(path.join(folder, 'tokenizer.json')), false, 'the bad file is not kept');
+  assert.equal(fs.existsSync(path.join(m.data, 'tmp')), false);
+  assert.deepEqual(json(run(verificar, ['--json', m.data, m.estudio], m.env)).missing.includes('speech-model'), true);
+});
+
+test('a corrupted file already in the models folder is replaced on the next run, and only that file is fetched', () => {
+  const m = freshMachine();
+  withCurl(m.bin);
+  const fixture = modelFixture(m.root);
+  const folder = preparedModel(m.data, fixture.upstream);
+  fs.writeFileSync(path.join(folder, 'model.bin'), 'half of a file');
+  const untouched = fs.statSync(path.join(folder, 'config.json')).mtimeMs;
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(r.code, 0, `${r.out}${r.err}`);
+  assert.match(r.out, /\(1 de 1\)/);
+  assert.equal(fs.readFileSync(path.join(folder, 'model.bin'), 'utf8'), fs.readFileSync(path.join(fixture.upstream, 'model.bin'), 'utf8'));
+  assert.equal(fs.statSync(path.join(folder, 'config.json')).mtimeMs, untouched);
+});
+
+test('re-running the modelo step on a prepared model downloads nothing', () => {
+  const m = freshMachine(); // no curl on PATH: any download attempt would fail
+  const fixture = modelFixture(m.root);
+  const folder = preparedModel(m.data, fixture.upstream);
+  const before = listFiles(m.data);
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(r.code, 0, `${r.out}${r.err}`);
+  assert.match(r.out, /Modelo de fala: já estava pronto/);
+  assert.doesNotMatch(r.out, /baixando/);
+  assert.deepEqual(listFiles(m.data), before);
+  assert.ok(fs.existsSync(path.join(folder, 'model.bin')));
+});
+
+// Where an interrupted model download waits for the next run (outside the models folder, which
+// only ever holds verified files).
+const PARTIAL_FOLDER = ['partial', 'speech-model'];
+
+// A stand-in curl for the model step: honours -o and -w, writes the fixture file named by the
+// URL's last segment, and can pause halfway (a slow link) or stop halfway (a dropped connection).
+function slowCurl(bin, upstream, { pauseSeconds = 0, dropAfterHalf = false } = {}) {
+  stub(path.join(bin, 'curl'), `out=; url=
+while [ $# -gt 0 ]; do
+  case "$1" in -o) out=$2; shift ;; -w) shift ;; -*) ;; *) url=$1 ;; esac
+  shift
+done
+source="${upstream}/\${url##*/}"
+half=$(( $(/bin/cat "$source" | /usr/bin/wc -c) / 2 ))
+/usr/bin/head -c "$half" "$source" >> "$out"
+${dropAfterHalf ? 'exit 18' : ''}
+/bin/sleep ${pauseSeconds}
+/usr/bin/tail -c +"$(( half + 1 ))" "$source" >> "$out"
+printf 200`);
+}
+
+test('a model download interrupted halfway keeps what arrived, and the next run continues from there', () => {
+  const m = freshMachine();
+  const fixture = modelFixture(m.root);
+  slowCurl(m.bin, fixture.upstream, { dropAfterHalf: true });
+  const first = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(first.code, 1, `${first.out}${first.err}`);
+  assert.match(first.out + first.err, /Não consegui/);
+  assert.equal(fs.existsSync(path.join(m.data, ...MODEL_FOLDER, 'model.bin')), false, 'no unverified file in the models folder');
+  const kept = path.join(m.data, ...PARTIAL_FOLDER, 'model.bin');
+  assert.ok(fs.existsSync(kept) && fs.statSync(kept).size > 0, 'the bytes already downloaded are kept');
+
+  // The kept bytes are replaced by a marker of the same length: only a download that continues
+  // after them (instead of starting again from zero) produces the file the manifest expects.
+  const upstreamBytes = fs.readFileSync(path.join(fixture.upstream, 'model.bin'));
+  const marker = Buffer.alloc(fs.statSync(kept).size, 'R');
+  fs.writeFileSync(kept, marker);
+  const resumed = Buffer.concat([marker, upstreamBytes.subarray(marker.length)]);
+  const manifest = JSON.parse(fs.readFileSync(fixture.manifest, 'utf8'));
+  manifest.sources[0].files.find((f) => f.name === 'model.bin').sha256 = sha256(resumed);
+  fs.writeFileSync(fixture.manifest, JSON.stringify(manifest));
+  fs.rmSync(path.join(m.bin, 'curl'));
+  withCurl(m.bin);
+
+  const second = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest });
+  assert.equal(second.code, 0, `${second.out}${second.err}`);
+  assert.match(second.out, /continuando model\.bin de onde parou/);
+  assert.deepEqual(fs.readFileSync(path.join(m.data, ...MODEL_FOLDER, 'model.bin')), resumed);
+  assert.equal(fs.existsSync(path.join(m.data, 'partial')), false, 'nothing is left waiting once the model is ready');
+});
+
+test('a kept partial download that does not add up to the expected file is deleted and reported, and the next run starts it again', () => {
+  const m = freshMachine();
+  withCurl(m.bin);
+  const fixture = modelFixture(m.root);
+  const kept = path.join(m.data, ...PARTIAL_FOLDER, 'model.bin');
+  fs.mkdirSync(path.dirname(kept), { recursive: true });
+  fs.writeFileSync(kept, 'garbage!');
+  const env = { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest };
+  const bad = run(instalar, ['modelo', m.data, m.estudio], env);
+  assert.equal(bad.code, 1, `${bad.out}${bad.err}`);
+  assert.match(bad.out + bad.err, /model\.bin.*corrompido.*apagado/);
+  assert.equal(fs.existsSync(kept), false);
+  const again = run(instalar, ['modelo', m.data, m.estudio], env);
+  assert.equal(again.code, 0, `${again.out}${again.err}`);
+  assert.equal(fs.readFileSync(path.join(m.data, ...MODEL_FOLDER, 'model.bin'), 'utf8'), fs.readFileSync(path.join(fixture.upstream, 'model.bin'), 'utf8'));
+});
+
+test('while a model file downloads, a plain progress line keeps coming so the Criadora knows it has not frozen', () => {
+  const m = freshMachine();
+  const fixture = modelFixture(m.root);
+  slowCurl(m.bin, fixture.upstream, { pauseSeconds: 3 });
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest, ESTUDIO_PROGRESS_SECONDS: '1' });
+  assert.equal(r.code, 0, `${r.out}${r.err}`);
+  assert.match(r.out, /model\.bin: \d+ MB baixados até agora/);
+  assert.doesNotMatch(r.out + r.err, JARGON);
+  assert.match(r.out, /Modelo de fala: pronto\./);
+});
+
+test('stopping the Preparação in the middle of a model download also stops the download, so the next run continues a file nobody else is writing', () => {
+  const m = freshMachine();
+  const fixture = modelFixture(m.root);
+  slowCurl(m.bin, fixture.upstream, { pauseSeconds: 3 });
+  const kept = path.join(m.data, ...PARTIAL_FOLDER, 'model.bin');
+  // Stop the installer 1 s in (curl has written half and is pausing), then look at the kept file
+  // right away and again after curl's pause would have ended.
+  const script = `"$0" "$1" modelo "$2" "$3" & pid=$!
+/bin/sleep 1; kill -TERM "$pid"; wait "$pid"
+/usr/bin/wc -c < "$4"; /bin/sleep 3; /usr/bin/wc -c < "$4"`;
+  const r = spawnSync(SH, ['-c', script, SH, instalar, m.data, m.estudio, kept], { encoding: 'utf8', env: { ...m.env, ESTUDIO_MODEL_MANIFEST: fixture.manifest } });
+  const [right, later] = r.stdout.trim().split('\n').slice(-2).map(Number);
+  assert.ok(right > 0, `${r.stdout}${r.stderr}`);
+  assert.equal(later, right, 'nothing keeps writing into the kept file after the Preparação stopped');
+});
+
+test('a model download that cannot start leaves nothing waiting for a next run', () => {
+  const m = freshMachine(); // no curl on PATH
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: modelFixture(m.root).manifest });
+  assert.equal(r.code, 1);
+  assert.equal(fs.existsSync(path.join(m.data, 'partial')), false);
+});
+
+test('a model download that cannot start fails plainly and leaves no model behind', () => {
+  const m = freshMachine(); // no curl on PATH
+  const r = run(instalar, ['modelo', m.data, m.estudio], { ...m.env, ESTUDIO_MODEL_MANIFEST: modelFixture(m.root).manifest });
+  assert.equal(r.code, 1);
+  assert.match(r.out + r.err, /Não consegui/);
+  assert.equal(fs.existsSync(path.join(m.data, ...MODEL_FOLDER, 'model.bin')), false);
 });
 
 test('a download that fails stops with a plain message and leaves nothing half-installed', () => {
@@ -242,7 +467,7 @@ test('a real install puts everything in the plugin data folder, the check then f
 
   const again = run(instalar, ['tudo', data, estudio], env);
   assert.equal(again.code, 0, again.out + again.err);
-  assert.equal((again.out.match(/já estava pronto/g) ?? []).length, 4);
+  assert.equal((again.out.match(/já estava pronto/g) ?? []).length, 5);
 });
 
 // The Windows twins (instalar.ps1, verificar.ps1), driven through WSL interop with a
@@ -263,18 +488,81 @@ test('on Windows a real install fills the plugin data folder, the check finds no
   fs.copyFileSync(path.join(pluginRoot, 'template', 'package.json'), path.join(toWsl(estudio), 'package.json'));
   const script = (name) => spawnSync('wslpath', ['-w', path.join(pluginRoot, 'scripts', name)], { encoding: 'utf8' }).stdout.trim();
   const bare = "$env:Path = \"$env:SystemRoot\\System32;$env:SystemRoot;$env:SystemRoot\\System32\\WindowsPowerShell\\v1.0\"";
-  const install = () => ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Passo tudo -Dados '${data}' -Estudio '${estudio}'; exit $LASTEXITCODE`);
+  const install = () => ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Step tudo -DataDir '${data}' -Estudio '${estudio}'; exit $LASTEXITCODE`);
 
   const first = install();
   assert.equal(first.status, 0, `${first.stdout}${first.stderr}`);
   assert.doesNotMatch(first.stdout, JARGON);
-  const check = JSON.parse(ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -Dados '${data}' -Estudio '${estudio}'`).stdout);
+  const check = JSON.parse(ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -DataDir '${data}' -Estudio '${estudio}'`).stdout);
   assert.deepEqual(check.missing, []);
   for (const tool of ['node', 'ffmpeg', 'ffprobe', 'python']) assert.ok(check.tools[tool].startsWith(data), tool);
 
   const again = install();
   assert.equal(again.status, 0, again.stdout + again.stderr);
-  assert.equal((again.stdout.match(/já estava pronto/g) ?? []).length, 4);
+  assert.equal((again.stdout.match(/já estava pronto/g) ?? []).length, 5);
+});
+
+test('on Windows the modelo step fills the models folder from local fixtures, the check agrees, a wrong sha256 is deleted, a re-run downloads nothing and a file cut halfway is continued', hasWindows ? {} : { skip: 'powershell.exe not available' }, () => {
+  const ps = (command) => spawnSync('powershell.exe', ['-NoProfile', '-Command', command], { encoding: 'utf8', timeout: 300_000 });
+  const winTemp = ps('[IO.Path]::GetTempPath()').stdout.trim();
+  const root = `${winTemp}estúdio modelo ${process.pid}`;
+  const toWsl = (p) => spawnSync('wslpath', ['-u', p], { encoding: 'utf8' }).stdout.trim();
+  const toWin = (p) => spawnSync('wslpath', ['-w', p], { encoding: 'utf8' }).stdout.trim();
+  const rootWsl = toWsl(root);
+  fs.mkdirSync(rootWsl, { recursive: true });
+  tempRoots.push(rootWsl);
+  const winUrl = (wslPath) => encodeURI(`file:///${toWin(wslPath).replaceAll('\\', '/')}`);
+
+  const upstream = path.join(rootWsl, 'espelho');
+  fs.mkdirSync(upstream);
+  const files = MODEL_FILES.map((name) => {
+    const content = `fixture bytes of ${name}\n`;
+    fs.writeFileSync(path.join(upstream, name), content);
+    return { name, sha256: name === 'config.json' ? sha256('something else') : sha256(content), url: winUrl(path.join(upstream, name)) };
+  });
+  const manifestPath = path.join(rootWsl, 'manifesto.json');
+  fs.writeFileSync(manifestPath, JSON.stringify({ sources: [{ id: 'speech-model', files }] }));
+  const data = path.join(rootWsl, 'dados do plugin');
+  const script = (name) => toWin(path.join(pluginRoot, 'scripts', name));
+  const withManifest = `$env:ESTUDIO_MODEL_MANIFEST = '${toWin(manifestPath)}';`;
+  const install = () => ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Step modelo -DataDir '${toWin(data)}'; exit $LASTEXITCODE`);
+  const check = () => JSON.parse(ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -DataDir '${toWin(data)}' -Estudio '${toWin(rootWsl)}'`).stdout).missing;
+  const folder = path.join(data, ...MODEL_FOLDER);
+
+  const bad = install();
+  assert.equal(bad.status, 1, bad.stdout + bad.stderr);
+  assert.match(bad.stdout, /config\.json.*corrompido.*apagado/);
+  assert.equal(fs.existsSync(path.join(folder, 'config.json')), false, 'the bad file is not kept');
+  assert.ok(check().includes('speech-model'));
+
+  files.find((file) => file.name === 'config.json').sha256 = sha256(fs.readFileSync(path.join(upstream, 'config.json')));
+  fs.writeFileSync(manifestPath, JSON.stringify({ sources: [{ id: 'speech-model', files }] }));
+  const good = install();
+  assert.equal(good.status, 0, good.stdout + good.stderr);
+  assert.match(good.stdout, /Modelo de fala: pronto\./);
+  assert.deepEqual(listFiles(folder), [...MODEL_FILES].sort());
+  assert.equal(check().includes('speech-model'), false);
+
+  const again = install();
+  assert.equal(again.status, 0, again.stdout + again.stderr);
+  assert.match(again.stdout, /Modelo de fala: já estava pronto/);
+  assert.doesNotMatch(again.stdout, /baixando/);
+
+  // A model.bin cut halfway by an earlier run is continued, not downloaded again: the kept bytes
+  // are a marker, so only a download that starts after them matches the manifest.
+  fs.rmSync(path.join(folder, 'model.bin'));
+  const upstreamBytes = fs.readFileSync(path.join(upstream, 'model.bin'));
+  const marker = Buffer.alloc(8, 'R');
+  const resumed = Buffer.concat([marker, upstreamBytes.subarray(marker.length)]);
+  fs.mkdirSync(path.join(data, ...PARTIAL_FOLDER), { recursive: true });
+  fs.writeFileSync(path.join(data, ...PARTIAL_FOLDER, 'model.bin'), marker);
+  files.find((file) => file.name === 'model.bin').sha256 = sha256(resumed);
+  fs.writeFileSync(manifestPath, JSON.stringify({ sources: [{ id: 'speech-model', files }] }));
+  const continued = install();
+  assert.equal(continued.status, 0, continued.stdout + continued.stderr);
+  assert.match(continued.stdout, /continuando model\.bin de onde parou/);
+  assert.deepEqual(fs.readFileSync(path.join(folder, 'model.bin')), resumed);
+  assert.equal(fs.existsSync(path.join(data, 'partial')), false);
 });
 
 test('on Windows without Git Bash the same hook command runs in PowerShell and reports what is missing', hasWindows ? {} : { skip: 'powershell.exe not available' }, () => {

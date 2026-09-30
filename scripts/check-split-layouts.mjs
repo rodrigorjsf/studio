@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// The repo's own compositions and the Remotion template scaffolded into every Estúdio.
-const sourceRoots = [path.resolve('src'), path.resolve('plugin/estudio/template/src')];
+// The Remotion template scaffolded into every Estúdio.
+const sourceRoots = [path.resolve('plugin/estudio/template/src')];
 const allowed = new Set(['_shared/synchronized-split.tsx']);
 
 const collect = (directory) =>
@@ -31,7 +31,7 @@ for (const {sourceRoot, absolute} of files) {
 }
 
 if (violations.length > 0) {
-  console.error('Novos splits manuais não são permitidos. Use src/_shared/synchronized-split.tsx:');
+  console.error('Novos splits manuais não são permitidos. Use plugin/estudio/template/src/_shared/synchronized-split.tsx:');
   for (const file of violations) console.error(`- ${file}`);
   process.exit(1);
 }

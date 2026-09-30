@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "note": "Every host the Preparação reaches, in one list. The Diretor gives it to the Criadora only after a Preparação download fails because her Claude cloud workspace blocks a host (see skills/estudio/references/getting-started.md). No Hugging Face host is here on purpose: the speech model is served from this repository's own GitHub Release. Keep it in step with the installers and with vendor.json: every literal host in them must be listed (uv's and npm's hosts are not literal, so they are listed by hand). GitHub, PyPI and uv change their redirect and download hosts over time: measure again on a real Preparação before editing.",
+  "measured": {
+    "date": "2026-09-30",
+    "method": "instalar.sh run on Linux for the ffmpeg, python and remotion steps with HTTPS_PROXY pointing at a logging CONNECT proxy that prints every host a client opens. The node and macOS ffmpeg steps found a program already on the machine, so their exact download URLs were requested through the same proxy instead (curl -sIL / -r 0-1023). The Location header of a GitHub Release download was read with curl -sIL.",
+    "captured": {
+      "run: instalar.sh ffmpeg + python (hosts opened, count)": {
+        "github.com": 2,
+        "release-assets.githubusercontent.com": 2,
+        "releases.astral.sh": 1,
+        "pypi.org": 2,
+        "files.pythonhosted.org": 2
+      },
+      "run: instalar.sh remotion (hosts opened, count)": {
+        "registry.npmjs.org": 429
+      },
+      "request: the node and macOS ffmpeg download URLs": {
+        "nodejs.org": 2,
+        "ffmpeg.martin-riedl.de": 1
+      },
+      "redirect: GitHub Release download (astral-sh/uv sha256 asset)": "302 Location: https://release-assets.githubusercontent.com/github-production-release-asset/...",
+      "redirect: martin-riedl /redirect/latest/macos/arm64/release/ffmpeg.zip": "redirects to https://ffmpeg.martin-riedl.de/download/macos/arm64/<build>/ffmpeg.zip (same host)"
+    },
+    "notYetMeasured": "The model download itself: this repository's Release modelo-large-v3-turbo-0a363e9 is not published yet (its URL answers 404), so its redirect was measured on another GitHub Release download, which uses the same path form. After the maintainer runs scripts/espelhar-modelo.sh, run one Preparação (instalar.sh modelo) through the proxy to confirm. instalar.ps1 was not run; its literal hosts are the same as instalar.sh's."
+  },
+  "hosts": [
+    {
+      "host": "github.com",
+      "usedFor": "The speech model (this repository's GitHub Release), ffmpeg on Linux and Windows (BtbN builds) and uv.",
+      "evidence": "verified",
+      "observedIn": "run: ffmpeg (BtbN) and uv downloads"
+    },
+    {
+      "host": "release-assets.githubusercontent.com",
+      "usedFor": "Where GitHub Release downloads redirect to: the bytes of ffmpeg and uv come from here (measured). The speech model's Release uses the same download path form, so its bytes are expected here too; that redirect is not measured yet (see measured.notYetMeasured).",
+      "evidence": "verified",
+      "observedIn": "run: redirect target of the ffmpeg and uv downloads"
+    },
+    {
+      "host": "nodejs.org",
+      "usedFor": "Portable Node.",
+      "evidence": "verified",
+      "observedIn": "request: the step's download URL"
+    },
+    {
+      "host": "ffmpeg.martin-riedl.de",
+      "usedFor": "ffmpeg and ffprobe on macOS.",
+      "evidence": "verified",
+      "observedIn": "request: the step's download URL"
+    },
+    {
+      "host": "releases.astral.sh",
+      "usedFor": "The Python interpreter uv downloads.",
+      "evidence": "verified",
+      "observedIn": "run: python (uv downloading the interpreter)"
+    },
+    {
+      "host": "pypi.org",
+      "usedFor": "The package index uv reads to install faster-whisper.",
+      "evidence": "verified",
+      "observedIn": "run: python (uv installing faster-whisper)"
+    },
+    {
+      "host": "files.pythonhosted.org",
+      "usedFor": "Where the faster-whisper packages are downloaded from.",
+      "evidence": "verified",
+      "observedIn": "run: python (uv installing faster-whisper)"
+    },
+    {
+      "host": "registry.npmjs.org",
+      "usedFor": "The Remotion dependencies (npm install).",
+      "evidence": "verified",
+      "observedIn": "run: remotion (npm install)"
+    }
+  ]
+}

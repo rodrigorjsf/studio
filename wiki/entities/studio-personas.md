@@ -39,4 +39,6 @@ Related: [approval-gate](../concepts/approval-gate.md), [qc-technical-vs-editori
 | Revisor de plataforma (Crítico) | subagent (`plugin/estudio/agents/revisor-de-plataforma.md`, built in ticket #13: Área livre, hook, caption readability; tools Bash/Read) | Sonnet 5.5 · high |
 | Guardião da marca (Crítico) | subagent (`plugin/estudio/agents/guardiao-da-marca.md`, built in ticket #13: frames against the Kit; tools Bash/Read) | Sonnet 5.5 · xhigh |
 
+Who calls whom, what each persona hands back, what it does on approval and on rejection, the top-down call-chain diagram and the table of every Gate are documented once, in pt-BR, in the [README section "Quem trabalha em cada etapa"](../../README.md#quem-trabalha-em-cada-etapa) (ticket #36). This page keeps only the cast and its models; it does not repeat those tables.
+
 Added after the grilling: **Montador Higgsedit** (subagent, Sonnet 5.5 · high, `plugin/estudio/agents/montador-higgsedit.md`, ticket #16). It montages a stretch or the whole Vídeo in Higgsedit only on her explicit request, behind its own cost Gate; the cast is now 13 personas.

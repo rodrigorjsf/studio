@@ -58,9 +58,9 @@ function meanVolume(file) {
 
 // A Vídeo composition as the Motion designer writes one: her Master, and a generated asset over it.
 const COMPOSICAO = `import React from 'react';
-import {Edicao, Gerado, PropsDaEdicao} from '../../_shared/edicao';
+import {Edicao, Gerado, EdicaoProps} from '../../_shared/edicao';
 
-export const BrollGerado: React.FC<PropsDaEdicao & {arquivo: string}> = (props) => (
+export const BrollGerado: React.FC<EdicaoProps & {arquivo: string}> = (props) => (
   <Edicao {...props}>
     <Gerado projeto={props.projeto} video={props.video} arquivo={props.arquivo} />
   </Edicao>
@@ -71,10 +71,10 @@ const REGISTRO = `    <Composition
       component={BrollGerado}
       width={1080}
       height={1920}
-      fps={FPS_DA_EDICAO}
-      durationInFrames={FPS_DA_EDICAO}
+      fps={EDICAO_FPS}
+      durationInFrames={EDICAO_FPS}
       defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, arquivo: ''}}
-      calculateMetadata={calcularMetadadosDaEdicao}
+      calculateMetadata={calculateEdicaoMetadata}
     />
   </>
 );`;

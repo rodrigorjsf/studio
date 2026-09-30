@@ -5,7 +5,8 @@
 //       Notion kept read-only (no Notion tool but the page reader, no Notion server, no persona
 //       holding a Notion tool), no trace of the Higgsfield API-key path, a valid display color on
 //       every persona, a pinned model and effort on every skill, only the spec's slash commands in her menu, and no upstream leftover (the forked repo's paths, install ritual, ticket
-//       markers).
+//       markers), and every host the installers or vendor.json reach in hosts.json (no Hugging
+//       Face host in it).
 // WHEN  Run by `npm test` (tests/plugin-structure.test.mjs); run by hand after touching plugin/.
 // HOW   node scripts/check-plugin.mjs [marketplace-root]   (default: this repo)
 //       Prints {"ok":bool,"plugins":[names],"errors":[messages]} and exits 1 when not ok.
@@ -66,6 +67,7 @@ function checkPlugin(dir, expectedName, errors) {
   checkSkills(dir, expectedName, errors);
   checkPackageContents(dir, expectedName, errors);
   checkNotionServers(dir, manifest, expectedName, errors);
+  checkPreparacaoHosts(dir, expectedName, errors);
 }
 
 // Notion is read-only (spec #1, ticket #20): the Diretor reads the pages she linked, through her
@@ -100,6 +102,50 @@ const UPSTREAM_LEFTOVER = /\bedicoes\/|\bnpm run instalar\b|\bguias\/|\btools\/[
 function checkUpstreamLeftovers(file, rel, pluginName, errors) {
   const found = UPSTREAM_LEFTOVER.exec(fs.readFileSync(file, 'utf8'));
   if (found) errors.push(`${pluginName}: ${rel} carries an upstream leftover ("${found[0]}"); describe the plugin, not the upstream repo`);
+}
+
+// The Preparação's host list (spec #29, ticket #33): hosts.json names every host the installers
+// reach, so the Diretor can hand the Criadora the whole list at once when her cloud workspace
+// blocks a download. Every literal https host in the installers and in a vendor.json file URL
+// must be listed, and no Hugging Face host may be: the speech model comes from our own Release.
+// Hosts built from a variable (uv's, npm's) are not literal; they are measured and listed by hand.
+const HUGGING_FACE_HOST = /(^|\.)(huggingface\.co|hf\.co)$/i;
+
+function urlHosts(text) {
+  return new Set([...text.matchAll(/https?:\/\/([a-z0-9][a-z0-9.-]*)/gi)].map((m) => m[1].toLowerCase()));
+}
+
+function checkPreparacaoHosts(dir, pluginName, errors) {
+  const installers = ['instalar.sh', 'instalar.ps1'].filter((name) => fs.existsSync(path.join(dir, 'scripts', name)));
+  const listFile = path.join(dir, 'hosts.json');
+  if (!installers.length && !fs.existsSync(listFile)) return;
+  if (!fs.existsSync(listFile)) {
+    errors.push(`${pluginName}: the installers download from the network but hosts.json (the host list) is missing`);
+    return;
+  }
+  const list = readJson(listFile, errors, `${pluginName}: hosts.json`);
+  if (!list) return;
+  const listed = new Set((list.hosts ?? []).map((entry) => String(entry.host).toLowerCase()));
+  for (const host of listed) {
+    if (HUGGING_FACE_HOST.test(host.replace(/^\*\./, ''))) {
+      errors.push(`${pluginName}: hosts.json lists the Hugging Face host ${host}; the speech model comes from our GitHub Release`);
+    }
+  }
+  for (const name of installers) {
+    for (const host of urlHosts(fs.readFileSync(path.join(dir, 'scripts', name), 'utf8'))) {
+      if (!listed.has(host)) errors.push(`${pluginName}: scripts/${name} reaches ${host}, which hosts.json lacks`);
+    }
+  }
+  const vendorFile = path.join(dir, 'vendor.json');
+  if (!fs.existsSync(vendorFile)) return;
+  const vendor = readJson(vendorFile, errors, `${pluginName}: vendor.json`);
+  for (const source of vendor?.sources ?? []) {
+    for (const file of source.files ?? []) {
+      for (const host of urlHosts(file.url ?? '')) {
+        if (!listed.has(host)) errors.push(`${pluginName}: vendor.json ${source.id}/${file.name} uses ${host}, which hosts.json lacks`);
+      }
+    }
+  }
 }
 
 // The plugin declares no Notion server: Notion comes only from her own connector.

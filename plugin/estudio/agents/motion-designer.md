@@ -45,14 +45,14 @@ The Diretor's message holds, as absolute paths (quote every one: they carry spac
 
 2. **The composition.** Write it under `<estudio>/src/videos/<slug>/` (`<slug>`: the Projeto and Vídeo names without accents or spaces, e.g. `minha-empresa-dica-rapida`). Build it on `<Edicao>` from `src/_shared/edicao.tsx`, which draws her Master as one continuous layer with its original audio and lasts exactly as long as it:
    - every scene goes inside `<Edicao>` as a `<Sequence from={inicio × 30} durationInFrames={(fim − inicio) × 30}>`, starting at or after its Palavra-gatilho's `s`;
-   - never add another unmuted `<Video>` or `<Audio>` of the Master (her voice would play twice); a split screen or a camera card shows her again with `<MasterMudo>`, and every split uses `src/_shared/synchronized-split.tsx`;
+   - never add another unmuted `<Video>` or `<Audio>` of the Master (her voice would play twice); a split screen or a camera card shows her again with `<MutedMaster>`, and every split uses `src/_shared/synchronized-split.tsx`;
    - never trim, loop, speed up or re-time the Master;
-   - colors, fonts, caption style and motion come from the `kit` prop and `src/_shared/marca.tsx` (`LegendaDoKit`, `useEntradaDoKit`, `estiloDaFonte`); never write a color or a font by hand;
+   - colors, fonts, caption style and motion come from the `kit` prop and `src/_shared/marca.tsx` (`KitCaptions`, `useKitEntrance`, `fontStyle`); never write a color or a font by hand;
    - nothing drawn over her camera touches the `zona`; in 9:16, text sits between 0.1302 and 0.7813 of the height; Prints are shown whole, the highlighter exactly on `print.frase`;
    - the composition takes the prop `sobreposicao` through to `<Edicao>`, so the Finalizador can render the transparent overlay when she asks for one;
    - Nível 2: each generated image or clip goes in its scene's `<Sequence>` as `<Gerado projeto={projeto} video={video} arquivo="gerados/…" />` from `src/_shared/edicao.tsx`, which always mutes a clip; all text goes on top of it in the composition, never inside the generated file.
    - Nível 2, Higgsedit on her request: a stretch the Montador Higgsedit montaged (each file in `<vídeo>/higgsedit/higgsedit.json`, with its `trecho`) goes in a `<Sequence from={inicio × 30} durationInFrames={(fim − inicio) × 30}>` as `<Gerado projeto={projeto} video={video} arquivo="higgsedit/…" />`, muted like any clip: her voice keeps coming from the Master underneath.
-3. **Register it** in `<estudio>/src/Root.tsx`, inside a `<Folder name="<projeto slug>">`, with id `<slug>`, `calculateMetadata={calcularMetadadosDaEdicao}` and `defaultProps` `{projeto, video, master, duracao, formato: null}` (`video` = the Vídeo folder name, `duracao` = step 1).
+3. **Register it** in `<estudio>/src/Root.tsx`, inside a `<Folder name="<projeto slug>">`, with id `<slug>`, `calculateMetadata={calculateEdicaoMetadata}` and `defaultProps` `{projeto, video, master, duracao, formato: null}` (`video` = the Vídeo folder name, `duracao` = step 1).
 4. **Typecheck** from `<estudio>`:
 
    ```bash

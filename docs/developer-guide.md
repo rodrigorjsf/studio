@@ -44,10 +44,6 @@ flowchart TB
   `plugin/estudio/scripts/lib/layout.mjs`.
 - `docs/archive/hf_api.py` is the upstream Higgsfield Cloud API-key script, kept for reference only.
   ADR 0002 dropped that path; nothing runs it and the package may not name it.
-- **Known leftover (see #25):** the root `CLAUDE.md` still loads the upstream director persona,
-  and the upstream root folders it drives (`guias/`, `estilos/`, `src/`, `tools/`,
-  `scripts/instalar.mjs`) are still tracked. The plugin uses none of them; edit the copies under
-  `plugin/estudio/`, never the root ones.
 
 ## Commands
 
@@ -59,6 +55,7 @@ Each `npm` script body also runs directly with `node`, for machines where `npm` 
 | Typecheck (TypeScript + split-layout guard) | `tsc --noEmit -p tsconfig.json && node scripts/check-split-layouts.mjs` (`npm run typecheck`) |
 | Plugin structure check | `node scripts/check-plugin.mjs .` |
 | Validate with Claude Code | `claude plugin validate --strict --json .` and `… plugin/estudio` |
+| Mirror the speech model on the GitHub Release (maintainer; publishing is outward, see the script header) | `sh scripts/espelhar-modelo.sh [--dry-run]` |
 | Try the plugin locally | `claude --plugin-dir plugin/estudio`, then `/estudio:estudio` in an empty folder |
 
 Tests that need ffmpeg, Python, `node_modules` or the `claude` CLI skip with the reason when those
@@ -93,14 +90,20 @@ files, exit codes), never on prompt wording.
 - **No upstream leftovers**: the package never names the upstream `edicoes/`, `guias/` or
   `tools/*.py` paths, `npm run instalar`, or a `ticket #N` marker. It describes the plugin, not
   the repo it was forked from.
+- **Preparação host list**: every literal https host in `scripts/instalar.sh`, `scripts/instalar.ps1`
+  and the `vendor.json` file URLs is in `plugin/estudio/hosts.json`, and no Hugging Face host is.
+  The Diretor hands that list to the Criadora when a download is blocked by her cloud workspace.
 - Size cap: 5,000 files and 200 MB.
 
 ## Language
 
 Conversation with the Criadora and every file she reads are pt-BR; skill bodies, agent prompts,
 code, tests, ADRs and the wiki are English; command names are pt-BR (`/estudio:novo-video`).
-The template's `_shared/` API and the installer scripts still carry Portuguese identifiers from
-the upstream project; see #26.
+The template's `_shared/` helpers use English names, keeping only glossary terms and the
+component names built from them (`Edicao`, `Kit`, `Formato`, `Gerado`, ...). Each old Portuguese name is still exported as a `@deprecated` alias of its
+new name, so a Vídeo composition written before the rename keeps compiling; the aliases go in a later
+breaking release (`tests/template-names.test.mjs` guards both halves). The Preparação and
+computer-check scripts already use English identifiers, keeping only glossary terms.
 
 ## Project knowledge and tracking
 

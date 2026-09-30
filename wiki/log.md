@@ -88,3 +88,27 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Skills pin the Diretor and Entrevistador to Opus 5.5 medium, review round 2
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Speech model mirror script and manifest entry (#31)
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Esteira actors, call-chain diagram and Gates table documented once in the README, personas page links to it (ticket #36)
+Pages: entities/studio-personas.md, overview.md, index.md.
+
+## [2026-09-30] update | Speech model in the Preparação; offline transcription, exit 3 (#32)
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Preparação host list and allowlist guidance (#33)
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Preparação and check script identifiers in English (#35)
+Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Spec #29 review round 1: overview covers #31–#33 and #35; model download resumes and shows progress; ESTUDIO_MODEL_MANIFEST; mirror script drops --dir
+Pages: overview.md, concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Repo root cleaned of upstream leftovers: maintainer CLAUDE.md, upstream folders deleted (ticket #30)
+Pages: overview.md, index.md, concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.
+
+## [2026-09-30] update | Template helpers in English with deprecated aliases (ticket #34)
+Pages: concepts/plugin-architecture.md, concepts/brand-kit-per-front.md.

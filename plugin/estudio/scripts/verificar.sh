@@ -1,6 +1,7 @@
 #!/bin/sh
 # WHAT  Checks whether the computer can edit videos: Node, ffmpeg, ffprobe, Python with
-#       faster-whisper, and (inside an Estúdio) the Remotion dependencies. Never installs.
+#       faster-whisper, the speech model's files, and (inside an Estúdio) the Remotion
+#       dependencies. Never installs.
 # WHY   The session-start hook and the estudio skill must know what is missing before the
 #       Diretor asks the one preparation question; installing is instalar.sh's job, and
 #       only after the Criadora says yes.
@@ -10,47 +11,51 @@
 #       Defaults: $CLAUDE_PLUGIN_DATA and $CLAUDE_PROJECT_DIR (else the current folder).
 #       Without --json: prints one line for the model when something is missing, nothing
 #       otherwise. With --json: {"os","missing":[…],"tools":{node,ffmpeg,ffprobe,python},
-#       "remotion":"ok|missing|not-an-estudio"}. Always exits 0.
+#       "remotion":"ok|missing|not-an-estudio"}. Always exits 0. "missing" may name node,
+#       ffmpeg, ffprobe, python, remotion and speech-model (a model file is absent from the
+#       model folder).
 #       On Windows (Git Bash) it hands over to verificar.ps1.
 
 JSON=
 if [ "$1" = --json ]; then JSON=1; shift; fi
-DADOS=${1:-$CLAUDE_PLUGIN_DATA}
+DATA_DIR=${1:-$CLAUDE_PLUGIN_DATA}
 ESTUDIO=${2:-${CLAUDE_PROJECT_DIR:-.}}
-AQUI=$(dirname "$0")
+SCRIPT_DIR=$(dirname "$0")
 
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*)
-    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$AQUI/verificar.ps1" ${JSON:+-Json} ${DADOS:+-Dados} ${DADOS:+"$DADOS"} -Estudio "$ESTUDIO"
+    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$SCRIPT_DIR/verificar.ps1" ${JSON:+-Json} ${DATA_DIR:+-DataDir} ${DATA_DIR:+"$DATA_DIR"} -Estudio "$ESTUDIO"
     ;;
 esac
 
-. "$AQUI/lib/ferramentas.sh"
-if [ "$SISTEMA" = Darwin ]; then SO=mac; else SO=linux; fi
+. "$SCRIPT_DIR/lib/ferramentas.sh"
+if [ "$SYSTEM" = Darwin ]; then OS_ID=mac; else OS_ID=linux; fi
 
-NODE=$(acha_node)
-FFMPEG=$(acha_ffmpeg)
-FFPROBE=$(acha_ffprobe)
-PYTHON=$(acha_python)
-REMOTION=$(estado_remotion "$ESTUDIO")
+NODE=$(find_node)
+FFMPEG=$(find_ffmpeg)
+FFPROBE=$(find_ffprobe)
+PYTHON=$(find_python)
+MODEL=$(model_state)
+REMOTION=$(remotion_state "$ESTUDIO")
 
-FALTANDO=
-[ -z "$NODE" ] && FALTANDO="$FALTANDO node"
-[ -z "$FFMPEG" ] && FALTANDO="$FALTANDO ffmpeg"
-[ -z "$FFPROBE" ] && FALTANDO="$FALTANDO ffprobe"
-[ -z "$PYTHON" ] && FALTANDO="$FALTANDO python"
-[ "$REMOTION" = missing ] && FALTANDO="$FALTANDO remotion"
+MISSING=
+[ -z "$NODE" ] && MISSING="$MISSING node"
+[ -z "$FFMPEG" ] && MISSING="$MISSING ffmpeg"
+[ -z "$FFPROBE" ] && MISSING="$MISSING ffprobe"
+[ -z "$PYTHON" ] && MISSING="$MISSING python"
+[ "$MODEL" = missing ] && MISSING="$MISSING speech-model"
+[ "$REMOTION" = missing ] && MISSING="$MISSING remotion"
 
-json_texto() {
+json_text() {
   if [ -z "$1" ]; then printf 'null'; else printf '"%s"' "$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"; fi
 }
 
 if [ -n "$JSON" ]; then
-  LISTA=
-  for item in $FALTANDO; do LISTA="$LISTA${LISTA:+, }\"$item\""; done
+  LIST=
+  for item in $MISSING; do LIST="$LIST${LIST:+, }\"$item\""; done
   printf '{"os": "%s", "missing": [%s], "tools": {"node": %s, "ffmpeg": %s, "ffprobe": %s, "python": %s}, "remotion": "%s"}\n' \
-    "$SO" "$LISTA" "$(json_texto "$NODE")" "$(json_texto "$FFMPEG")" "$(json_texto "$FFPROBE")" "$(json_texto "$PYTHON")" "$REMOTION"
-elif [ -n "$FALTANDO" ]; then
-  echo "Estúdio setup check (nothing was installed): missing$FALTANDO. Before editing, the estudio skill asks the Criadora its one preparation question; never install anything without her yes."
+    "$OS_ID" "$LIST" "$(json_text "$NODE")" "$(json_text "$FFMPEG")" "$(json_text "$FFPROBE")" "$(json_text "$PYTHON")" "$REMOTION"
+elif [ -n "$MISSING" ]; then
+  echo "Estúdio setup check (nothing was installed): missing$MISSING. Before editing, the estudio skill asks the Criadora its one preparation question; never install anything without her yes."
 fi
 exit 0

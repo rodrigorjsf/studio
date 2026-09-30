@@ -6,13 +6,13 @@
 import React from 'react';
 import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
 import {Video} from '@remotion/media';
-import {calcularMetadadosDoKit, KIT_PADRAO, PropsDoKit, tamanhoNoQuadro} from '../_shared/kit';
-import {estiloDaFonte, LegendaDoKit, Palavra, useFontesDoKit} from '../_shared/marca';
+import {calculateKitMetadata, DEFAULT_KIT, KitProps, scaleToFrame} from '../_shared/kit';
+import {fontStyle, KitCaptions, Word, useKitFonts} from '../_shared/marca';
 
 // A box as fractions of the frame from its top-left corner, like the Plano's `area`.
 export type Area = {x: number; y: number; largura: number; altura: number};
 
-export type PropsDoQuadro = PropsDoKit & {
+export type PropsDoQuadro = KitProps & {
   video: string;
   // The Master, relative to the Vídeo folder: `original/<her file>` until a Pré-corte.
   master: string;
@@ -23,26 +23,26 @@ export type PropsDoQuadro = PropsDoKit & {
   titulo: string;
   area?: Area;
   // The words she says around that moment, from palavras.json ({texto: w, inicio: s}), for the caption.
-  legenda?: Palavra[];
+  legenda?: Word[];
 };
 
 export const FPS_DO_QUADRO = 30;
 const AREA_PADRAO: Area = {x: 0.08, y: 0.6, largura: 0.84, altura: 0.14};
 
 export const calcularMetadadosDoQuadro = async (
-  parametros: Parameters<typeof calcularMetadadosDoKit<PropsDoQuadro>>[0],
+  parametros: Parameters<typeof calculateKitMetadata<PropsDoQuadro>>[0],
 ) => ({
-  ...(await calcularMetadadosDoKit<PropsDoQuadro>(parametros)),
+  ...(await calculateKitMetadata<PropsDoQuadro>(parametros)),
   durationInFrames: Math.max(1, Math.round(parametros.props.duracao * FPS_DO_QUADRO)),
 });
 
 export const QuadroDeEstilo: React.FC<PropsDoQuadro> = ({
-  projeto, video, master, titulo, area = AREA_PADRAO, legenda = [], kit = KIT_PADRAO,
+  projeto, video, master, titulo, area = AREA_PADRAO, legenda = [], kit = DEFAULT_KIT,
 }) => {
   const {width, height} = useVideoConfig();
-  useFontesDoKit(kit, projeto);
+  useKitFonts(kit, projeto);
   const {cores, tipografia} = kit;
-  const px = (tamanho: number) => tamanhoNoQuadro(tamanho, width, height);
+  const px = (tamanho: number) => scaleToFrame(tamanho, width, height);
 
   return (
     <AbsoluteFill style={{background: cores.fundo}}>
@@ -55,13 +55,13 @@ export const QuadroDeEstilo: React.FC<PropsDoQuadro> = ({
             display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: px(14),
           }}
         >
-          <div style={{...estiloDaFonte(tipografia.titulo), fontSize: px(tipografia.escala.titulo), color: cores.primaria, lineHeight: 1.05}}>
+          <div style={{...fontStyle(tipografia.titulo), fontSize: px(tipografia.escala.titulo), color: cores.primaria, lineHeight: 1.05}}>
             {titulo}
           </div>
           <div style={{width: px(160), height: px(14), background: cores.destaque}} />
         </div>
       ) : null}
-      <LegendaDoKit kit={kit} palavras={legenda} />
+      <KitCaptions kit={kit} palavras={legenda} />
     </AbsoluteFill>
   );
 };

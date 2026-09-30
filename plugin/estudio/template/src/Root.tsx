@@ -5,8 +5,8 @@ import {TerminalTecnico} from './estilos/TerminalTecnico';
 import {VerticalDados} from './estilos/VerticalDados';
 import {VerticalLegendas} from './estilos/VerticalLegendas';
 import {VerticalPrint} from './estilos/VerticalPrint';
-import {calcularMetadadosDoKit, DIMENSOES, PropsDoKit} from './_shared/kit';
-import {calcularMetadadosDaEdicao, EdicaoComLegendas, FPS_DA_EDICAO, PropsDaEdicaoComLegendas} from './_shared/edicao';
+import {calculateKitMetadata, DIMENSIONS, KitProps} from './_shared/kit';
+import {calculateEdicaoMetadata, EdicaoWithCaptions, EDICAO_FPS, EdicaoWithCaptionsProps} from './_shared/edicao';
 import {PreviaDoKit} from './kit/PreviaDoKit';
 import {calcularMetadadosDoQuadro, FPS_DO_QUADRO, PropsDoQuadro, QuadroDeEstilo} from './quadro/QuadroDeEstilo';
 
@@ -21,11 +21,11 @@ export const RemotionRoot: React.FC = () => (
       <Composition
         id="PreviaDoKit"
         component={PreviaDoKit}
-        {...DIMENSOES['9:16']}
+        {...DIMENSIONS['9:16']}
         fps={FPS}
         durationInFrames={SEIS_SEGUNDOS}
-        defaultProps={{projeto: '', formato: null} satisfies PropsDoKit}
-        calculateMetadata={calcularMetadadosDoKit}
+        defaultProps={{projeto: '', formato: null} satisfies KitProps}
+        calculateMetadata={calculateKitMetadata}
       />
     </Folder>
 
@@ -36,7 +36,7 @@ export const RemotionRoot: React.FC = () => (
       <Composition
         id="QuadroDeEstilo"
         component={QuadroDeEstilo}
-        {...DIMENSOES['9:16']}
+        {...DIMENSIONS['9:16']}
         fps={FPS_DO_QUADRO}
         durationInFrames={FPS_DO_QUADRO}
         defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, titulo: ''} satisfies PropsDoQuadro}
@@ -59,18 +59,18 @@ export const RemotionRoot: React.FC = () => (
     <Folder name="Edicao">
       <Composition
         id="EdicaoComLegendas"
-        component={EdicaoComLegendas}
-        {...DIMENSOES['9:16']}
-        fps={FPS_DA_EDICAO}
-        durationInFrames={FPS_DA_EDICAO}
-        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, legenda: []} satisfies PropsDaEdicaoComLegendas}
-        calculateMetadata={calcularMetadadosDaEdicao}
+        component={EdicaoWithCaptions}
+        {...DIMENSIONS['9:16']}
+        fps={EDICAO_FPS}
+        durationInFrames={EDICAO_FPS}
+        defaultProps={{projeto: '', formato: null, video: '', master: '', duracao: 1, legenda: []} satisfies EdicaoWithCaptionsProps}
+        calculateMetadata={calculateEdicaoMetadata}
       />
     </Folder>
 
     {/* Seus vídeos entram aqui: um <Folder name="projeto-slug"> por Projeto, com o código em src/videos/<slug>/.
         Cada composição de Vídeo é construída sobre <Edicao> de src/_shared/edicao.tsx (o Master contínuo, com o
-        áudio original uma única vez), registrada com calculateMetadata={calcularMetadadosDaEdicao} e as props
+        áudio original uma única vez), registrada com calculateMetadata={calculateEdicaoMetadata} e as props
         {projeto, formato, video, master, duracao}, e usa as peças de src/_shared/marca.tsx. Nenhuma cor, fonte ou
         estilo de legenda no código: tudo vem do Kit. No Nível 2, as imagens e clipes gerados (pasta gerados/ do
         Vídeo) entram com <Gerado> de src/_shared/edicao.tsx, sempre sem som. */}

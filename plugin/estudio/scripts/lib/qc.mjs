@@ -20,7 +20,7 @@ import path from 'node:path';
 import { nfc } from './estado.mjs';
 import { findVideo, readVideoRecord } from './video.mjs';
 
-const FPS_DA_EDICAO = 30;
+const EDICAO_FPS = 30;
 const CANVASES = ['1080x1920', '1920x1080', '1080x1080'];
 const LOUDNESS_TOLERANCE_LU = 1.5;
 const BLACK_MIN_S = 0.5;
@@ -121,8 +121,8 @@ export function renderProblems(render, master) {
   if (!CANVASES.includes(`${render.largura}x${render.altura}`)) {
     fail('resolution', `is ${render.largura}×${render.altura}; a Formato's canvas is 1080×1920 (9:16), 1920×1080 (16:9) or 1080×1080 (1:1)`);
   }
-  if (Math.abs(render.fps - FPS_DA_EDICAO) > 0.01 || !render.fpsConstante) {
-    fail('frame-rate', `runs at ${render.fps} fps${render.fpsConstante ? '' : ' (variable)'}; the edit runs at a constant ${FPS_DA_EDICAO} fps`);
+  if (Math.abs(render.fps - EDICAO_FPS) > 0.01 || !render.fpsConstante) {
+    fail('frame-rate', `runs at ${render.fps} fps${render.fpsConstante ? '' : ' (variable)'}; the edit runs at a constant ${EDICAO_FPS} fps`);
   }
   if (render.faixasDeAudio !== 1) {
     fail('audio-tracks', `has ${render.faixasDeAudio} audio tracks; her original audio must play exactly once`);

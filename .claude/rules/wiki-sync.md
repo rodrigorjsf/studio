@@ -1,15 +1,11 @@
 ---
 paths:
-  - "src/**"
+  - "plugin/estudio/**"
   - "scripts/**"
-  - "tools/**"
-  - "guias/**"
-  - "estilos/**"
   - ".claude/skills/**"
   - ".claude/settings.json"
   - "CLAUDE.md"
   - "package.json"
-  - "remotion.config.ts"
 ---
 # Wiki sync on behavior changes
 

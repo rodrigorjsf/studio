@@ -249,6 +249,57 @@ for (const [label, text] of [
   });
 }
 
+// The repo root is a maintainer guide, not the upstream studio (spec #29, ticket #30): the root
+// CLAUDE.md no longer loads the director persona, and the upstream folders and installer the
+// persona drove are gone. The plugin under plugin/estudio/ holds the only copy of each file.
+const UPSTREAM_ROOT_PATHS = ['guias', 'estilos', 'src', 'tools', 'scripts/instalar.mjs'];
+const UPSTREAM_ROOT_NPM_SCRIPTS = ['instalar', 'studio', 'compositions'];
+
+// What is wrong with a root CLAUDE.md, as a list of reasons (empty = it is a maintainer guide).
+function rootClaudeMdProblems(text) {
+  const problems = [];
+  const firstLine = text.split('\n', 1)[0];
+  if (/^#\s.*diretor de v[ií]deo/i.test(firstLine)) problems.push(`opens with the director persona heading ("${firstLine}")`);
+  for (const mention of ['npm run instalar', 'hf_api', 'HF_KEY', 'edicoes']) {
+    if (text.includes(mention)) problems.push(`mentions "${mention}"`);
+  }
+  return problems;
+}
+
+test('the root CLAUDE.md is a maintainer guide, not the upstream director persona', () => {
+  const text = fs.readFileSync(path.join(repoRoot, 'CLAUDE.md'), 'utf8');
+  assert.deepEqual(rootClaudeMdProblems(text), []);
+  for (const section of ['## Agent skills', '## LLM wiki', '## Applied Learning']) {
+    assert.ok(text.includes(section), `the root CLAUDE.md keeps its "${section}" section`);
+  }
+});
+
+for (const [label, text] of [
+  ['the director persona heading', '# Studio: você é o diretor de vídeo\n\nBody\n'],
+  ['the upstream install ritual', '# Maintainer guide\n\nRun `npm run instalar`.\n'],
+  ['the Higgsfield API-key script', '# Maintainer guide\n\nSee tools/hf_api.py.\n'],
+  ['the Higgsfield API-key variable', '# Maintainer guide\n\nSet HF_KEY first.\n'],
+  ['the upstream output folder', '# Maintainer guide\n\nDeliverables go to edicoes/.\n'],
+]) {
+  test(`a root CLAUDE.md that carries ${label} is flagged`, () => {
+    assert.notDeepEqual(rootClaudeMdProblems(text), []);
+  });
+}
+
+test('no upstream folder or installer script is tracked at the repo root', () => {
+  const tracked = spawnSync('git', ['ls-files', '--', ...UPSTREAM_ROOT_PATHS], { cwd: repoRoot, encoding: 'utf8' });
+  assert.equal(tracked.status, 0, tracked.stderr);
+  assert.equal(tracked.stdout.trim(), '');
+});
+
+test('the root package.json drops the upstream scripts and the root tsconfig no longer includes root src/', () => {
+  const scripts = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).scripts;
+  for (const name of UPSTREAM_ROOT_NPM_SCRIPTS) assert.equal(scripts[name], undefined, `npm script "${name}" is gone`);
+  assert.ok(scripts.typecheck && scripts.test, 'typecheck and test stay');
+  const include = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tsconfig.json'), 'utf8')).include;
+  assert.deepEqual(include.filter((pattern) => pattern.startsWith('src/') || pattern === 'remotion.config.ts'), []);
+});
+
 // ---- the Claude Code CLI itself (skipped, with the reason, where `claude` is absent) ----
 const hasClaude = spawnSync('claude', ['--version'], { encoding: 'utf8' }).status === 0;
 // Notion is read-only and reached only through her own connector (ticket #20): the package
@@ -367,3 +418,74 @@ test('uninstalling estudio deletes its plugin data folder, where the installer p
   assert.equal(removed.code, 0, removed.out);
   assert.equal(fs.existsSync(data), false, 'the downloaded runtimes must go with the plugin');
 });
+
+// ---- the speech model's file list (spec #29) ----
+// The model's files are named in three places: the manifest (what the Preparação downloads and the
+// computer check verifies), the mirror script (what it publishes) and the transcriber (what it
+// needs to call the model prepared). A file the transcriber needs but the manifest lacks would make
+// the check report the model ready while every transcription stops with exit 3.
+test('the mirror script, the manifest and the transcriber agree on the speech model files', () => {
+  const vendor = JSON.parse(fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'vendor.json'), 'utf8'));
+  const manifest = vendor.sources.find((s) => s.id === 'speech-model').files.map((f) => f.name).sort();
+  const mirror = fs.readFileSync(path.join(repoRoot, 'scripts', 'espelhar-modelo.sh'), 'utf8').match(/^FILES="([^"]+)"/m)[1].split(/\s+/).sort();
+  assert.deepEqual(mirror, manifest, 'the mirror script publishes exactly the files the manifest downloads');
+  const transcriber = fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'scripts', 'transcrever.py'), 'utf8');
+  const required = [...transcriber.match(/^REQUIRED_MODEL_FILES = \(([^)]*)\)/m)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  const vocabulary = [...transcriber.match(/^VOCABULARY_FILES = \(([^)]*)\)/m)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(required.length > 0 && vocabulary.length > 0, 'the transcriber lists the files it needs');
+  for (const name of required) assert.ok(manifest.includes(name), `the transcriber needs ${name}, which the manifest never downloads`);
+  assert.ok(vocabulary.some((name) => manifest.includes(name)), 'the manifest downloads no vocabulary file the transcriber accepts');
+});
+
+// ---- the Preparação's host list (spec #29, ticket #33) ----
+// plugin/estudio/hosts.json is the one list of every host the Preparação reaches, given to the
+// Criadora only when a download is blocked by her cloud workspace's domain allowlist. The
+// structure check keeps it true: every literal host in the installers and in a vendor.json file
+// URL is in the list, and no Hugging Face host is (the speech model comes from our GitHub Release).
+const hostList = JSON.parse(fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'hosts.json'), 'utf8'));
+
+test('the host list holds every host the Preparação reaches, each backed by a measurement', () => {
+  const listed = hostList.hosts.map((h) => h.host);
+  for (const host of ['github.com', 'nodejs.org', 'ffmpeg.martin-riedl.de', 'pypi.org', 'files.pythonhosted.org', 'registry.npmjs.org']) {
+    assert.ok(listed.includes(host), `the list lacks ${host}`);
+  }
+  // GitHub Release downloads redirect to another host; the Criadora needs it as well as github.com.
+  assert.ok(listed.some((host) => host.endsWith('githubusercontent.com')), 'the list lacks the host GitHub Release downloads redirect to');
+  assert.equal(new Set(listed).size, listed.length, 'a host is listed twice');
+  assert.match(hostList.measured?.date ?? '', /^\d{4}-\d{2}-\d{2}$/, 'the list says when it was measured');
+  for (const entry of hostList.hosts) {
+    assert.ok(entry.usedFor?.trim(), `${entry.host} says what it is for`);
+    assert.equal(entry.evidence, 'verified', `${entry.host} is backed by a captured run`);
+    assert.ok(entry.observedIn?.trim(), `${entry.host} says where it was observed`);
+  }
+});
+
+const hostsFixture = ({ hosts, installer, vendorFiles } = {}) => fixture({
+  'plugin/estudio/hosts.json': hosts === null ? null : JSON.stringify({ hosts: (hosts ?? ['github.com']).map((host) => ({ host })) }),
+  'plugin/estudio/scripts/instalar.sh': installer ?? 'baixa "https://github.com/astral-sh/uv/releases/download/v1/uv.tar.gz" "$TMP/uv"\n',
+  'plugin/estudio/vendor.json': JSON.stringify({ sources: [{ id: 'speech-model', files: vendorFiles ?? [{ name: 'model.bin', url: 'https://github.com/o/r/releases/download/t/model.bin' }] }] }),
+});
+
+test('a package whose installers and manifest use only listed hosts passes', () => {
+  const { code, verdict } = check(hostsFixture());
+  assert.deepEqual(verdict.errors, []);
+  assert.equal(code, 0);
+});
+
+test('an installer URL whose host the list lacks is rejected', () => {
+  assertRejected(hostsFixture({ installer: 'baixa "https://downloads.example.org/tool.tar.gz" "$TMP/tool"\n' }), 'scripts/instalar.sh reaches downloads.example.org, which hosts.json lacks');
+});
+
+test('a manifest URL whose host the list lacks is rejected', () => {
+  assertRejected(hostsFixture({ vendorFiles: [{ name: 'model.bin', url: 'https://mirror.example.org/model.bin' }] }), 'vendor.json speech-model/model.bin uses mirror.example.org, which hosts.json lacks');
+});
+
+test('installers without a host list are rejected', () => {
+  assertRejected(hostsFixture({ hosts: null }), 'hosts.json (the host list) is missing');
+});
+
+for (const host of ['huggingface.co', 'cdn-lfs.huggingface.co', 'cas-bridge.xethub.hf.co', '*.hf.co']) {
+  test(`a host list holding the Hugging Face host ${host} is rejected`, () => {
+    assertRejected(hostsFixture({ hosts: ['github.com', host] }), `hosts.json lists the Hugging Face host ${host}`);
+  });
+}
