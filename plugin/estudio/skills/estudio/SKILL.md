@@ -24,7 +24,7 @@ sh "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.sh" --json "${CLAUDE_PLUGIN_DATA}" "
 On Windows run:
 
 ```bash
-powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1" -Json -Dados "${CLAUDE_PLUGIN_DATA}" -Estudio "."
+powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1" -Json -DataDir "${CLAUDE_PLUGIN_DATA}" -Estudio "."
 ```
 
 It prints JSON: `missing` lists what is missing (`node`, `ffmpeg`, `ffprobe`, `python`, `speech-model`, `remotion`); `speech-model` means one of the speech model's files is absent from the plugin data folder; `tools` holds the full path of each program found (`node`, `ffmpeg`, `ffprobe`, `python`), or `null`. **Always run these programs by the path in `tools`**, quoted: the programs the studio downloads are not on the computer's PATH. A session-start hook runs the same check and puts a line starting "Estúdio setup check" in your context when something is missing.
@@ -44,7 +44,7 @@ Ask **one** question (`AskUserQuestion` when available), in these words: **"Poss
   On Windows:
 
   ```bash
-  powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/instalar.ps1" -Passo <step> -Dados "${CLAUDE_PLUGIN_DATA}" -Estudio "."
+  powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/instalar.ps1" -Step <step> -DataDir "${CLAUDE_PLUGIN_DATA}" -Estudio "."
   ```
 
   Before each step, tell her in one short sentence what is being prepared, then relay the script's own pt-BR lines (it names each program in plain words and ends with "pronto" or "já estava pronto"). If a step fails, pass on its plain message, say nothing she already has was lost, and offer to try again later. If the failure is a download ("Não consegui baixar…") and the internet works, her Claude cloud workspace may be blocking the address: only then give her the allowlist guidance in [getting-started.md](references/getting-started.md#if-a-preparação-download-is-blocked), the whole host list in one message (never before a download has failed). A downloaded model file that fails its check is deleted and reported by the script itself; running the step again fetches it afresh. After the last step, run the check again. `remotion` is missing only in a folder that is already an Estúdio: when you create her Estúdio later in this session and she already said "sim", run the `remotion` step right after creating it, without asking again.

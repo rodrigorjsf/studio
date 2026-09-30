@@ -100,3 +100,6 @@ Pages: concepts/plugin-architecture.md.
 
 ## [2026-09-30] update | Preparação host list and allowlist guidance (#33)
 Pages: concepts/plugin-architecture.md.
+
+## [2026-09-30] update | Preparação and check script identifiers in English (#35)
+Pages: concepts/plugin-architecture.md.

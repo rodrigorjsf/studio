@@ -10,7 +10,7 @@
 #       warning when they run.
 # WHEN  Only after the Criadora says yes to the Diretor's preparation question. Safe to
 #       re-run: every step that is already done is skipped without downloading anything.
-# HOW   powershell -NoProfile -ExecutionPolicy Bypass -File instalar.ps1 -Passo <node|ffmpeg|python|modelo|remotion|tudo> -Dados "<plugin data folder>" [-Estudio "<Estúdio folder>"]
+# HOW   powershell -NoProfile -ExecutionPolicy Bypass -File instalar.ps1 -Step <node|ffmpeg|python|modelo|remotion|tudo> -DataDir "<plugin data folder>" [-Estudio "<Estúdio folder>"]
 #       -ExecutionPolicy Bypass applies to this one process only and needs no admin rights.
 #       `modelo` downloads the speech model's files listed in ..\vendor.json into
 #       <plugin data folder>\modelos\large-v3-turbo\, verifies each sha256, deletes and reports
@@ -19,16 +19,16 @@
 #       Prints progress in plain Portuguese. Exit 0 when ready, 1 when a step failed
 #       (nothing half-installed stays behind), 2 on a usage error.
 param(
-  [string]$Passo,
-  [string]$Dados,
+  [string]$Step,
+  [string]$DataDir,
   [string]$Estudio = (Get-Location).Path
 )
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $ProgressPreference = 'SilentlyContinue' # the progress bar slows downloads tenfold
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-if ($Passo -notin @('node', 'ffmpeg', 'python', 'modelo', 'remotion', 'tudo') -or -not $Dados) {
-  [Console]::Error.WriteLine('uso: instalar.ps1 -Passo <node|ffmpeg|python|modelo|remotion|tudo> -Dados "<pasta de dados>" [-Estudio "<pasta do Estúdio>"]')
+if ($Step -notin @('node', 'ffmpeg', 'python', 'modelo', 'remotion', 'tudo') -or -not $DataDir) {
+  [Console]::Error.WriteLine('uso: instalar.ps1 -Step <node|ffmpeg|python|modelo|remotion|tudo> -DataDir "<pasta de dados>" [-Estudio "<pasta do Estúdio>"]')
   exit 2
 }
 . (Join-Path $PSScriptRoot 'lib\ferramentas.ps1')
@@ -39,96 +39,96 @@ if ($Passo -notin @('node', 'ffmpeg', 'python', 'modelo', 'remotion', 'tudo') -o
 # Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
 # ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
 # latest release), because neither host keeps a fixed per-version download link.
-$NodeVersao = 'v22.23.3'
-$UvVersao = '0.12.21'
-$PythonVersao = '3.12'
-$FfmpegRamo = '9.0' # BtbN release branch n9.0
+$NodeVersion = 'v22.23.3'
+$UvVersion = '0.12.21'
+$PythonVersion = '3.12'
+$FfmpegBranch = '9.0' # BtbN release branch n9.0
 $Arm = $env:PROCESSOR_ARCHITECTURE -eq 'ARM64'
 
-$Tmp = Join-Path $Dados 'tmp'
+$Tmp = Join-Path $DataDir 'tmp'
 
-function Falha([string]$Oque) {
-  "Não consegui $Oque. Confira a internet e tente de novo: o que já estava pronto continua pronto."
+function Fail([string]$What) {
+  "Não consegui $What. Confira a internet e tente de novo: o que já estava pronto continua pronto."
   Remove-Item -LiteralPath $Tmp -Recurse -Force -ErrorAction SilentlyContinue
   exit 1
 }
 
-function NovoTmp([string]$Nome) {
-  $pasta = Join-Path $Tmp $Nome
-  Remove-Item -LiteralPath $pasta -Recurse -Force -ErrorAction SilentlyContinue
-  New-Item -ItemType Directory -Path $pasta -Force | Out-Null
-  $pasta
+function NewTmp([string]$Name) {
+  $folder = Join-Path $Tmp $Name
+  Remove-Item -LiteralPath $folder -Recurse -Force -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory -Path $folder -Force | Out-Null
+  $folder
 }
 
-function Baixa([string]$Url, [string]$Arquivo) {
+function Download([string]$Url, [string]$File) {
   try {
     # file:// is how the tests serve local fixtures; Invoke-WebRequest cannot read it.
-    if ($Url -like 'file:*') { Copy-Item -LiteralPath ([Uri]$Url).LocalPath -Destination $Arquivo -Force -ErrorAction Stop }
-    else { Invoke-WebRequest -Uri $Url -OutFile $Arquivo -UseBasicParsing }
+    if ($Url -like 'file:*') { Copy-Item -LiteralPath ([Uri]$Url).LocalPath -Destination $File -Force -ErrorAction Stop }
+    else { Invoke-WebRequest -Uri $Url -OutFile $File -UseBasicParsing }
     $true
   } catch { $false }
 }
 
-function Abre([string]$Zip, [string]$Destino) {
-  try { Expand-Archive -LiteralPath $Zip -DestinationPath $Destino -Force; $true } catch { $false }
+function Unzip([string]$Zip, [string]$Destination) {
+  try { Expand-Archive -LiteralPath $Zip -DestinationPath $Destination -Force; $true } catch { $false }
 }
 
 # Moves a finished folder into runtime\, replacing a broken earlier attempt.
-function Guarda([string]$Pronta, [string]$Nome) {
-  $final = Join-Path $Runtime $Nome
+function Store([string]$Ready, [string]$Name) {
+  $final = Join-Path $Runtime $Name
   try {
     New-Item -ItemType Directory -Path $Runtime -Force | Out-Null
     Remove-Item -LiteralPath $final -Recurse -Force -ErrorAction SilentlyContinue
-    Move-Item -LiteralPath $Pronta -Destination $final
+    Move-Item -LiteralPath $Ready -Destination $final
     $true
   } catch { $false }
 }
 
 # The only folder inside an unpacked archive.
-function Unica([string]$Pasta) { (Get-ChildItem -LiteralPath $Pasta -Directory | Select-Object -First 1).FullName }
+function OnlyChild([string]$Folder) { (Get-ChildItem -LiteralPath $Folder -Directory | Select-Object -First 1).FullName }
 
-function InstalaNode {
-  if (AchaNode) { 'Node: já estava pronto.'; return }
+function InstallNode {
+  if (FindNode) { 'Node: já estava pronto.'; return }
   'Node (o programa que monta as animações): baixando cerca de 30 MB…'
-  $arq = if ($Arm) { 'arm64' } else { 'x64' }
-  $t = NovoTmp 'node'
-  if (-not (Baixa "https://nodejs.org/dist/$NodeVersao/node-$NodeVersao-win-$arq.zip" "$t\node.zip")) { Falha 'baixar o Node' }
-  if (-not (Abre "$t\node.zip" "$t\x")) { Falha 'abrir o Node' }
-  if (-not (Guarda (Unica "$t\x") 'node')) { Falha 'guardar o Node' }
-  if (-not (Funciona $NodePortatil @('--version'))) { Falha 'fazer o Node funcionar' }
+  $arch = if ($Arm) { 'arm64' } else { 'x64' }
+  $t = NewTmp 'node'
+  if (-not (Download "https://nodejs.org/dist/$NodeVersion/node-$NodeVersion-win-$arch.zip" "$t\node.zip")) { Fail 'baixar o Node' }
+  if (-not (Unzip "$t\node.zip" "$t\x")) { Fail 'abrir o Node' }
+  if (-not (Store (OnlyChild "$t\x") 'node')) { Fail 'guardar o Node' }
+  if (-not (Works $PortableNode @('--version'))) { Fail 'fazer o Node funcionar' }
   'Node: pronto.'
 }
 
-function InstalaFfmpeg {
-  if ((AchaFfmpeg) -and (AchaFfprobe)) { 'ffmpeg: já estava pronto.'; return }
+function InstallFfmpeg {
+  if ((FindFfmpeg) -and (FindFfprobe)) { 'ffmpeg: já estava pronto.'; return }
   'ffmpeg (o programa que lê e grava vídeo): baixando cerca de 200 MB…'
-  $arq = if ($Arm) { 'winarm64' } else { 'win64' }
-  $t = NovoTmp 'ffmpeg'
-  $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n$FfmpegRamo-latest-$arq-gpl-$FfmpegRamo.zip"
-  if (-not (Baixa $url "$t\ffmpeg.zip")) { Falha 'baixar o ffmpeg' }
-  if (-not (Abre "$t\ffmpeg.zip" "$t\x")) { Falha 'abrir o ffmpeg' }
-  $pronta = NovoTmp 'ffmpeg-pronto'
+  $arch = if ($Arm) { 'winarm64' } else { 'win64' }
+  $t = NewTmp 'ffmpeg'
+  $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n$FfmpegBranch-latest-$arch-gpl-$FfmpegBranch.zip"
+  if (-not (Download $url "$t\ffmpeg.zip")) { Fail 'baixar o ffmpeg' }
+  if (-not (Unzip "$t\ffmpeg.zip" "$t\x")) { Fail 'abrir o ffmpeg' }
+  $ready = NewTmp 'ffmpeg-ready'
   try {
-    foreach ($exe in 'ffmpeg.exe', 'ffprobe.exe') { Move-Item -LiteralPath (Join-Path (Unica "$t\x") "bin\$exe") -Destination $pronta }
-  } catch { Falha 'abrir o ffmpeg' }
-  if (-not (Guarda $pronta 'ffmpeg')) { Falha 'guardar o ffmpeg' }
-  if (-not ((Funciona $FfmpegPortatil @('-version')) -and (Funciona $FfprobePortatil @('-version')))) { Falha 'fazer o ffmpeg funcionar' }
+    foreach ($exe in 'ffmpeg.exe', 'ffprobe.exe') { Move-Item -LiteralPath (Join-Path (OnlyChild "$t\x") "bin\$exe") -Destination $ready }
+  } catch { Fail 'abrir o ffmpeg' }
+  if (-not (Store $ready 'ffmpeg')) { Fail 'guardar o ffmpeg' }
+  if (-not ((Works $PortableFfmpeg @('-version')) -and (Works $PortableFfprobe @('-version')))) { Fail 'fazer o ffmpeg funcionar' }
   'ffmpeg: pronto.'
 }
 
-function InstalaPython {
-  if (AchaPython) { 'Python com faster-whisper: já estava pronto.'; return }
+function InstallPython {
+  if (FindPython) { 'Python com faster-whisper: já estava pronto.'; return }
   'Python com faster-whisper (a transcrição das suas falas): baixando cerca de 150 MB…'
   $uv = Join-Path $Runtime 'uv\uv.exe'
-  if (-not (Funciona $uv @('--version'))) {
-    $arq = if ($Arm) { 'aarch64' } else { 'x86_64' }
-    $t = NovoTmp 'uv'
-    if (-not (Baixa "https://github.com/astral-sh/uv/releases/download/$UvVersao/uv-$arq-pc-windows-msvc.zip" "$t\uv.zip")) { Falha 'baixar o Python' }
-    if (-not (Abre "$t\uv.zip" "$t\x")) { Falha 'abrir o Python' }
-    if (-not (Guarda "$t\x" 'uv')) { Falha 'guardar o Python' }
+  if (-not (Works $uv @('--version'))) {
+    $arch = if ($Arm) { 'aarch64' } else { 'x86_64' }
+    $t = NewTmp 'uv'
+    if (-not (Download "https://github.com/astral-sh/uv/releases/download/$UvVersion/uv-$arch-pc-windows-msvc.zip" "$t\uv.zip")) { Fail 'baixar o Python' }
+    if (-not (Unzip "$t\uv.zip" "$t\x")) { Fail 'abrir o Python' }
+    if (-not (Store "$t\x" 'uv')) { Fail 'guardar o Python' }
   }
   # Everything uv downloads or caches stays in the plugin data folder.
-  $env:UV_CACHE_DIR = Join-Path $Dados 'cache\uv'
+  $env:UV_CACHE_DIR = Join-Path $DataDir 'cache\uv'
   $env:UV_PYTHON_INSTALL_DIR = Join-Path $Runtime 'uv-python'
   $env:UV_PYTHON_BIN_DIR = Join-Path $Runtime 'uv-python\bin'
   $env:UV_PYTHON_PREFERENCE = 'only-managed'
@@ -136,13 +136,13 @@ function InstalaPython {
   $env:UV_NO_PROGRESS = '1'
   $venv = Join-Path $Runtime 'python'
   Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue
-  & $uv venv --quiet --python $PythonVersao $venv 2>&1 | Out-Null
-  if ($LASTEXITCODE -ne 0) { Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue; Falha 'baixar o Python' }
+  & $uv venv --quiet --python $PythonVersion $venv 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) { Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue; Fail 'baixar o Python' }
   # PyAV 19 dropped an argument faster-whisper 1.2.1 still passes: every transcription fails.
-  & $uv pip install --quiet --python $PythonPortatil 'faster-whisper==1.2.1' 'av<19' 2>&1 | Out-Null
-  if ($LASTEXITCODE -ne 0 -or -not (AchaPython)) {
+  & $uv pip install --quiet --python $PortablePython 'faster-whisper==1.2.1' 'av<19' 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0 -or -not (FindPython)) {
     Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue
-    Falha 'baixar o faster-whisper'
+    Fail 'baixar o faster-whisper'
   }
   'Python com faster-whisper: pronto.'
 }
@@ -150,51 +150,51 @@ function InstalaPython {
 # The speech model comes from our own GitHub Release, never from Hugging Face. Each file lands in
 # the model folder only after its sha256 matches the manifest, so an interrupted run leaves only
 # verified files and the next run fetches the rest.
-function InstalaModelo {
-  $arquivos = @(ModeloArquivos)
-  if ($arquivos.Count -eq 0) { Falha 'ler a lista de arquivos do modelo de fala' }
-  $pendentes = @($arquivos | Where-Object {
-    $destino = Join-Path $ModeloPasta $_.name
-    -not ((Test-Path -LiteralPath $destino -PathType Leaf) -and ((Sha256De $destino) -eq $_.sha256))
+function InstallModel {
+  $files = @(ModelFiles)
+  if ($files.Count -eq 0) { Fail 'ler a lista de arquivos do modelo de fala' }
+  $pending = @($files | Where-Object {
+    $destination = Join-Path $ModelDir $_.name
+    -not ((Test-Path -LiteralPath $destination -PathType Leaf) -and ((Sha256Of $destination) -eq $_.sha256))
   })
-  if ($pendentes.Count -eq 0) { 'Modelo de fala: já estava pronto.'; return }
+  if ($pending.Count -eq 0) { 'Modelo de fala: já estava pronto.'; return }
   'Modelo de fala (o que entende as suas falas, baixado uma só vez): baixando cerca de 1,6 GB, pode levar alguns minutos…'
-  $t = NovoTmp 'modelo'
-  try { New-Item -ItemType Directory -Path $ModeloPasta -Force | Out-Null } catch { Falha 'preparar o modelo de fala' }
+  $t = NewTmp 'modelo'
+  try { New-Item -ItemType Directory -Path $ModelDir -Force | Out-Null } catch { Fail 'preparar o modelo de fala' }
   $n = 0
-  foreach ($arquivo in $pendentes) {
+  foreach ($file in $pending) {
     $n++
-    "  ($n de $($pendentes.Count)) baixando $($arquivo.name)…"
-    $destino = Join-Path $ModeloPasta $arquivo.name
-    Remove-Item -LiteralPath $destino -Force -ErrorAction SilentlyContinue
-    $parcial = Join-Path $t $arquivo.name
-    if (-not (Baixa $arquivo.url $parcial)) { Falha "baixar o arquivo $($arquivo.name) do modelo de fala" }
-    if ((Sha256De $parcial) -ne $arquivo.sha256) {
-      Remove-Item -LiteralPath $parcial -Force -ErrorAction SilentlyContinue
-      "O arquivo $($arquivo.name) do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
+    "  ($n de $($pending.Count)) baixando $($file.name)…"
+    $destination = Join-Path $ModelDir $file.name
+    Remove-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue
+    $partial = Join-Path $t $file.name
+    if (-not (Download $file.url $partial)) { Fail "baixar o arquivo $($file.name) do modelo de fala" }
+    if ((Sha256Of $partial) -ne $file.sha256) {
+      Remove-Item -LiteralPath $partial -Force -ErrorAction SilentlyContinue
+      "O arquivo $($file.name) do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
       Remove-Item -LiteralPath $Tmp -Recurse -Force -ErrorAction SilentlyContinue
       exit 1
     }
-    try { Move-Item -LiteralPath $parcial -Destination $destino } catch { Falha "guardar o arquivo $($arquivo.name) do modelo de fala" }
+    try { Move-Item -LiteralPath $partial -Destination $destination } catch { Fail "guardar o arquivo $($file.name) do modelo de fala" }
   }
   'Modelo de fala: pronto.'
 }
 
-function InstalaRemotion {
-  switch (EstadoRemotion $Estudio) {
+function InstallRemotion {
+  switch (RemotionState $Estudio) {
     'ok' { 'Remotion: já estava pronto.'; return }
     'not-an-estudio' {
-      if ($Passo -eq 'tudo') { 'Remotion: fica para quando esta pasta virar o seu Estúdio.'; return }
+      if ($Step -eq 'tudo') { 'Remotion: fica para quando esta pasta virar o seu Estúdio.'; return }
       [Console]::Error.WriteLine('Remotion: esta pasta ainda não é um Estúdio.'); exit 2
     }
   }
-  $node = AchaNode
-  if (-not $node) { Falha 'preparar o Remotion, porque o Node ainda não está pronto' }
+  $node = FindNode
+  if (-not $node) { Fail 'preparar o Remotion, porque o Node ainda não está pronto' }
   'Remotion (o editor de animações), dentro da pasta do Estúdio: baixando cerca de 250 MB…'
   $nodeDir = Split-Path -Parent $node
   $npmCli = Join-Path $nodeDir 'node_modules\npm\bin\npm-cli.js'
   $env:Path = "$nodeDir;$env:Path"
-  $env:npm_config_cache = Join-Path $Dados 'cache\npm'
+  $env:npm_config_cache = Join-Path $DataDir 'cache\npm'
   $env:npm_config_update_notifier = 'false'
   $env:npm_config_fund = 'false'
   $env:npm_config_audit = 'false'
@@ -204,23 +204,23 @@ function InstalaRemotion {
     else { & npm install --loglevel=error 2>&1 | Out-Null }
     $ok = $LASTEXITCODE -eq 0
   } catch { $ok = $false } finally { Pop-Location }
-  if (-not $ok) { Falha 'baixar o Remotion' }
-  if ((EstadoRemotion $Estudio) -ne 'ok') { Falha 'fazer o Remotion funcionar' }
+  if (-not $ok) { Fail 'baixar o Remotion' }
+  if ((RemotionState $Estudio) -ne 'ok') { Fail 'fazer o Remotion funcionar' }
   'Remotion: pronto.'
 }
 
-switch ($Passo) {
-  'node' { InstalaNode }
-  'ffmpeg' { InstalaFfmpeg }
-  'python' { InstalaPython }
-  'modelo' { InstalaModelo }
-  'remotion' { InstalaRemotion }
+switch ($Step) {
+  'node' { InstallNode }
+  'ffmpeg' { InstallFfmpeg }
+  'python' { InstallPython }
+  'modelo' { InstallModel }
+  'remotion' { InstallRemotion }
   'tudo' {
-    InstalaNode
-    InstalaFfmpeg
-    InstalaPython
-    InstalaModelo
-    InstalaRemotion
+    InstallNode
+    InstallFfmpeg
+    InstallPython
+    InstallModel
+    InstallRemotion
     'Computador preparado para editar vídeos.'
   }
 }

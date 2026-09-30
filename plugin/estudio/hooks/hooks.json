@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "set -- `# <#` ; sh \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.sh\" \"${CLAUDE_PLUGIN_DATA}\" ; exit 0 ; #> ; powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1\" -Dados \"${CLAUDE_PLUGIN_DATA}\" ; exit 0",
+            "command": "set -- `# <#` ; sh \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.sh\" \"${CLAUDE_PLUGIN_DATA}\" ; exit 0 ; #> ; powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/verificar.ps1\" -DataDir \"${CLAUDE_PLUGIN_DATA}\" ; exit 0",
             "timeout": 30
           }
         ]

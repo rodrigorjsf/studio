@@ -386,12 +386,12 @@ test('on Windows a real install fills the plugin data folder, the check finds no
   fs.copyFileSync(path.join(pluginRoot, 'template', 'package.json'), path.join(toWsl(estudio), 'package.json'));
   const script = (name) => spawnSync('wslpath', ['-w', path.join(pluginRoot, 'scripts', name)], { encoding: 'utf8' }).stdout.trim();
   const bare = "$env:Path = \"$env:SystemRoot\\System32;$env:SystemRoot;$env:SystemRoot\\System32\\WindowsPowerShell\\v1.0\"";
-  const install = () => ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Passo tudo -Dados '${data}' -Estudio '${estudio}'; exit $LASTEXITCODE`);
+  const install = () => ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Step tudo -DataDir '${data}' -Estudio '${estudio}'; exit $LASTEXITCODE`);
 
   const first = install();
   assert.equal(first.status, 0, `${first.stdout}${first.stderr}`);
   assert.doesNotMatch(first.stdout, JARGON);
-  const check = JSON.parse(ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -Dados '${data}' -Estudio '${estudio}'`).stdout);
+  const check = JSON.parse(ps(`${bare}; powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -DataDir '${data}' -Estudio '${estudio}'`).stdout);
   assert.deepEqual(check.missing, []);
   for (const tool of ['node', 'ffmpeg', 'ffprobe', 'python']) assert.ok(check.tools[tool].startsWith(data), tool);
 
@@ -423,8 +423,8 @@ test('on Windows the modelo step fills the models folder from local fixtures, th
   const data = path.join(rootWsl, 'dados do plugin');
   const script = (name) => toWin(path.join(pluginRoot, 'scripts', name));
   const withManifest = `$env:ESTUDIO_MODELO_MANIFESTO = '${toWin(manifestPath)}';`;
-  const install = () => ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Passo modelo -Dados '${toWin(data)}'; exit $LASTEXITCODE`);
-  const check = () => JSON.parse(ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -Dados '${toWin(data)}' -Estudio '${toWin(rootWsl)}'`).stdout).missing;
+  const install = () => ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('instalar.ps1')}' -Step modelo -DataDir '${toWin(data)}'; exit $LASTEXITCODE`);
+  const check = () => JSON.parse(ps(`${withManifest} powershell -NoProfile -ExecutionPolicy Bypass -File '${script('verificar.ps1')}' -Json -DataDir '${toWin(data)}' -Estudio '${toWin(rootWsl)}'`).stdout).missing;
   const folder = path.join(data, ...MODEL_FOLDER);
 
   const bad = install();

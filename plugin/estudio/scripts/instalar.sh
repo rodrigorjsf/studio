@@ -17,26 +17,26 @@
 #       any file that fails, and skips files already verified. ESTUDIO_MODELO_MANIFESTO points
 #       it at another manifest (tests serve local file:// URLs); real downloads need the network.
 
-PASSO=$1
-DADOS=$2
+STEP=$1
+DATA_DIR=$2
 ESTUDIO=${3:-.}
-AQUI=$(dirname "$0")
+SCRIPT_DIR=$(dirname "$0")
 
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*)
-    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$AQUI/instalar.ps1" -Passo "$PASSO" -Dados "$DADOS" -Estudio "$ESTUDIO"
+    exec powershell -NoProfile -ExecutionPolicy Bypass -File "$SCRIPT_DIR/instalar.ps1" -Step "$STEP" -DataDir "$DATA_DIR" -Estudio "$ESTUDIO"
     ;;
 esac
 
-case "$PASSO" in
+case "$STEP" in
   node | ffmpeg | python | modelo | remotion | tudo) ;;
   *) echo "uso: instalar.sh <node|ffmpeg|python|modelo|remotion|tudo> \"<pasta de dados>\" [\"<pasta do Estúdio>\"]" >&2; exit 2 ;;
 esac
-if [ -z "$DADOS" ]; then echo "uso: falta a pasta de dados do plugin" >&2; exit 2; fi
+if [ -z "$DATA_DIR" ]; then echo "uso: falta a pasta de dados do plugin" >&2; exit 2; fi
 # Absolute, so the paths still resolve after the Remotion step changes folder.
-mkdir -p "$DADOS" && DADOS=$(cd "$DADOS" && pwd) || { echo "uso: pasta de dados inválida" >&2; exit 2; }
+mkdir -p "$DATA_DIR" && DATA_DIR=$(cd "$DATA_DIR" && pwd) || { echo "uso: pasta de dados inválida" >&2; exit 2; }
 
-. "$AQUI/lib/ferramentas.sh"
+. "$SCRIPT_DIR/lib/ferramentas.sh"
 
 # Every host this script reaches (and the ones uv and npm reach for it) is in ../hosts.json,
 # the list the Diretor hands the Criadora when her cloud workspace blocks a download. Add a
@@ -44,174 +44,178 @@ mkdir -p "$DADOS" && DADOS=$(cd "$DADOS" && pwd) || { echo "uso: pasta de dados 
 # Node, uv and Python are pinned: a re-run months later installs the same, tested programs.
 # ffmpeg follows its 9.0 release branch (BtbN rebuilds it; martin-riedl on macOS serves its
 # latest release), because neither host keeps a fixed per-version download link.
-NODE_VERSAO=v22.23.3
-UV_VERSAO=0.12.21
-PYTHON_VERSAO=3.12
-FFMPEG_RAMO=9.0 # BtbN release branch n9.0 (Linux)
+NODE_VERSION=v22.23.3
+UV_VERSION=0.12.21
+PYTHON_VERSION=3.12
+FFMPEG_BRANCH=9.0 # BtbN release branch n9.0 (Linux)
 
 case "$(uname -m)" in
   arm64 | aarch64) ARM=1 ;;
   *) ARM= ;;
 esac
 
-TMP="$DADOS/tmp"
+TMP="$DATA_DIR/tmp"
 trap 'rm -rf "$TMP"' EXIT
 
-falha() {
+fail() {
   echo "Não consegui $1. Confira a internet e tente de novo: o que já estava pronto continua pronto."
   exit 1
 }
 
-baixa() { # baixa <url> <file>
+download() { # download <url> <file>
   command -v curl >/dev/null 2>&1 || return 1
   curl -fL --retry 3 --silent --show-error -o "$2" "$1"
 }
 
-novo_tmp() {
+new_tmp() {
   rm -rf "$TMP/$1" && mkdir -p "$TMP/$1"
 }
 
-# guarda <finished folder> <name>: moves it into runtime/, replacing a broken earlier attempt.
-guarda() {
+# store <finished folder> <name>: moves it into runtime/, replacing a broken earlier attempt.
+store() {
   rm -rf "$RUNTIME/$2" && mkdir -p "$RUNTIME" && mv "$1" "$RUNTIME/$2"
 }
 
-instala_node() {
-  if [ -n "$(acha_node)" ]; then echo "Node: já estava pronto."; return; fi
+install_node() {
+  if [ -n "$(find_node)" ]; then echo "Node: já estava pronto."; return; fi
   echo "Node (o programa que monta as animações): baixando cerca de 50 MB…"
-  if [ "$SISTEMA" = Darwin ]; then so=darwin; else so=linux; fi
-  if [ -n "$ARM" ]; then arq=arm64; else arq=x64; fi
-  novo_tmp node || falha "preparar o Node"
-  baixa "https://nodejs.org/dist/$NODE_VERSAO/node-$NODE_VERSAO-$so-$arq.tar.gz" "$TMP/node.tar.gz" || falha "baixar o Node"
-  tar -xzf "$TMP/node.tar.gz" -C "$TMP/node" --strip-components=1 || falha "abrir o Node"
-  guarda "$TMP/node" node || falha "guardar o Node"
-  funciona "$NODE_PORTATIL" --version || falha "fazer o Node funcionar"
+  if [ "$SYSTEM" = Darwin ]; then os_id=darwin; else os_id=linux; fi
+  if [ -n "$ARM" ]; then arch=arm64; else arch=x64; fi
+  new_tmp node || fail "preparar o Node"
+  download "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-$os_id-$arch.tar.gz" "$TMP/node.tar.gz" || fail "baixar o Node"
+  tar -xzf "$TMP/node.tar.gz" -C "$TMP/node" --strip-components=1 || fail "abrir o Node"
+  store "$TMP/node" node || fail "guardar o Node"
+  works "$PORTABLE_NODE" --version || fail "fazer o Node funcionar"
   echo "Node: pronto."
 }
 
-instala_ffmpeg() {
-  if [ -n "$(acha_ffmpeg)" ] && [ -n "$(acha_ffprobe)" ]; then echo "ffmpeg: já estava pronto."; return; fi
+install_ffmpeg() {
+  if [ -n "$(find_ffmpeg)" ] && [ -n "$(find_ffprobe)" ]; then echo "ffmpeg: já estava pronto."; return; fi
   echo "ffmpeg (o programa que lê e grava vídeo): baixando cerca de 100 MB…"
-  novo_tmp ffmpeg || falha "preparar o ffmpeg"
-  if [ "$SISTEMA" = Darwin ]; then
-    if [ -n "$ARM" ]; then arq=arm64; else arq=amd64; fi
-    for programa in ffmpeg ffprobe; do
-      baixa "https://ffmpeg.martin-riedl.de/redirect/latest/macos/$arq/release/$programa.zip" "$TMP/$programa.zip" || falha "baixar o ffmpeg"
-      unzip -oq "$TMP/$programa.zip" -d "$TMP/ffmpeg" || falha "abrir o ffmpeg"
+  new_tmp ffmpeg || fail "preparar o ffmpeg"
+  if [ "$SYSTEM" = Darwin ]; then
+    if [ -n "$ARM" ]; then arch=arm64; else arch=amd64; fi
+    for program in ffmpeg ffprobe; do
+      download "https://ffmpeg.martin-riedl.de/redirect/latest/macos/$arch/release/$program.zip" "$TMP/$program.zip" || fail "baixar o ffmpeg"
+      unzip -oq "$TMP/$program.zip" -d "$TMP/ffmpeg" || fail "abrir o ffmpeg"
     done
   else
-    if [ -n "$ARM" ]; then arq=linuxarm64; else arq=linux64; fi
-    baixa "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n$FFMPEG_RAMO-latest-$arq-gpl-$FFMPEG_RAMO.tar.xz" "$TMP/ffmpeg.tar.xz" \
-      || falha "baixar o ffmpeg"
-    novo_tmp ffmpeg-pacote || falha "preparar o ffmpeg"
-    tar -xJf "$TMP/ffmpeg.tar.xz" -C "$TMP/ffmpeg-pacote" --strip-components=2 --wildcards '*/bin/ffmpeg' '*/bin/ffprobe' \
-      || falha "abrir o ffmpeg"
-    mv "$TMP/ffmpeg-pacote/ffmpeg" "$TMP/ffmpeg-pacote/ffprobe" "$TMP/ffmpeg/" || falha "abrir o ffmpeg"
+    if [ -n "$ARM" ]; then arch=linuxarm64; else arch=linux64; fi
+    download "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n$FFMPEG_BRANCH-latest-$arch-gpl-$FFMPEG_BRANCH.tar.xz" "$TMP/ffmpeg.tar.xz" \
+      || fail "baixar o ffmpeg"
+    new_tmp ffmpeg-package || fail "preparar o ffmpeg"
+    tar -xJf "$TMP/ffmpeg.tar.xz" -C "$TMP/ffmpeg-package" --strip-components=2 --wildcards '*/bin/ffmpeg' '*/bin/ffprobe' \
+      || fail "abrir o ffmpeg"
+    mv "$TMP/ffmpeg-package/ffmpeg" "$TMP/ffmpeg-package/ffprobe" "$TMP/ffmpeg/" || fail "abrir o ffmpeg"
   fi
-  chmod +x "$TMP/ffmpeg/ffmpeg" "$TMP/ffmpeg/ffprobe" || falha "abrir o ffmpeg"
-  guarda "$TMP/ffmpeg" ffmpeg || falha "guardar o ffmpeg"
-  funciona "$FFMPEG_PORTATIL" -version && funciona "$FFPROBE_PORTATIL" -version || falha "fazer o ffmpeg funcionar"
+  chmod +x "$TMP/ffmpeg/ffmpeg" "$TMP/ffmpeg/ffprobe" || fail "abrir o ffmpeg"
+  store "$TMP/ffmpeg" ffmpeg || fail "guardar o ffmpeg"
+  works "$PORTABLE_FFMPEG" -version && works "$PORTABLE_FFPROBE" -version || fail "fazer o ffmpeg funcionar"
   echo "ffmpeg: pronto."
 }
 
-instala_python() {
-  if [ -n "$(acha_python)" ]; then echo "Python com faster-whisper: já estava pronto."; return; fi
+install_python() {
+  if [ -n "$(find_python)" ]; then echo "Python com faster-whisper: já estava pronto."; return; fi
   echo "Python com faster-whisper (a transcrição das suas falas): baixando cerca de 150 MB…"
   UV="$RUNTIME/uv/uv"
-  if ! funciona "$UV" --version; then
-    if [ "$SISTEMA" = Darwin ]; then so=apple-darwin; else so=unknown-linux-gnu; fi
-    if [ -n "$ARM" ]; then arq=aarch64; else arq=x86_64; fi
-    novo_tmp uv || falha "preparar o Python"
-    baixa "https://github.com/astral-sh/uv/releases/download/$UV_VERSAO/uv-$arq-$so.tar.gz" "$TMP/uv.tar.gz" || falha "baixar o Python"
-    tar -xzf "$TMP/uv.tar.gz" -C "$TMP/uv" --strip-components=1 || falha "abrir o Python"
-    guarda "$TMP/uv" uv || falha "guardar o Python"
+  if ! works "$UV" --version; then
+    if [ "$SYSTEM" = Darwin ]; then os_id=apple-darwin; else os_id=unknown-linux-gnu; fi
+    if [ -n "$ARM" ]; then arch=aarch64; else arch=x86_64; fi
+    new_tmp uv || fail "preparar o Python"
+    download "https://github.com/astral-sh/uv/releases/download/$UV_VERSION/uv-$arch-$os_id.tar.gz" "$TMP/uv.tar.gz" || fail "baixar o Python"
+    tar -xzf "$TMP/uv.tar.gz" -C "$TMP/uv" --strip-components=1 || fail "abrir o Python"
+    store "$TMP/uv" uv || fail "guardar o Python"
   fi
   # Everything uv downloads or caches stays in the plugin data folder.
-  export UV_CACHE_DIR="$DADOS/cache/uv"
+  export UV_CACHE_DIR="$DATA_DIR/cache/uv"
   export UV_PYTHON_INSTALL_DIR="$RUNTIME/uv-python"
   export UV_PYTHON_BIN_DIR="$RUNTIME/uv-python/bin"
   export UV_PYTHON_PREFERENCE=only-managed
   export UV_NO_CONFIG=1
   export UV_NO_PROGRESS=1
   rm -rf "$RUNTIME/python"
-  "$UV" venv --quiet --python "$PYTHON_VERSAO" "$RUNTIME/python" || { rm -rf "$RUNTIME/python"; falha "baixar o Python"; }
+  "$UV" venv --quiet --python "$PYTHON_VERSION" "$RUNTIME/python" || { rm -rf "$RUNTIME/python"; fail "baixar o Python"; }
   # PyAV 19 dropped an argument faster-whisper 1.2.1 still passes: every transcription fails.
-  "$UV" pip install --quiet --python "$PYTHON_PORTATIL" "faster-whisper==1.2.1" "av<19" || { rm -rf "$RUNTIME/python"; falha "baixar o faster-whisper"; }
-  [ -n "$(acha_python)" ] || { rm -rf "$RUNTIME/python"; falha "fazer a transcrição funcionar"; }
+  "$UV" pip install --quiet --python "$PORTABLE_PYTHON" "faster-whisper==1.2.1" "av<19" || { rm -rf "$RUNTIME/python"; fail "baixar o faster-whisper"; }
+  [ -n "$(find_python)" ] || { rm -rf "$RUNTIME/python"; fail "fazer a transcrição funcionar"; }
   echo "Python com faster-whisper: pronto."
 }
 
 # The speech model comes from our own GitHub Release, never from Hugging Face. Each file lands in
 # the model folder only after its sha256 matches the manifest, so an interrupted run leaves only
 # verified files and the next run fetches the rest.
-instala_modelo() {
-  lista=$(modelo_arquivos "$MODELO_MANIFESTO")
-  [ -n "$lista" ] || falha "ler a lista de arquivos do modelo de fala"
-  pendentes=
-  while read -r nome sha url; do
-    if [ -f "$MODELO_PASTA/$nome" ] && [ "$(sha256_de "$MODELO_PASTA/$nome")" = "$sha" ]; then continue; fi
-    pendentes="$pendentes$nome $sha $url
+install_model() {
+  list=$(model_files "$MODEL_MANIFEST")
+  [ -n "$list" ] || fail "ler a lista de arquivos do modelo de fala"
+  pending=
+  while read -r name sha url; do
+    if [ -f "$MODEL_DIR/$name" ] && [ "$(sha256_of "$MODEL_DIR/$name")" = "$sha" ]; then continue; fi
+    pending="$pending$name $sha $url
 "
-  done <<FIM
-$lista
-FIM
-  if [ -z "$pendentes" ]; then echo "Modelo de fala: já estava pronto."; return; fi
+  done <<END
+$list
+END
+  if [ -z "$pending" ]; then echo "Modelo de fala: já estava pronto."; return; fi
   echo "Modelo de fala (o que entende as suas falas, baixado uma só vez): baixando cerca de 1,6 GB, pode levar alguns minutos…"
-  total=$(printf '%s' "$pendentes" | sed -n '$=')
-  novo_tmp modelo || falha "preparar o modelo de fala"
-  mkdir -p "$MODELO_PASTA" || falha "preparar o modelo de fala"
+  total=$(printf '%s' "$pending" | sed -n '$=')
+  new_tmp modelo || fail "preparar o modelo de fala"
+  mkdir -p "$MODEL_DIR" || fail "preparar o modelo de fala"
   n=0
-  while read -r nome sha url; do
-    [ -n "$nome" ] || continue # the here-document ends with an empty line
+  while read -r name sha url; do
+    [ -n "$name" ] || continue # the here-document ends with an empty line
     n=$((n + 1))
-    echo "  ($n de $total) baixando $nome…"
-    rm -f "$MODELO_PASTA/$nome"
-    baixa "$url" "$TMP/modelo/$nome" || falha "baixar o arquivo $nome do modelo de fala"
-    if [ "$(sha256_de "$TMP/modelo/$nome")" != "$sha" ]; then
-      rm -f "$TMP/modelo/$nome"
-      echo "O arquivo $nome do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
+    echo "  ($n de $total) baixando $name…"
+    rm -f "$MODEL_DIR/$name"
+    download "$url" "$TMP/modelo/$name" || fail "baixar o arquivo $name do modelo de fala"
+    if [ "$(sha256_of "$TMP/modelo/$name")" != "$sha" ]; then
+      rm -f "$TMP/modelo/$name"
+      echo "O arquivo $name do modelo de fala chegou corrompido e foi apagado. Tente de novo: o que já estava pronto continua pronto."
       exit 1
     fi
-    mv "$TMP/modelo/$nome" "$MODELO_PASTA/$nome" || falha "guardar o arquivo $nome do modelo de fala"
-  done <<FIM
-$pendentes
-FIM
+    mv "$TMP/modelo/$name" "$MODEL_DIR/$name" || fail "guardar o arquivo $name do modelo de fala"
+  done <<END
+$pending
+END
   echo "Modelo de fala: pronto."
 }
 
-instala_remotion() {
-  case "$(estado_remotion "$ESTUDIO")" in
+install_remotion() {
+  case "$(remotion_state "$ESTUDIO")" in
     ok) echo "Remotion: já estava pronto."; return ;;
     not-an-estudio)
-      if [ "$PASSO" = tudo ]; then echo "Remotion: fica para quando esta pasta virar o seu Estúdio."; return; fi
+      if [ "$STEP" = tudo ]; then echo "Remotion: fica para quando esta pasta virar o seu Estúdio."; return; fi
       echo "Remotion: esta pasta ainda não é um Estúdio." >&2; exit 2 ;;
   esac
-  NODE=$(acha_node)
-  [ -n "$NODE" ] || falha "preparar o Remotion, porque o Node ainda não está pronto"
+  NODE=$(find_node)
+  [ -n "$NODE" ] || fail "preparar o Remotion, porque o Node ainda não está pronto"
   echo "Remotion (o editor de animações), dentro da pasta do Estúdio: baixando cerca de 250 MB…"
   NODE_DIR=$(dirname "$NODE")
   NPM_CLI="$NODE_DIR/../lib/node_modules/npm/bin/npm-cli.js"
   (
     cd "$ESTUDIO" || exit 1
     export PATH="$NODE_DIR:$PATH"
-    export npm_config_cache="$DADOS/cache/npm"
+    export npm_config_cache="$DATA_DIR/cache/npm"
     export npm_config_update_notifier=false npm_config_fund=false npm_config_audit=false
     if [ -f "$NPM_CLI" ]; then "$NODE" "$NPM_CLI" install --loglevel=error >/dev/null
     else npm install --loglevel=error >/dev/null
     fi
-  ) || falha "baixar o Remotion"
-  [ "$(estado_remotion "$ESTUDIO")" = ok ] || falha "fazer o Remotion funcionar"
+  ) || fail "baixar o Remotion"
+  [ "$(remotion_state "$ESTUDIO")" = ok ] || fail "fazer o Remotion funcionar"
   echo "Remotion: pronto."
 }
 
-case "$PASSO" in
+case "$STEP" in
   tudo)
-    instala_node
-    instala_ffmpeg
-    instala_python
-    instala_modelo
-    instala_remotion
+    install_node
+    install_ffmpeg
+    install_python
+    install_model
+    install_remotion
     echo "Computador preparado para editar vídeos."
     ;;
-  *) "instala_$PASSO" ;;
+  node) install_node ;;
+  ffmpeg) install_ffmpeg ;;
+  python) install_python ;;
+  modelo) install_model ;;
+  remotion) install_remotion ;;
 esac
