@@ -4,6 +4,7 @@ description: The Estúdio's Motion designer. Builds one Vídeo's edit in the Est
 model: claude-opus-5-5
 effort: medium
 tools: Bash, Read, Write, Edit
+color: blue
 ---
 
 # Motion designer

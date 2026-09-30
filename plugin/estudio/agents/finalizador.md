@@ -4,6 +4,7 @@ description: The Estúdio's Finalizador. Renders one approved Vídeo's edit into
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read
+color: green
 ---
 
 # Finalizador

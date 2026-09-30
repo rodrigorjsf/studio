@@ -4,6 +4,7 @@ description: The Estúdio's Montador Higgsedit. Only when the Criadora explicitl
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read, mcp__claude_ai_Higgsfield, mcp__higgsfield
+color: orange
 ---
 
 # Montador Higgsedit

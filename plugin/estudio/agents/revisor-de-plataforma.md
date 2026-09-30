@@ -4,6 +4,7 @@ description: The Estúdio's Revisor de plataforma, a Crítico. Holds the frames 
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read
+color: pink
 ---
 
 # Revisor de plataforma

@@ -1,6 +1,6 @@
 # Third-party material in the estudio plugin
 
-The plugin depends on no other plugin, marketplace or skill. It carries two pieces derived from
+The plugin depends on no other plugin, marketplace or skill. It carries three pieces derived from
 third-party work, listed here with their upstream, the exact commit used, and the license terms.
 The machine-readable list, with the sha256 of every verbatim file, is [vendor.json](vendor.json);
 the repository's tests fail if a verbatim file changes without a matching update there.
@@ -81,3 +81,42 @@ license and targets newer APIs, so it was not used.
 
 If the maintainer decides to allow a verbatim copy of the upstream rules, that decision and its
 justification are recorded here, and the copied files are added to `vendor.json` with their sha256.
+
+## 3. The studio this plugin forks (MIT)
+
+| | |
+|---|---|
+| Upstream | https://github.com/mackswendhell/studio |
+| License | MIT, Copyright (c) 2026 Macks Wendhell |
+| In this plugin | the Diretor persona and its standing rules (`skills/estudio/SKILL.md`), the references translated from its guides (`skills/estudio/references/getting-started.md`, `level-1-remotion.md`, `remotion-manual.md`, `level-2-higgsfield.md`, `editorial-direction.md`, `style-gallery.md` and its images), the transcriber `scripts/transcrever.py`, and the Remotion template's split-screen primitive and style examples (`template/src/_shared/`, `template/src/estilos/`) |
+
+The plugin adapts this work freely: its guides were translated into English and rewritten for the
+plugin, its install ritual and repository layout were replaced, and its code was extended. The
+images in `skills/estudio/references/style-gallery/` that come from videos of the channel
+**Macks Wendhell | Inteligência Aplicada** are visual references only, not material to reuse.
+
+The MIT license text, which applies to the upstream work above:
+
+```text
+MIT License
+
+Copyright (c) 2026 Macks Wendhell
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

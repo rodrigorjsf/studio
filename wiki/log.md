@@ -73,3 +73,6 @@ Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, entities/stud
 
 ## [2026-09-30] update | Autonomia, metrics and Kit learnings built: `aprovar-automatico`, `metricas`, `arquivar` (ticket #17)
 Pages: concepts/plugin-architecture.md, concepts/approval-gate.md, concepts/brand-kit-per-front.md, overview.md.
+
+## [2026-09-30] update | Repo cleanup and install guide: agent colors, upstream-leftover check, README hub, developer guide (ticket #18)
+Pages: concepts/plugin-architecture.md.

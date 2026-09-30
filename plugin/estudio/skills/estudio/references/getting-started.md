@@ -2,7 +2,7 @@
 
 > Translated from the upstream studio guide `1-primeiros-passos.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (section 2 below) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths are relative to her Estúdio folder: the `estudio` skill scaffolds the Remotion template there (`package.json`, `src/`, `remotion.config.ts`), and each Vídeo lives in `projetos/<projeto>/videos/<vídeo>/`. Run `npm` and `npx` with the Node the computer check prints (`tools.node`), from the Estúdio folder. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 This tutorial takes you from zero to the first edit. It takes about 20 minutes, most of it waiting on installs.
 
@@ -16,10 +16,9 @@ This tutorial takes you from zero to the first edit. It takes about 20 minutes, 
 | **Node.js** (LTS version) | runs Remotion | yes |
 | **Python** 3.10 or newer | transcription and the frame sampler | yes |
 | **FFmpeg** | reads and converts video | yes |
-| **Git** | download and update this repository | recommended |
 | **Higgsfield** account with credits | Nível 2 only | no |
 
-You can use Claude in three ways. All of them work with this repository:
+You can use Claude in three ways. All of them run the plugin:
 
 - **Claude Desktop, Code tab** (simplest, no terminal);
 - **Claude Code in VS Code** (extension);
@@ -29,7 +28,7 @@ You can use Claude in three ways. All of them work with this repository:
 
 ## 2. Prepare the computer (the plugin's installer)
 
-The plugin replaces the upstream install ritual (package managers, cloning, `npm run instalar`) with its own no-admin installer. The `estudio` skill runs it only after the Criadora answers "sim" to one question, "Posso preparar seu computador para editar vídeos? (~10 min, grátis)"; see *The preparation question* in the skill.
+She installs the plugin from the `studio` marketplace; she never clones a repository, opens a terminal or uses a package manager. The programs it needs come from its own no-admin installer. The `estudio` skill runs it only after the Criadora answers "sim" to one question, "Posso preparar seu computador para editar vídeos? (~10 min, grátis)"; see *The preparation question* in the skill.
 
 | What | Where it goes | Size (download) |
 |---|---|---|
@@ -42,11 +41,11 @@ The plugin replaces the upstream install ritual (package managers, cloning, `npm
 - Claude Code deletes the plugin data folder when the plugin is uninstalled, so the runtimes leave with it. `node_modules/` is part of her Estúdio folder, like her videos, and stays.
 - Every step is safe to repeat: a program that already works — the studio's own or one already on the computer — is not downloaded again.
 - The programs the studio downloads are **not** on the computer's PATH. Run them by the full path the computer check prints (`tools.node`, `tools.ffmpeg`, `tools.ffprobe`, `tools.python`).
-- Nothing else is installed: no other plugin, marketplace or skill. What the upstream setup took from two external skills now ships inside the plugin (section 3).
+- Nothing else is installed: no other plugin, marketplace or skill. What the studio needs from third-party skills ships inside the plugin (section 3).
 
 ## 3. What ships inside the plugin
 
-Upstream, `npm run instalar` also installed two third-party skills, one to watch videos and one with Remotion best practices. The plugin carries what the studio needs from them instead, so the Criadora installs only `estudio`:
+The plugin carries what the studio needs from two third-party skills, one to watch videos and one with Remotion best practices, so the Criadora installs only `estudio`:
 
 - **The frame sampler** (`scripts/frames/amostrar.py`): samples frames of her video in two modes, an overview and a face-zone pass over the whole clip. It needs only the Python and ffmpeg from section 2, runs locally, sends nothing anywhere and asks for no key. How to use it: [watching a video](watching-a-video.md).
 - **The Remotion rules** ([references/remotion/](remotion/index.md)): short rulebooks per topic, written for the Remotion version the Estúdio template pins.
@@ -62,54 +61,44 @@ Follow the section [Connect Higgsfield to Claude](level-2-higgsfield.md#1-connec
 
 ## 5. Understanding the folders
 
+Her Estúdio is any folder she chooses and opens in the Code tab. The `estudio` skill sets it up on first run; everything of hers lives there, never inside the plugin (the plugin's own folder is replaced on every update).
+
 ```text
-studio/
-├─ CLAUDE.md           the "director": instructions Claude reads when opening the project
-├─ README.md           overview
-├─ guias/              the manuals (you are here)
-├─ estilos/            gallery of reference styles, with images
-│
-├─ projetos/           ← YOU PUT the video and the prints HERE
-│  └─ 001. meu-video/
-│     ├─ video/        the recorded video, already cut (never altered)
-│     ├─ prints/       screenshots and images of what you want animated
-│     ├─ frames/       (generated) frames sampled from the video
-│     ├─ transcricao/  (generated) text with the timing of each word
-│     ├─ gerados/      (Nível 2) images and clips generated on Higgsfield
-│     ├─ higgsedit/    (Nível 2, only if you ask) what Higgsedit montaged
-│     └─ plano.md      (generated) the edit plan you approve
-│
-├─ edicoes/            ← the finished video COMES OUT HERE
-│  └─ 001. meu-video/
-│
-├─ src/                Remotion code (Nível 1)
-│  ├─ Root.tsx         list of registered videos
-│  ├─ videos/          one subfolder per video of yours
-│  ├─ estilos/         code of the gallery examples
-│  └─ _shared/         reused pieces
-├─ tools/              local transcription
-└─ scripts/            automatic checks
+<her Estúdio>/
+├─ estudio.json        the marker: "this folder is an Estúdio"
+├─ perfil.md           her Perfil (who she is, her Autonomia)
+├─ projetos/
+│  └─ <projeto>/       one per domain (her company, her personal account…)
+│     ├─ projeto.md    the Projeto briefing
+│     ├─ kit.json      the Kit de marca (colors, fonts, captions, Formato…)
+│     ├─ kit/          the Kit's logos, fonts and reference images
+│     └─ videos/
+│        └─ <vídeo>/
+│           ├─ video.md      the Vídeo document: Status, Rodada, Nível, metrics
+│           ├─ original/     her recording, never altered
+│           ├─ prints/       screenshots of what she wants animated
+│           ├─ transcricao/  (generated) text with the timing of each word
+│           ├─ frames/       (generated) frames sampled from the video
+│           ├─ plano.json    (generated) the edit plan she approves
+│           ├─ revisao/      (generated) the stills of each version she reviews
+│           ├─ gerados/      (Nível 2) images and clips generated on Higgsfield
+│           └─ entrega/      ← the finished video COMES OUT HERE
+├─ src/                the Remotion template: the code of each Vídeo's edit
+└─ package.json, remotion.config.ts, node_modules/   what Remotion needs
 ```
 
-Rule of thumb: **you only touch `projetos/`** (to hand in material) **and `edicoes/`** (to pick up the result). The rest is Claude's work.
+Rule of thumb: **she only touches `prints/`** (to hand in material) **and `entrega/`** (to pick up the result). The rest is the studio's work.
 
-The whole `projetos/` folder is kept out of Git (`.gitignore`), except for the example. That way your videos and prints do not end up on GitHub by accident if you publish a fork.
+## 6. Her first edit
 
-## 6. Your first edit
+1. She opens her Estúdio folder in Claude (Desktop → **Code** → choose folder; or `claude` in a terminal inside it) and types `/estudio:estudio`.
+2. The Diretor offers to prepare her computer and to set up the folder, then interviews her once about herself (Perfil) and once per domain (Projeto), and she approves the Kit de marca.
+3. For each new Vídeo she hands in the recording and answers only what the Kit does not already answer (`/estudio:novo-video`).
+4. She approves (or adjusts) the edit plan and the Quadros de estilo.
+5. She checks the review stills of each version and decides.
+6. She picks up the video in the Vídeo's `entrega/` folder; the Diretor opens it for her.
 
-1. Create the folder `projetos/001. meu-video/video/` and put your video there (MP4 or MOV, already cut).
-2. Create `projetos/001. meu-video/prints/` and save screenshots of everything you mention in the video: websites, news, tool screens.
-3. Open the `studio` folder in Claude (Desktop → Code → choose folder; or `claude` in the terminal inside it).
-4. Claude will ask whether you want **Nível 1** or **Nível 2**. Answer.
-5. Say what you want. Example:
-   ```text
-   Edita o projeto 001. Quero o vídeo completo, estilo minimal suíço, sem exagero de zoom.
-   ```
-6. Approve (or adjust) the edit plan it presents.
-7. Check the review frames it shows.
-8. Pick up the video in `edicoes/001. meu-video/`.
-
-Do not know what to ask for? Ask Claude itself: "o que dá para fazer com esse vídeo?" (what can be done with this video?). It was instructed to suggest options.
+Does she not know what to ask for? She can ask the Diretor itself: "o que dá para fazer com esse vídeo?" (what can be done with this video?). It was instructed to suggest options.
 
 ## 7. Quick glossary
 

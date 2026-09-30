@@ -4,6 +4,7 @@ description: The Estúdio's Guardião da marca, a Crítico. Holds the frames of 
 model: claude-sonnet-5-5
 effort: xhigh
 tools: Bash, Read
+color: yellow
 ---
 
 # Guardião da marca

@@ -64,10 +64,26 @@ function assertRejected(root, fragment) {
 
 test('a minimal valid fixture package passes', () => {
   const { code, verdict } = check(fixture({
-    'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read, Write' }),
+    'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read, Write', color: 'blue' }),
   }));
   assert.deepEqual(verdict.errors, []);
   assert.equal(code, 0);
+});
+
+// Every persona declares its display color in the task list and transcript (ticket #18); the
+// eight values are the only ones Claude Code accepts.
+test('a persona without a color is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read' }) }),
+    'motion-designer.md: missing "color"',
+  );
+});
+
+test('a persona with a color outside the eight allowed values is rejected', () => {
+  assertRejected(
+    fixture({ 'plugin/estudio/agents/motion-designer.md': persona({ name: 'motion-designer', model: 'claude-opus-5-5', effort: 'medium', tools: 'Bash, Read', color: 'magenta' }) }),
+    'motion-designer.md: "color" must be one of red, blue, green, yellow, purple, orange, pink, cyan, got "magenta"',
+  );
 });
 
 test('a persona without effort is rejected', () => {
@@ -106,7 +122,7 @@ test('a Crítico without an explicit tools allowlist (inherits every tool) is re
 test('a Crítico with read-only tools plus Bash passes', () => {
   const { verdict } = check(fixture({
     'plugin/estudio/agents/qc-tecnico.md':
-      persona({ name: 'qc-tecnico', model: 'claude-sonnet-5-5', effort: 'high', tools: 'Read, Grep, Glob, Bash' }),
+      persona({ name: 'qc-tecnico', model: 'claude-sonnet-5-5', effort: 'high', tools: 'Read, Grep, Glob, Bash', color: 'red' }),
   }));
   assert.deepEqual(verdict.errors, []);
 });
@@ -176,6 +192,24 @@ for (const [label, text] of [
     assertRejected(
       fixture({ 'plugin/estudio/skills/estudio/SKILL.md': `---\nname: estudio\ndescription: Entry.\n---\n${text}\n` }),
       'Higgsfield API-key path',
+    );
+  });
+}
+
+// The package describes the plugin, not the upstream repo it was forked from (ticket #18): no
+// upstream output folder, install ritual, guide folder or script folder, and no marker left by an
+// unfinished ticket.
+for (const [label, text] of [
+  ['the upstream output folder', 'Pick up the video in `edicoes/001. meu-video/`.'],
+  ['the upstream install ritual', 'Run `npm run instalar` inside the folder.'],
+  ['the upstream guide folder', 'See guias/1-primeiros-passos.md.'],
+  ['the upstream tools folder', 'Run `python tools/transcrever.py`.'],
+  ['a pending-ticket marker', '*Pending: the installer (ticket #4) replaces this step.*'],
+]) {
+  test(`a package that names ${label} is rejected`, () => {
+    assertRejected(
+      fixture({ 'plugin/estudio/skills/estudio/SKILL.md': `---\nname: estudio\ndescription: Entry.\n---\n${text}\n` }),
+      'upstream leftover',
     );
   });
 }

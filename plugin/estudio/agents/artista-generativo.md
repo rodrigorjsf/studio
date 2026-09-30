@@ -4,6 +4,7 @@ description: The Estúdio's Artista generativo. For a Nível 2 Vídeo whose cred
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read, mcp__claude_ai_Higgsfield, mcp__higgsfield
+color: orange
 ---
 
 # Artista generativo

@@ -17,6 +17,8 @@ const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 // never edit. Bash stays allowed: QC técnico must run the `qc` command.
 const CRITICOS = new Set(['qc-tecnico', 'guardiao-da-marca', 'revisor-de-plataforma']);
 const EDITING_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
+// The subagent `color` values Claude Code accepts (https://code.claude.com/docs/en/sub-agents).
+const AGENT_COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'];
 
 function readJson(file, errors, label) {
   try {
@@ -87,6 +89,16 @@ function checkHiggsfieldKeyPath(file, rel, pluginName, errors) {
   if (found) errors.push(`${pluginName}: ${rel} names the Higgsfield API-key path ("${found[0]}"); Higgsfield is reached only through her connector`);
 }
 
+// The package describes the plugin, not the upstream repo it was forked from (ticket #18): the
+// upstream output folder, install ritual, guide and script folders do not exist for her, and a
+// "pending: ticket #N" marker is work a ticket left unfinished.
+const UPSTREAM_LEFTOVER = /\bedicoes\/|\bnpm run instalar\b|\bguias\/|\btools\/[\w*.-]+\.py\b|\bticket #\d+/i;
+
+function checkUpstreamLeftovers(file, rel, pluginName, errors) {
+  const found = UPSTREAM_LEFTOVER.exec(fs.readFileSync(file, 'utf8'));
+  if (found) errors.push(`${pluginName}: ${rel} carries an upstream leftover ("${found[0]}"); describe the plugin, not the upstream repo`);
+}
+
 // The plugin declares no Notion server: Notion comes only from her own connector.
 function checkNotionServers(dir, manifest, pluginName, errors) {
   const declared = [];
@@ -131,6 +143,7 @@ function checkPackageContents(dir, pluginName, errors) {
         if (TEXT_FILE.test(entry.name)) {
           checkNotionTools(full, relPath, pluginName, errors);
           checkHiggsfieldKeyPath(full, relPath, pluginName, errors);
+          checkUpstreamLeftovers(full, relPath, pluginName, errors);
         }
       }
     }
@@ -208,6 +221,11 @@ function checkPersonas(dir, pluginName, errors) {
     const where = `${pluginName}: agents/${file}`;
     for (const key of ['model', 'effort']) {
       if (!fields[key]) errors.push(`${where}: missing "${key}"`);
+    }
+    // The display color in the task list and transcript: Claude Code accepts only these eight.
+    if (!fields.color) errors.push(`${where}: missing "color"`);
+    else if (!AGENT_COLORS.includes(fields.color)) {
+      errors.push(`${where}: "color" must be one of ${AGENT_COLORS.join(', ')}, got "${fields.color}"`);
     }
     // Aliases (opus, sonnet, inherit…) drift with releases; the spec pins full IDs.
     if (fields.model && !fields.model.startsWith('claude-')) {

@@ -4,6 +4,7 @@ description: The Estúdio's Roteirista-estrategista. Drafts one Vídeo's Plano (
 model: claude-opus-5-5
 effort: medium
 tools: Bash, Read, Write
+color: purple
 ---
 
 # Roteirista-estrategista

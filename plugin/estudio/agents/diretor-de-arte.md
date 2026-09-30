@@ -4,6 +4,7 @@ description: The Estúdio's Diretor de arte. Renders two or three labeled Quadro
 model: claude-opus-5-5
 effort: medium
 tools: Bash, Read, Write
+color: purple
 ---
 
 # Diretor de arte

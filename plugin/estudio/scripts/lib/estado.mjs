@@ -43,7 +43,7 @@ const credits = (v) => typeof v === 'number' && v >= 0;
 const isoDate = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
 // The Vídeo document's record fields other than Status, Rodada and Nível, each checked only
-// when present and not empty (documents from before ticket #9 have none of them).
+// when present and not empty (older Vídeo documents have none of them).
 const VIDEO_RECORD = [
   ...COUNTERS.map((key) => [key, wholeCount, 'must be a whole number, 0 or more']),
   ['creditosEstimados', credits, 'must be a number of credits, 0 or more'],

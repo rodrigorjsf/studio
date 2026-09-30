@@ -4,6 +4,7 @@ description: The Estúdio's QC técnico, a Crítico. Holds a render of one Víde
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read
+color: red
 ---
 
 # QC técnico

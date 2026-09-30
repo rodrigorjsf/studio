@@ -2,7 +2,7 @@
 
 > Translated from the upstream studio guide `README.md` (estilos/). Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths are relative to her Estúdio folder: the `estudio` skill scaffolds the Remotion template there (`package.json`, `src/`, `remotion.config.ts`), and each Vídeo lives in `projetos/<projeto>/videos/<vídeo>/`. Run `npm` and `npx` with the Node the computer check prints (`tools.node`), from the Estúdio folder. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 References for the Criadora to choose (or mix) before editing. **No style is mandatory.** She tells Claude which one she likes, asks for variations ("the Swiss minimal, but with a dark background") or brings her own references: she saves screenshots of videos, sites or brands she admires in `prints/` and asks "follow the style of these images".
 
@@ -12,7 +12,7 @@ In the conversation, just cite the style name in bold.
 
 ## Examples that run on her computer
 
-These five ship with code (the code ships with the Estúdio's Remotion template). Running `npm run studio` shows them in motion. *Pending: the plugin's no-admin installer (ticket #4) replaces this step.* The grey silhouette marks where **her camera** goes.
+These five ship with code (the code ships with the Estúdio's Remotion template). Running `npm run studio` in her Estúdio folder shows them in motion. The grey silhouette marks where **her camera** goes.
 
 ### Horizontal (16:9)
 

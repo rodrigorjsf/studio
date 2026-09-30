@@ -4,6 +4,7 @@ description: The Estúdio's Editor de pré-corte. Reads one Vídeo's word-timed 
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read, Write
+color: cyan
 ---
 
 # Editor de pré-corte

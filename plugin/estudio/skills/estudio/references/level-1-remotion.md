@@ -2,14 +2,12 @@
 
 > Translated from the upstream studio guide `2-nivel-1-remotion.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths are relative to her Estúdio folder: the `estudio` skill scaffolds the Remotion template there (`package.json`, `src/`, `remotion.config.ts`), and each Vídeo lives in `projetos/<projeto>/videos/<vídeo>/`. Run `npm` and `npx` with the Node the computer check prints (`tools.node`), from the Estúdio folder. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 In Nível 1, Claude watches your video, understands what you say and **programs** the animations with [Remotion](https://www.remotion.dev), a tool that turns code into video. You do not need to know how to code: you talk, approve the plan and check the result.
 
 **Cost:** zero. Everything runs on your computer.
 **Tools:** the plugin's frame sampler (watches the video, see [watching a video](watching-a-video.md)), the plugin's transcriber `scripts/transcrever.py` (timing of each word), the plugin's [Remotion rules](remotion/index.md) and Remotion itself. All of them ship with the plugin or come from its installer; nothing else is installed.
-
-*Pending: the plugin's no-admin installer (ticket #4) replaces this step.* (Applies to every `tools/*.py` and `npm run` setup step in this guide.)
 
 If you have never used Remotion, read the [Remotion manual for beginners](remotion-manual.md) first. When you program, follow the [Remotion rules](remotion/index.md) for each topic you touch.
 
@@ -30,7 +28,7 @@ One of two deliverables (Claude asks if it is not clear):
 - **Full video** (default): a final MP4 with camera, animations, split screens and prints, with the original audio.
 - **Separate inserts:** loose files for you to assemble in your own editor. Transparent overlays in `.mov` (ProRes 4444, with alpha channel) and full screens in `.mp4`, plus a list of timecodes.
 
-In the plugin, everything goes to the Vídeo's own `entrega/` folder (`projetos/<projeto>/videos/<vídeo>/entrega/`); the upstream `edicoes/` paths below describe the same files.
+In the plugin, everything goes to the Vídeo's own `entrega/` folder (`projetos/<projeto>/videos/<vídeo>/entrega/`).
 
 ---
 
@@ -40,12 +38,7 @@ Claude runs these phases in order and **stops at the approval points**.
 
 ### 1. Organize
 
-In the plugin, this step and the next are the [novo-video skill](../../novo-video/SKILL.md): it stores her recording untouched as the Vídeo's Original (`projetos/<projeto>/videos/<vídeo>/original/`), runs the short Vídeo briefing, and has the Assistente de edição probe, watch and transcribe the video and measure the Zona do rosto (`zona-do-rosto.json`). The upstream steps below describe the same work.
-
-- Finds the new folder in `projetos/`. If you only dropped a video there, it creates `projetos/<NNN>/video/` and moves the file inside.
-- Numbering: three digits, dot and space (`001. meu-video`). New project = highest existing number + 1.
-- Runs `ffprobe` on the video to record duration, resolution, fps and codecs at the top of `plano.md`.
-- Creates `edicoes/<NNN. nome>/`.
+In the plugin, this step and the next are the [novo-video skill](../../novo-video/SKILL.md): it stores her recording untouched as the Vídeo's Original (`projetos/<projeto>/videos/<vídeo>/original/`), runs the short Vídeo briefing, and has the Assistente de edição probe, watch and transcribe the video and measure the Zona do rosto (`zona-do-rosto.json`).
 
 ### 2. Watch and transcribe
 
@@ -70,8 +63,6 @@ Claude writes `plano.md` using the [editorial direction](editorial-direction.md)
 - for videos longer than ~3 min: macro map (blocks and the dominant scene of each);
 - table: `# | início–fim | cena | entrada | gatilho (palavra @ tempo) | visual | print usado` (# | start–end | scene | entrance | trigger (word @ time) | visual | print used);
 - face zone to preserve, taken from the real frames.
-
-See a real plan in `projetos/000. exemplo/plano.md` (the example ships with the Estúdio's Remotion template).
 
 **Nothing is programmed before you approve the plan.**
 

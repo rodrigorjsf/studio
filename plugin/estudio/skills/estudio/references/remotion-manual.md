@@ -2,7 +2,7 @@
 
 > Translated from the upstream studio guide `3-manual-remotion.md`. Talk to the Criadora in pt-BR; this reference is for you.
 >
-> Paths and commands here (`src/`, `tools/`, `projetos/`, `guias/`, `npm run …`) describe the upstream repo layout, not this plugin. The Estúdio folder (`projetos/<projeto>/videos/<vídeo>/`, scaffolded with its Remotion template by the `estudio` skill) and the no-admin installer (ticket #4) provide their plugin equivalents. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
+> Paths are relative to her Estúdio folder: the `estudio` skill scaffolds the Remotion template there (`package.json`, `src/`, `remotion.config.ts`), and each Vídeo lives in `projetos/<projeto>/videos/<vídeo>/`. Run `npm` and `npx` with the Node the computer check prints (`tools.node`), from the Estúdio folder. The Criadora never runs these commands herself: you run them, or you tell her in one plain sentence what is missing.
 
 This manual explains Remotion without requiring you to know how to program. The idea is for you to understand **what can be requested** and **what Claude is doing** when it edits your video in Nível 1.
 
@@ -112,7 +112,8 @@ Everything below is possible in Nível 1, at no cost. The Criadora asks in her o
 | `src/_shared/` | reused technical pieces: the synchronized split screen, and the Kit de marca reader (`kit.ts`) with the brand pieces (`marca.tsx`) |
 | `src/kit/PreviaDoKit.tsx` | the "Prévia do Kit": her Projeto's colors, fonts and caption style on one frame |
 | `projetos/` | her videos and prints (Remotion's public folder) |
-| `edicoes/` | the final rendered files |
+| `projetos/<projeto>/videos/<vídeo>/revisao/` | the stills of each version she reviews (`v01/`, `v02/`…) |
+| `projetos/<projeto>/videos/<vídeo>/entrega/` | the final rendered files |
 | `remotion.config.ts` | general render settings |
 
 She does not need to open any of them. But if she wants to peek, the code of the examples in `src/estilos/` has comments in Portuguese explaining each style.
@@ -125,10 +126,10 @@ npm run typecheck      # checks that the code has no errors
 npm run compositions   # lists the registered compositions
 
 # a still frame of a composition
-npx remotion still src/index.ts VerticalLegendas edicoes/teste.png --frame=75
+npx remotion still src/index.ts VerticalLegendas "projetos/<projeto>/videos/<vídeo>/revisao/v01/teste.png" --frame=75
 
 # render a video
-npx remotion render src/index.ts VerticalLegendas edicoes/teste.mp4
+npx remotion render src/index.ts VerticalLegendas "projetos/<projeto>/videos/<vídeo>/entrega/teste.mp4"
 ```
 
 In practice, Claude is the one who runs these commands. They are here so she knows what is going on.

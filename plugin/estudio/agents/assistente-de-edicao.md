@@ -4,6 +4,7 @@ description: The Estúdio's Assistente de edição. Ingests one Vídeo the Diret
 model: claude-sonnet-5-5
 effort: high
 tools: Bash, Read, Write
+color: cyan
 ---
 
 # Assistente de edição
