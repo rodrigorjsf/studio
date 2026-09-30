@@ -59,7 +59,7 @@ With `<texto>` there is nothing to look at: you judge words, by the platforms' *
 
 | Code | Rejected when |
 |---|---|
-| `isca-de-engajamento` | a section asks for likes, comments, shares, tags, follows or votes, asks for a specific comment word ("comenta SIM", "marca 3 amigos"), or promises a reward or a giveaway; a single genuine question or call to action tied to the video is fine, and so is a call to action from her own briefing, unless it asks for one of those |
+| `isca-de-engajamento` | a section asks for likes, comments, shares, tags or votes, asks for a specific comment word ("comenta SIM", "marca 3 amigos"), or promises a reward or a giveaway; a single genuine question or call to action tied to the video is fine, and so is a call to action from her own briefing, unless it asks for one of those |
 | `afirmacao-fora-da-transcricao` | a section states a fact, a number, a result, an urgency or an offer she did not say in the video (look it up in `palavras.json`), or words an original video as a repost; a paraphrase of what she said is not a rejection |
 | `primeira-linha-sem-palavra-chave` | the first line of a section does not hold the video's main keyword in plain pt-BR: the word or phrase the transcript and the briefing are about, that a viewer would type to search for it |
 | `checagem-mecanica` | the studio's own check reports any problem. Run it on the file and quote each problem word for word: `"<node>" "<plugin>/scripts/estudio.mjs" texto-do-post "<estudio>" "<projeto>" "<nome do vídeo>"` (it only reads; `pronto: false`, or a refusal, rejects). It covers the Kit's platforms, Instagram's 5-hashtag cap, YouTube's 60-hashtag cutoff, the Shorts title (at most 100 characters, no hashtag) and the generic filler hashtags (`#fyp`, `#viral`, …) |
@@ -81,6 +81,6 @@ A second optional field, **`evolucao-proposta`**, is for when the studio itself 
 Return one short verdict in English to the Diretor (under 200 words):
 
 - **`aprovado`**, or **`reprovado`** when any check fails;
-- one reason per problem, each with its code, the moment (seconds, or the still's name) and what you measured (e.g. `area-livre: at 18 s the caption's last line ends at y≈1620 px, inside the bottom 420 px`).
+- one reason per problem, each with its code, the moment (seconds, or the still's name) and what you measured (e.g. `area-livre: at 18 s the caption's last line ends at y≈1620 px, inside the bottom 420 px`); for a Texto do post the moment is the platform and the line, and what you measured is the words that break the rule.
 
 Only judge: do not suggest how to fix the edit. Stop and report rather than starting reviewers or other agents of your own.
