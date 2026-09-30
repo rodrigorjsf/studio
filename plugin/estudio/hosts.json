@@ -33,7 +33,7 @@
     },
     {
       "host": "release-assets.githubusercontent.com",
-      "usedFor": "Where every GitHub Release download redirects to, so where the bytes of the speech model, ffmpeg and uv come from.",
+      "usedFor": "Where GitHub Release downloads redirect to: the bytes of ffmpeg and uv come from here (measured). The speech model's Release uses the same download path form, so its bytes are expected here too; that redirect is not measured yet (see measured.notYetMeasured).",
       "evidence": "verified",
       "observedIn": "run: redirect target of the ffmpeg and uv downloads"
     },
