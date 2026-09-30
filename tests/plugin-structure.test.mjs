@@ -368,6 +368,24 @@ test('uninstalling estudio deletes its plugin data folder, where the installer p
   assert.equal(fs.existsSync(data), false, 'the downloaded runtimes must go with the plugin');
 });
 
+// ---- the speech model's file list (spec #29) ----
+// The model's files are named in three places: the manifest (what the Preparação downloads and the
+// computer check verifies), the mirror script (what it publishes) and the transcriber (what it
+// needs to call the model prepared). A file the transcriber needs but the manifest lacks would make
+// the check report the model ready while every transcription stops with exit 3.
+test('the mirror script, the manifest and the transcriber agree on the speech model files', () => {
+  const vendor = JSON.parse(fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'vendor.json'), 'utf8'));
+  const manifest = vendor.sources.find((s) => s.id === 'speech-model').files.map((f) => f.name).sort();
+  const mirror = fs.readFileSync(path.join(repoRoot, 'scripts', 'espelhar-modelo.sh'), 'utf8').match(/^FILES="([^"]+)"/m)[1].split(/\s+/).sort();
+  assert.deepEqual(mirror, manifest, 'the mirror script publishes exactly the files the manifest downloads');
+  const transcriber = fs.readFileSync(path.join(repoRoot, 'plugin', 'estudio', 'scripts', 'transcrever.py'), 'utf8');
+  const required = [...transcriber.match(/^REQUIRED_MODEL_FILES = \(([^)]*)\)/m)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  const vocabulary = [...transcriber.match(/^VOCABULARY_FILES = \(([^)]*)\)/m)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(required.length > 0 && vocabulary.length > 0, 'the transcriber lists the files it needs');
+  for (const name of required) assert.ok(manifest.includes(name), `the transcriber needs ${name}, which the manifest never downloads`);
+  assert.ok(vocabulary.some((name) => manifest.includes(name)), 'the manifest downloads no vocabulary file the transcriber accepts');
+});
+
 // ---- the Preparação's host list (spec #29, ticket #33) ----
 // plugin/estudio/hosts.json is the one list of every host the Preparação reaches, given to the
 // Criadora only when a download is blocked by her cloud workspace's domain allowlist. The
